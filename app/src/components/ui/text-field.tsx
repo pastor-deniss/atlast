@@ -5,7 +5,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type TextFieldProps = TextInputProps & {
-  label: string;
+  label?: string;
   error?: string;
   hint?: string;
 };
@@ -15,9 +15,11 @@ export function TextField({ label, error, hint, style, ...rest }: TextFieldProps
 
   return (
     <View style={styles.container}>
-      <ThemedText type="small" themeColor="textSecondary">
-        {label}
-      </ThemedText>
+      {label ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {label}
+        </ThemedText>
+      ) : null}
       <TextInput
         style={[
           styles.input,
