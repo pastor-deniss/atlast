@@ -144,7 +144,7 @@ export default function HomeScreen() {
                 <Button
                   title="Loan"
                   variant="secondary"
-                  onPress={() => router.push('/(app)/coming-soon/loans')}
+                  onPress={() => router.push('/(app)/loan')}
                 />
                 <Button
                   title="Vote"

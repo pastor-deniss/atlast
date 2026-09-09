@@ -3,8 +3,7 @@ import { Stack } from 'expo-router';
 import { MembershipProvider } from '@/lib/membership-context';
 
 // Full tab navigation (Home/Members/Money/Governance/More) lands once
-// Loans/Governance/Reporting (tickets 17-19) exist. For now this is a plain
-// stack.
+// Governance/Reporting (tickets 18-19) exist. For now this is a plain stack.
 export default function AppLayout() {
   return (
     <MembershipProvider>
@@ -28,6 +27,9 @@ export default function AppLayout() {
           name="contributions"
           options={{ headerShown: true, title: 'Contributions' }}
         />
+        <Stack.Screen name="loan/index" options={{ headerShown: true, title: 'My Loan' }} />
+        <Stack.Screen name="loan/apply" options={{ headerShown: true, title: 'Loan Application' }} />
+        <Stack.Screen name="loan/[id]" options={{ headerShown: true, title: 'Loan' }} />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="settings/index" options={{ headerShown: true, title: 'Settings' }} />
         <Stack.Screen name="settings/profile" options={{ headerShown: true, title: 'Profile' }} />
