@@ -36,6 +36,19 @@ export default function AppLayout() {
           name="governance/application/[id]"
           options={{ headerShown: true, title: 'Membership Review' }}
         />
+        <Stack.Screen name="admin/index" options={{ headerShown: true, title: 'Admin Control Centre' }} />
+        <Stack.Screen
+          name="admin/financial-dashboard"
+          options={{ headerShown: true, title: 'Financial Dashboard' }}
+        />
+        <Stack.Screen name="admin/transactions" options={{ headerShown: true, title: 'Transactions' }} />
+        <Stack.Screen name="admin/transaction/[id]" options={{ headerShown: true, title: 'Transaction' }} />
+        <Stack.Screen
+          name="admin/reconciliation-case/[id]"
+          options={{ headerShown: true, title: 'Reconciliation Case' }}
+        />
+        <Stack.Screen name="admin/reports" options={{ headerShown: true, title: 'Reports' }} />
+        <Stack.Screen name="admin/audit-log" options={{ headerShown: true, title: 'Audit Log' }} />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="settings/index" options={{ headerShown: true, title: 'Settings' }} />
         <Stack.Screen name="settings/profile" options={{ headerShown: true, title: 'Profile' }} />

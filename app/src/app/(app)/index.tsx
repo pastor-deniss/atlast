@@ -151,11 +151,13 @@ export default function HomeScreen() {
                   variant="secondary"
                   onPress={() => router.push('/(app)/governance')}
                 />
-                <Button
-                  title="Reports"
-                  variant="secondary"
-                  onPress={() => router.push('/(app)/coming-soon/reporting')}
-                />
+                {membership.role === 'group_admin' ? (
+                  <Button
+                    title="Admin"
+                    variant="secondary"
+                    onPress={() => router.push('/(app)/admin')}
+                  />
+                ) : null}
               </View>
             </>
           )}
