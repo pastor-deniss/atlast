@@ -76,6 +76,23 @@ returns boolean language sql stable security definer as $$
   )
 $$;
 
+-- Is the caller an active group_admin in a group where target_profile_id has a
+-- PENDING application? Needed because shares_active_group requires both sides
+-- 'active' -- an applicant isn't active yet, so without this a Group Admin's
+-- Membership Review screen (ticket 18) can never see the applicant's own name
+-- via profiles_public. Found live-testing ticket 19's Admin Control Centre,
+-- which links straight into that screen.
+create or replace function is_group_admin_reviewing(target_profile_id uuid)
+returns boolean language sql stable security definer as $$
+  select exists (
+    select 1 from memberships admin_m
+    join memberships applicant_m
+      on applicant_m.group_id = admin_m.group_id and applicant_m.status = 'pending'
+    where admin_m.user_id = auth.uid() and admin_m.status = 'active' and admin_m.role = 'group_admin'
+      and applicant_m.user_id = target_profile_id
+  )
+$$;
+
 -- ============================================================================
 -- PROFILES  (Q2: name/photo to groupmates, phone restricted to self + admin)
 -- ============================================================================
@@ -100,14 +117,18 @@ create policy profiles_update_self on profiles for update
 -- profiles row insert happens via a `handle_new_user` trigger on auth.users
 -- (the standard Supabase pattern), not a client-facing RLS-permitted INSERT.
 
-create view profiles_public with (security_invoker = false) as
+create or replace view profiles_public with (security_invoker = false) as
   select id, first_name, last_name, photo_url
   from profiles
-  where id = auth.uid() or shares_active_group(id) or is_system_admin();
+  where id = auth.uid() or shares_active_group(id) or is_system_admin()
+    or is_group_admin_reviewing(id);
   -- Runs as the view owner (bypasses profiles' own RLS, which would otherwise
   -- restrict this to self/admin only) and applies its own, broader filter:
   -- name + photo visible to any shared-group active member. This is what the
-  -- Member Directory queries — never the base `profiles` table.
+  -- Member Directory queries — never the base `profiles` table. The last
+  -- clause is a narrow addition (ticket 19 fix): a Group Admin reviewing a
+  -- still-pending applicant needs their name too, even though the applicant
+  -- isn't an active member yet.
 grant select on profiles_public to authenticated;
 
 -- ============================================================================
