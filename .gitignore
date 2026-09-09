@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+.~*
+
+# Node / Expo app
+app/node_modules/
+app/.expo/
+app/dist/
+app/web-build/
+app/*.log
+app/npm-debug.*
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+.scratch/setup/supabase.env
