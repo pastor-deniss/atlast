@@ -249,7 +249,7 @@ create policy loan_clarification_requests_select on loan_clarification_requests 
   -- identity, via loan_clarification_messages below.
 
 create view loan_clarification_messages with (security_invoker = false) as
-  select loan_id, message, created_at
+  select lcr.loan_id, lcr.message, lcr.created_at
   from loan_clarification_requests lcr
   join loans l on l.id = lcr.loan_id
   where is_active_member(l.group_id) or is_system_admin();
