@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Thrive",
+    "slug": "thrive",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "thrive",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.thrive.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.thrive.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#16A34A",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Thrive uses Face ID to unlock the app quickly and securely."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#16A34A",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

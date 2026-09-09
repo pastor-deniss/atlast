@@ -38,6 +38,35 @@ create table profiles (
   -- hash that never touches the database (ticket 07).
 );
 
+-- Provisions the profiles row the moment auth.users gets one (Create Account,
+-- ticket 14) — the client can't insert this directly (no client-facing
+-- INSERT policy on profiles, ticket 12), and first_name/last_name only exist
+-- as auth metadata at that point since the profiles row doesn't exist yet.
+-- security definer: runs with the function owner's privilege, bypassing
+-- profiles' RLS, which is correct here — this is the one legitimate system
+-- write path into profiles, and only auth.users insert can trigger it.
+create function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, phone, first_name, last_name)
+  values (
+    new.id,
+    new.phone,
+    coalesce(new.raw_user_meta_data ->> 'first_name', ''),
+    coalesce(new.raw_user_meta_data ->> 'last_name', '')
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
 create table groups (
   id                      uuid primary key default gen_random_uuid(),
   name                    text not null,
