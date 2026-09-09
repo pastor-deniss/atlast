@@ -149,7 +149,7 @@ export default function HomeScreen() {
                 <Button
                   title="Vote"
                   variant="secondary"
-                  onPress={() => router.push('/(app)/coming-soon/governance')}
+                  onPress={() => router.push('/(app)/governance')}
                 />
                 <Button
                   title="Reports"

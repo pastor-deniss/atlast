@@ -30,6 +30,12 @@ export default function AppLayout() {
         <Stack.Screen name="loan/index" options={{ headerShown: true, title: 'My Loan' }} />
         <Stack.Screen name="loan/apply" options={{ headerShown: true, title: 'Loan Application' }} />
         <Stack.Screen name="loan/[id]" options={{ headerShown: true, title: 'Loan' }} />
+        <Stack.Screen name="governance/index" options={{ headerShown: true, title: 'Governance' }} />
+        <Stack.Screen name="governance/[id]" options={{ headerShown: true, title: 'Vote' }} />
+        <Stack.Screen
+          name="governance/application/[id]"
+          options={{ headerShown: true, title: 'Membership Review' }}
+        />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="settings/index" options={{ headerShown: true, title: 'Settings' }} />
         <Stack.Screen name="settings/profile" options={{ headerShown: true, title: 'Profile' }} />
