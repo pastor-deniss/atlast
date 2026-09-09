@@ -112,7 +112,7 @@ export default function HomeScreen() {
               </ThemedText>
               <ThemedText type="subtitle">{group?.name}</ThemedText>
 
-              <View style={styles.statsRow}>
+              <Pressable onPress={() => router.push('/(app)/contributions')} style={styles.statsRow}>
                 <View>
                   <ThemedText type="small" themeColor="textSecondary">
                     Your Contributions
@@ -127,7 +127,7 @@ export default function HomeScreen() {
                   </ThemedText>
                   <ThemedText type="title">{totals?.total_shares ?? 0}</ThemedText>
                 </View>
-              </View>
+              </Pressable>
 
               <Pressable onPress={() => router.push('/(app)/group-dashboard')}>
                 <ThemedText type="link" themeColor="primary">
@@ -139,7 +139,7 @@ export default function HomeScreen() {
                 <Button
                   title="Contribute"
                   variant="secondary"
-                  onPress={() => router.push('/(app)/coming-soon/contributions')}
+                  onPress={() => router.push('/(app)/contribute')}
                 />
                 <Button
                   title="Loan"
