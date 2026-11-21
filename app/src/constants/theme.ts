@@ -84,3 +84,5 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+/** Column width for single-purpose screens (welcome, sign-in, PIN) on wide screens. */
+export const NarrowContentWidth = 440;

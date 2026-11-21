@@ -6,7 +6,7 @@ import { AtlastLogo } from '@/components/atlast-logo';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
-import { Spacing } from '@/constants/theme';
+import { NarrowContentWidth, Spacing } from '@/constants/theme';
 import { useIsWideScreen } from '@/hooks/use-is-wide-screen';
 
 export default function WelcomeScreen() {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     width: '100%',
-    maxWidth: 440,
+    maxWidth: NarrowContentWidth,
   },
   brand: { gap: Spacing.one },
   tagline: { maxWidth: 280 },

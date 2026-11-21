@@ -19,3 +19,14 @@ export function useIsWideScreen() {
 
   return hasHydrated && width >= WIDE_BREAKPOINT;
 }
+
+/**
+ * Stack `contentStyle` that centres every screen in a column of at most
+ * `maxWidth` on wide screens, and leaves phones full-width.
+ */
+export function useCenteredColumnStyle(maxWidth: number) {
+  const isWide = useIsWideScreen();
+  return isWide
+    ? ({ width: '100%', maxWidth, alignSelf: 'center' } as const)
+    : undefined;
+}

@@ -3,6 +3,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
+import { Colors, NarrowContentWidth } from '@/constants/theme';
+import { useCenteredColumnStyle } from '@/hooks/use-is-wide-screen';
 import { AppLockProvider, useAppLock } from '@/lib/auth/app-lock-context';
 import { SessionProvider, useSession } from '@/lib/auth/session-context';
 
@@ -32,6 +34,7 @@ function SplashScreenController() {
 function RootNavigator() {
   const { session } = useSession();
   const { pinExists, isLocked } = useAppLock();
+  const narrowColumn = { contentStyle: useCenteredColumnStyle(NarrowContentWidth) };
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -40,12 +43,12 @@ function RootNavigator() {
       </Stack.Protected>
 
       <Stack.Protected guard={!!session && !pinExists}>
-        <Stack.Screen name="create-pin" />
+        <Stack.Screen name="create-pin" options={narrowColumn} />
       </Stack.Protected>
 
       <Stack.Protected guard={!!session && pinExists && isLocked}>
-        <Stack.Screen name="unlock" />
-        <Stack.Screen name="forgot-pin" />
+        <Stack.Screen name="unlock" options={narrowColumn} />
+        <Stack.Screen name="forgot-pin" options={narrowColumn} />
       </Stack.Protected>
 
       <Stack.Protected guard={!!session && pinExists && !isLocked}>
@@ -55,13 +58,21 @@ function RootNavigator() {
   );
 }
 
+// Navigation theme whose background matches the app's own, so the space
+// beside a centred column on wide screens blends in instead of showing the
+// navigation library's default grey.
+function navigationTheme(scheme: 'light' | 'dark') {
+  const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+  return { ...base, colors: { ...base.colors, background: Colors[scheme].background } };
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <SessionProvider>
       <AppLockProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <ThemeProvider value={navigationTheme(colorScheme === 'dark' ? 'dark' : 'light')}>
           <SplashScreenController />
           <RootNavigator />
         </ThemeProvider>

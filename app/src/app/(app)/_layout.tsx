@@ -1,13 +1,17 @@
 import { Stack } from 'expo-router';
 
+import { MaxContentWidth } from '@/constants/theme';
+import { useCenteredColumnStyle } from '@/hooks/use-is-wide-screen';
 import { MembershipProvider } from '@/lib/membership-context';
 
 // Full tab navigation (Home/Members/Money/Governance/More) lands once
 // Governance/Reporting (tickets 18-19) exist. For now this is a plain stack.
 export default function AppLayout() {
+  const contentStyle = useCenteredColumnStyle(MaxContentWidth);
+
   return (
     <MembershipProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="join-group" options={{ headerShown: true, title: 'Join a Group' }} />
         <Stack.Screen name="application-received" />
