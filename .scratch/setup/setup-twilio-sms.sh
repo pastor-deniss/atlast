@@ -186,7 +186,7 @@ finish() {
 
 TOTAL_STAGES=4
 
-banner "Thrive: enable phone/SMS sign-in (Twilio + Supabase)"
+banner "Atlast: enable phone/SMS sign-in (Twilio + Supabase)"
 
 note "This wizard is pure guidance — it never asks you to paste any Twilio"
 note "value into this terminal. Account SID and the Messaging Service SID"
@@ -213,7 +213,7 @@ say "Supabase's Twilio integration sends through a Messaging Service, not a"
 say "bare phone number, so this step wires the two together."
 open_url "https://console.twilio.com/us1/develop/sms/services"
 step "Click 'Create Messaging Service'."
-step "Name it something like 'Thrive OTP', choose 'Notify my users' (or"
+step "Name it something like 'Atlast OTP', choose 'Notify my users' (or"
 step "'Verify users' if offered) as the use case."
 step "When asked to add a Sender, add the phone number from Stage 1."
 step "Finish the setup. On the service's page, copy the Messaging Service"
@@ -247,5 +247,5 @@ warn "number there, or upgrade the Twilio account, before testing sign-up."
 pause "Once you've clicked Save in Supabase, press Enter."
 
 finish
-note "Phone/SMS sign-in should now be live. Test it by running the Thrive"
+note "Phone/SMS sign-in should now be live. Test it by running the Atlast"
 note "app and creating an account with your own verified number."

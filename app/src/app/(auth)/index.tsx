@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AtlastLogo } from '@/components/atlast-logo';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ export default function WelcomeScreen() {
       <SafeAreaView style={styles.flex}>
         <View style={styles.content}>
           <View style={styles.brand}>
-            <ThemedText type="title">Thrive</ThemedText>
+            <AtlastLogo width={240} />
             <ThemedText type="subtitle" themeColor="primary">
               Grow Together.
             </ThemedText>

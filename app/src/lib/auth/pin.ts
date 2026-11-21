@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 /**
- * Device-local Thrive PIN (ticket 07 / 14). Never touches the database —
+ * Device-local Atlast PIN (ticket 07 / 14). Never touches the database —
  * only a SHA-256 hash lives in SecureStore, keyed per-device. Losing the
  * device or signing out wipes it (ticket 14, Q6).
  */

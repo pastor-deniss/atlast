@@ -3,7 +3,7 @@ Status: resolved
 
 ## Question
 
-What does "developing the Thrive mobile app" actually mean as a destination — a build-ready spec vs. working code, how much of the white paper's long-term vision it covers, and who builds it once the spec exists?
+What does "developing the Atlast mobile app" actually mean as a destination — a build-ready spec vs. working code, how much of the white paper's long-term vision it covers, and who builds it once the spec exists?
 
 ## Answer
 

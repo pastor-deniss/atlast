@@ -1,4 +1,4 @@
-# Thrive — Domain Glossary
+# Atlast — Domain Glossary
 
 Community-finance mobile+web app. A digital operating system for savings groups: membership, contributions, loans, governance, reporting.
 
@@ -10,7 +10,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 **Group** — a savings group/community-finance circle. A User can belong to more than one Group (many-to-many via Membership), though V1 builds and tests only the single-group flow for the pilot. V1 has no in-app "create a group" flow — a System Admin creates each Group directly and assigns its first Group Admin.
 
-**Membership** — the join between a User and a Group; exactly one row per (User, Group) pair, ever — rejoining after leaving updates the existing row rather than creating a new one. Carries `role` (Member, Group Admin) and `status`, which moves through `pending → active | declined | exited` to model the apply → review → approve/decline flow as state transitions rather than a separate Application entity. Membership *admission* is decided by a Governance vote (see Motion/Vote below) — a Group Admin may pre-screen an application and reject it outright (no vote), but can never admit a member unilaterally, only a passed vote can. Bootstrap exception: a new Group's first Group Admin and seed members go straight to `active` with no vote or Motion, since there's no one yet to vote. An applicant may optionally state a "reason for joining" (`application_note`) shown to voters — no other application fields (e.g. occupation) are collected, and no reputation/contribution-history score is shown for an applicant, consistent with Thrive not manufacturing trust it can't actually compute (ticket 18).
+**Membership** — the join between a User and a Group; exactly one row per (User, Group) pair, ever — rejoining after leaving updates the existing row rather than creating a new one. Carries `role` (Member, Group Admin) and `status`, which moves through `pending → active | declined | exited` to model the apply → review → approve/decline flow as state transitions rather than a separate Application entity. Membership *admission* is decided by a Governance vote (see Motion/Vote below) — a Group Admin may pre-screen an application and reject it outright (no vote), but can never admit a member unilaterally, only a passed vote can. Bootstrap exception: a new Group's first Group Admin and seed members go straight to `active` with no vote or Motion, since there's no one yet to vote. An applicant may optionally state a "reason for joining" (`application_note`) shown to voters — no other application fields (e.g. occupation) are collected, and no reputation/contribution-history score is shown for an applicant, consistent with Atlast not manufacturing trust it can't actually compute (ticket 18).
 
 **System Admin** is a global flag on a User (platform-wide), not a Membership role — it isn't scoped to any one Group.
 
@@ -46,7 +46,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 - **Member** — views own/permitted group info, contributes, requests loans, votes, sits on Three-Eye Panels when eligible.
 - **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports. Treasurer is *not* a separate role in V1 — its responsibilities live inside Group Admin until real usage shows a need to split them out.
-- **System Admin** — platform-level (support, security, audit) — deferred until Thrive operates more than a pilot group.
+- **System Admin** — platform-level (support, security, audit) — deferred until Atlast operates more than a pilot group.
 
 ## Out of scope for V1 (deferred to later platform layers)
 

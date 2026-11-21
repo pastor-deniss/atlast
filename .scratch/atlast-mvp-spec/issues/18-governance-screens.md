@@ -8,7 +8,7 @@ Spec the Governance screens: Vote Notification (how/when a member learns a Motio
 
 ## Answer
 
-One schema addition: `memberships.application_note` (nullable text, added to `database-blueprint.sql`, ticket 08, and ticket 13's `applyToJoinGroup`) — the applicant's optional "reason for joining," shown to voters. Deliberately **not** added: `occupation`, or any contribution-history/community-involvement figure for the applicant — same "Thrive doesn't manufacture trust scores" principle ticket 17 already locked for loan reviewers, even more clearly warranted here since an applicant isn't yet a member of the group at all.
+One schema addition: `memberships.application_note` (nullable text, added to `database-blueprint.sql`, ticket 08, and ticket 13's `applyToJoinGroup`) — the applicant's optional "reason for joining," shown to voters. Deliberately **not** added: `occupation`, or any contribution-history/community-involvement figure for the applicant — same "Atlast doesn't manufacture trust scores" principle ticket 17 already locked for loan reviewers, even more clearly warranted here since an applicant isn't yet a member of the group at all.
 
 | Screen | Content / behavior |
 |---|---|

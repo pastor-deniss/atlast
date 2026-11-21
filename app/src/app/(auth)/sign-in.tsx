@@ -45,7 +45,7 @@ export default function SignInScreen() {
       const notFound = /user not found|signups not allowed/i.test(otpError.message);
       setError(
         notFound
-          ? 'No Thrive account found for this number. Create an account instead?'
+          ? 'No Atlast account found for this number. Create an account instead?'
           : otpError.message
       );
       return;
@@ -103,7 +103,7 @@ export default function SignInScreen() {
               <ThemedText type="small" themeColor="danger">
                 {error}
               </ThemedText>
-              {/^No Thrive account/.test(error) ? (
+              {/^No Atlast account/.test(error) ? (
                 <Pressable onPress={() => router.replace('/(auth)/create-account')}>
                   <ThemedText type="link" themeColor="primary">
                     Create Account

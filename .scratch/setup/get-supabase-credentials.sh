@@ -187,7 +187,7 @@ finish() {
 TOTAL_STAGES=1
 ENV_FILE="${ENV_FILE:-supabase.env}"
 
-banner "Thrive: connect to your Supabase project"
+banner "Atlast: connect to your Supabase project"
 
 # ── Stage 1: Supabase project URL + anon key ───────────────────────────────
 stage "Supabase: Project URL & anon key"
@@ -196,7 +196,7 @@ say "existing Supabase project: its URL and its anon (publishable) key."
 note "Both are safe to embed in a client app — never paste the service_role"
 note "key or your database password here."
 open_url "https://supabase.com/dashboard/project/_/settings/api"
-step "If asked, pick your Thrive project first."
+step "If asked, pick your Atlast project first."
 step "Under 'Project URL', copy the value (looks like https://xxxx.supabase.co)."
 ask EXPO_PUBLIC_SUPABASE_URL "Paste the Project URL:"
 step "Under 'Project API keys', find the 'anon' 'public' key and copy it."

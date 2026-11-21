@@ -55,9 +55,9 @@ export default function CreatePinScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <View style={styles.content}>
-          <ThemedText type="title">Create Your Thrive PIN</ThemedText>
+          <ThemedText type="title">Create Your Atlast PIN</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            This unlocks Thrive on this device — separate from your phone verification.
+            This unlocks Atlast on this device — separate from your phone verification.
           </ThemedText>
 
           <TextField

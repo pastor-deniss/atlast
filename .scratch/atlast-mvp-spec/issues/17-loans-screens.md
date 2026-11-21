@@ -26,4 +26,4 @@ Two rules from this round changed ticket 13's `recordLoanRepayment`: **no overpa
 | **Loan Progress** | Donut/percent repaid, Paid vs. Remaining | Derived from `loan_balances`, never stored |
 | **Payment Success** | Confirmation | — |
 
-**Reviewer evidence panel** (replaces the mockup's "Contribution history: Good / Repayment history: Good" — V1 has no reputation score, ticket 13 Q2 already ruled that out): factual figures only — total contributed, previous loans count, previous loans repaid, defaults (0, since `loan_reviewer_eligibility` already requires this), recent-contribution yes/no, current loan status. Thrive presents evidence; the reviewer judges — no invented scoring.
+**Reviewer evidence panel** (replaces the mockup's "Contribution history: Good / Repayment history: Good" — V1 has no reputation score, ticket 13 Q2 already ruled that out): factual figures only — total contributed, previous loans count, previous loans repaid, defaults (0, since `loan_reviewer_eligibility` already requires this), recent-contribution yes/no, current loan status. Atlast presents evidence; the reviewer judges — no invented scoring.

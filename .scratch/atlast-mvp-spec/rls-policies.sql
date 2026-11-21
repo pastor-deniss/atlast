@@ -1,4 +1,4 @@
--- THRIVE MVP — V1 ROW LEVEL SECURITY POLICIES  (ticket 12)
+-- ATLAST MVP — V1 ROW LEVEL SECURITY POLICIES  (ticket 12)
 -- Applies to the tables created in database-blueprint.sql (tickets 08-11).
 --
 -- Governing principle (ticket 12, Q1): RLS answers "who can see this row?" —

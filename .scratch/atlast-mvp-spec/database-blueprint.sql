@@ -1,4 +1,4 @@
--- THRIVE MVP — V1 DATABASE BLUEPRINT
+-- ATLAST MVP — V1 DATABASE BLUEPRINT
 -- Consolidates the resolved schema decisions from:
 --   ticket 08 (core identity & group), 09 (financial ledger), 10 (loan & repayment),
 --   11 (governance: motion/vote)

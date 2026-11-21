@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AtlastLogo } from '@/components/atlast-logo';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,7 @@ export default function UnlockScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <View style={styles.content}>
-          <ThemedText type="title">Thrive</ThemedText>
+          <AtlastLogo width={180} />
           <ThemedText type="default" themeColor="textSecondary">
             Enter your PIN to continue
           </ThemedText>

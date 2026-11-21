@@ -7,9 +7,12 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
-// Thrive brand palette (from the product mockup's own brand-colours legend).
+// Atlast brand palette (from the Atlast brand identity sheet), plus status colours.
 export const Brand = {
-  green: '#16A34A', // Thrive Green — primary
+  green: '#0F3D2E', // Atlast Green — primary
+  greenLight: '#2F7A5C', // lighter Atlast Green, for dark mode where #0F3D2E is unreadable
+  gold: '#F2B33D', // Atlast Gold — accent
+  cream: '#F6F3EC', // Cream
   success: '#22C55E',
   warning: '#F59E0B',
   alert: '#F97316',
@@ -36,7 +39,7 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
-    primary: Brand.success,
+    primary: Brand.greenLight,
     danger: Brand.danger,
     warning: Brand.warning,
   },
