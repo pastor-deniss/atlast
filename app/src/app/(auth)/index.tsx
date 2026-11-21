@@ -7,14 +7,18 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
+import { useIsWideScreen } from '@/hooks/use-is-wide-screen';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  // On wide screens (tablet/desktop web) centre a narrow column instead of
+  // pinning full-width content to the bottom-left like on a phone.
+  const isWide = useIsWideScreen();
 
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <View style={[styles.content, isWide && styles.contentWide]}>
           <View style={styles.brand}>
             <AtlastLogo width={240} />
             <ThemedText type="subtitle" themeColor="primary">
@@ -48,6 +52,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.five,
     gap: Spacing.five,
+  },
+  contentWide: {
+    justifyContent: 'center',
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 440,
   },
   brand: { gap: Spacing.one },
   tagline: { maxWidth: 280 },
