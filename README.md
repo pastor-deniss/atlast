@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="app/assets/images/logo-white.png">
+    <source media="(prefers-color-scheme: dark)" srcset="app/assets/images/logo-reversed.png">
     <img src="app/assets/images/logo-primary.png" alt="Atlast" width="320">
   </picture>
 </p>
