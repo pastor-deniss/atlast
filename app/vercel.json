@@ -1,0 +1,36 @@
+{
+  "buildCommand": "npx expo export -p web",
+  "outputDirectory": "dist",
+  "framework": null,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/loan/:id",
+      "destination": "/loan/[id]"
+    },
+    {
+      "source": "/governance/:id",
+      "destination": "/governance/[id]"
+    },
+    {
+      "source": "/governance/application/:id",
+      "destination": "/governance/application/[id]"
+    },
+    {
+      "source": "/members/:id",
+      "destination": "/members/[id]"
+    },
+    {
+      "source": "/coming-soon/:feature",
+      "destination": "/coming-soon/[feature]"
+    },
+    {
+      "source": "/admin/transaction/:id",
+      "destination": "/admin/transaction/[id]"
+    },
+    {
+      "source": "/admin/reconciliation-case/:id",
+      "destination": "/admin/reconciliation-case/[id]"
+    }
+  ]
+}
