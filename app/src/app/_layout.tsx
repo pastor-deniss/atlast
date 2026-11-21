@@ -1,9 +1,11 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { Colors, NarrowContentWidth } from '@/constants/theme';
+// Hydration-safe on web (see use-color-scheme.web.ts); react-native's own
+// hook would leave the statically pre-rendered light theme in place.
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useCenteredColumnStyle } from '@/hooks/use-is-wide-screen';
 import { AppLockProvider, useAppLock } from '@/lib/auth/app-lock-context';
 import { SessionProvider, useSession } from '@/lib/auth/session-context';
