@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -138,11 +138,11 @@ export default function AdminControlCentreScreen() {
     return (
       <ThemedView style={styles.flex}>
         <SafeAreaView style={styles.flex} edges={['bottom']}>
-          <View style={styles.content}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <ThemedText type="default" themeColor="textSecondary">
               This area is for Group Admins only.
             </ThemedText>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </ThemedView>
     );
@@ -154,7 +154,7 @@ export default function AdminControlCentreScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Admin Control Centre</ThemedText>
           {!loading ? (
             <ThemedText type="default" themeColor={actionsRequired > 0 ? 'warning' : 'textSecondary'}>
@@ -241,7 +241,7 @@ export default function AdminControlCentreScreen() {
             <NavRow label="Reports" onPress={() => router.push('/(app)/admin/reports')} />
             <NavRow label="Audit Log" onPress={() => router.push('/(app)/admin/audit-log')} />
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

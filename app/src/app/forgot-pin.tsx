@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -68,7 +68,7 @@ export default function ForgotPinScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Forgot PIN</ThemedText>
 
           {step === 'request' ? (
@@ -105,7 +105,7 @@ export default function ForgotPinScreen() {
               <Button title="Verify" onPress={handleVerify} loading={submitting} />
             </>
           )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -113,6 +113,6 @@ export default function ForgotPinScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
   codeInput: { fontSize: 24, letterSpacing: 8, textAlign: 'center' },
 });

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -49,7 +49,7 @@ export default function GroupDashboardScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">{group.name}</ThemedText>
           {group.description ? (
             <ThemedText type="default" themeColor="textSecondary">
@@ -91,7 +91,7 @@ export default function GroupDashboardScreen() {
 
           <View style={styles.spacer} />
           <Button title="Member Directory" onPress={() => router.push('/(app)/members')} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -99,7 +99,7 @@ export default function GroupDashboardScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, padding: Spacing.four, gap: Spacing.three },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AtlastLogo } from '@/components/atlast-logo';
@@ -55,7 +55,7 @@ export default function UnlockScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <AtlastLogo width={180} />
           <ThemedText type="default" themeColor="textSecondary">
             Enter your PIN to continue
@@ -89,7 +89,7 @@ export default function UnlockScreen() {
               Forgot PIN?
             </ThemedText>
           </Pressable>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -97,7 +97,7 @@ export default function UnlockScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
   pinInput: { fontSize: 24, letterSpacing: 8, textAlign: 'center' },
   forgot: { alignItems: 'center', marginTop: Spacing.two },
 });

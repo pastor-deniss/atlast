@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -65,7 +65,7 @@ export default function VerifyPhoneScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="default" themeColor="textSecondary">
             Enter the 6-digit code sent to {phone}
           </ThemedText>
@@ -94,7 +94,7 @@ export default function VerifyPhoneScreen() {
             disabled={resendCooldown > 0}
             onPress={handleResend}
           />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

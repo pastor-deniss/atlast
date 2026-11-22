@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -52,7 +52,7 @@ export default function MemberProfileScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">
             {detail.first_name} {detail.last_name}
           </ThemedText>
@@ -62,7 +62,7 @@ export default function MemberProfileScreen() {
           <ThemedText type="small" themeColor="textSecondary">
             Joined {detail.joinDate}
           </ThemedText>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

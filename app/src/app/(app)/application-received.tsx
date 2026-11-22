@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -17,13 +17,13 @@ export default function ApplicationReceivedScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Application Received</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
             Your application to join {groupName} has been received and is being reviewed.
           </ThemedText>
           <Button title="Back to Home" onPress={() => router.replace('/(app)')} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -31,5 +31,5 @@ export default function ApplicationReceivedScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
 });

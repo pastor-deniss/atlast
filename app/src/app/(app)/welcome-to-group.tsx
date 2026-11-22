@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -25,13 +25,13 @@ export default function WelcomeToGroupScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Welcome!</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
             You are now an active member of {group?.name}.
           </ThemedText>
           <Button title="Enter My Group" onPress={handleEnter} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -39,5 +39,5 @@ export default function WelcomeToGroupScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.three },
 });

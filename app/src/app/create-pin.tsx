@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Switch, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -54,7 +54,7 @@ export default function CreatePinScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Create Your Atlast PIN</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
             This unlocks Atlast on this device — separate from your phone verification.
@@ -93,7 +93,7 @@ export default function CreatePinScreen() {
           ) : null}
 
           <Button title="Next" onPress={handleNext} loading={submitting} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

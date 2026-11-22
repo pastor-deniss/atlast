@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -70,7 +70,7 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {!membership || membership.status === 'exited' ? (
             <>
               <ThemedText type="title">
@@ -171,7 +171,7 @@ export default function HomeScreen() {
 
           <View style={styles.spacer} />
           <Button title="Settings" variant="secondary" onPress={() => router.push('/(app)/settings')} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -179,7 +179,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, padding: Spacing.four, gap: Spacing.three },
+  content: { flexGrow: 1, padding: Spacing.four, gap: Spacing.three },
   statsRow: { flexDirection: 'row', gap: Spacing.five, marginTop: Spacing.two },
   shortcuts: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
   shortcut: { flexGrow: 1, flexBasis: 140 },

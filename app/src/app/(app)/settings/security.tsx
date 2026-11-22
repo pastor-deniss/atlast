@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Switch, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -77,7 +77,7 @@ export default function SecuritySettingsScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {biometricSupported ? (
             <View style={styles.row}>
               <ThemedText type="default">Use Face ID / Fingerprint</ThemedText>
@@ -130,7 +130,7 @@ export default function SecuritySettingsScreen() {
             </ThemedText>
           ) : null}
           {message ? <ThemedText type="small">{message}</ThemedText> : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

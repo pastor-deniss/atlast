@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -180,7 +180,7 @@ export default function LoanDetailScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">
             {group.currency} {loan.principal.toLocaleString()}
           </ThemedText>
@@ -361,7 +361,7 @@ export default function LoanDetailScreen() {
               ))}
             </View>
           ) : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

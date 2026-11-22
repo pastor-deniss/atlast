@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -138,7 +138,7 @@ export default function AdminTransactionDetailScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">
             {group.currency} {txn.amount.toLocaleString()}
           </ThemedText>
@@ -224,7 +224,7 @@ export default function AdminTransactionDetailScreen() {
               This transaction has already been reversed.
             </ThemedText>
           ) : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

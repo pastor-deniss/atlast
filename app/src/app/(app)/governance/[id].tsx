@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -126,7 +126,7 @@ export default function MotionDetailScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">{applicant.name}</ThemedText>
           {applicant.application_note ? (
             <ThemedText type="default" themeColor="textSecondary">
@@ -172,7 +172,7 @@ export default function MotionDetailScreen() {
               </ThemedText>
             </View>
           ) : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

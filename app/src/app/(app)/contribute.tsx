@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -87,7 +87,7 @@ export default function ContributeScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Make Contribution</ThemedText>
 
           <TextField
@@ -130,7 +130,7 @@ export default function ContributeScreen() {
             loading={submitting}
             disabled={!isMultiple || !reference.trim()}
           />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

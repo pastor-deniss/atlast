@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -61,11 +61,11 @@ export default function ReportsScreen() {
     return (
       <ThemedView style={styles.flex}>
         <SafeAreaView style={styles.flex} edges={['bottom']}>
-          <View style={styles.content}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <ThemedText type="default" themeColor="textSecondary">
               This area is for Group Admins only.
             </ThemedText>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </ThemedView>
     );
@@ -142,7 +142,7 @@ export default function ReportsScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Reports</ThemedText>
 
           <View style={styles.row}>
@@ -185,7 +185,7 @@ export default function ReportsScreen() {
               <ReportRow label="Motions Declined" value={report.motionsDeclined} />
             </View>
           ) : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

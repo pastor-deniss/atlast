@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -26,12 +26,12 @@ export default function ComingSoonScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">{LABELS[feature] ?? feature}</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
             This lands with {TICKETS[feature] ?? 'a future ticket'}.
           </ThemedText>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -39,5 +39,5 @@ export default function ComingSoonScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.two },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.two },
 });

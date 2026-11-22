@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -49,7 +49,7 @@ export default function ProfileSettingsScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <TextField label="First Name" value={firstName} onChangeText={setFirstName} />
           <TextField label="Last Name" value={lastName} onChangeText={setLastName} />
 
@@ -65,7 +65,7 @@ export default function ProfileSettingsScreen() {
           {message ? <ThemedText type="small">{message}</ThemedText> : null}
 
           <Button title="Save" onPress={handleSave} loading={saving} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

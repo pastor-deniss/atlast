@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -61,7 +61,7 @@ export default function FinancialDashboardScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Financial Dashboard</ThemedText>
 
           <StatCard
@@ -80,7 +80,7 @@ export default function FinancialDashboardScreen() {
             label="Repayments Collected"
             value={`${group.currency} ${(totals?.repayments ?? 0).toLocaleString()}`}
           />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

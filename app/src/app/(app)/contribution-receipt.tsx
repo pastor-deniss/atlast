@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -23,7 +23,7 @@ export default function ContributionReceiptScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">Contribution Received!</ThemedText>
 
           <View style={styles.row}>
@@ -54,7 +54,7 @@ export default function ContributionReceiptScreen() {
           <View style={styles.spacer} />
           <Button title="View History" onPress={() => router.replace('/(app)/contributions')} />
           <Button title="Back to Home" variant="secondary" onPress={() => router.replace('/(app)')} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -62,7 +62,7 @@ export default function ContributionReceiptScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { flex: 1, padding: Spacing.four, gap: Spacing.two },
+  content: { flexGrow: 1, padding: Spacing.four, gap: Spacing.two },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

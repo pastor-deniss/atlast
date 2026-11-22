@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -45,13 +45,13 @@ export default function SettingsScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <SettingsRow label="Profile" onPress={() => router.push('/(app)/settings/profile')} />
           <SettingsRow label="Security" onPress={() => router.push('/(app)/settings/security')} />
 
           <View style={styles.spacer} />
           <Button title="Sign Out" variant="danger" onPress={confirmSignOut} />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AtlastLogo } from '@/components/atlast-logo';
@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
-        <View style={[styles.content, isWide && styles.contentWide]}>
+        <ScrollView contentContainerStyle={[styles.content, isWide && styles.contentWide]} keyboardShouldPersistTaps="handled">
           <View style={styles.brand}>
             <AtlastLogo width={240} />
             <ThemedText type="subtitle" themeColor="primary">
@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
               onPress={() => router.push('/(auth)/sign-in')}
             />
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.five,
