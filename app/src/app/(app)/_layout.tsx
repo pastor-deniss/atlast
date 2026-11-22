@@ -4,6 +4,10 @@ import { MaxContentWidth } from '@/constants/theme';
 import { useCenteredColumnStyle } from '@/hooks/use-is-wide-screen';
 import { MembershipProvider } from '@/lib/membership-context';
 
+// Keeps Home underneath any screen opened directly by URL (e.g. after a
+// browser reload on /loan/123), so the header's back button still works.
+export const unstable_settings = { initialRouteName: 'index' };
+
 // Full tab navigation (Home/Members/Money/Governance/More) lands once
 // Governance/Reporting (tickets 18-19) exist. For now this is a plain stack.
 export default function AppLayout() {

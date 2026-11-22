@@ -34,9 +34,15 @@ function SplashScreenController() {
 // device that's never set a PIN here); session + PIN + locked -> unlock;
 // otherwise -> the main app.
 function RootNavigator() {
-  const { session } = useSession();
-  const { pinExists, isLocked } = useAppLock();
+  const { session, isLoading: sessionLoading } = useSession();
+  const { pinExists, isLocked, isLoading: lockLoading } = useAppLock();
   const narrowColumn = { contentStyle: useCenteredColumnStyle(NarrowContentWidth) };
+
+  // Don't mount the navigator until we know the session and lock state. On
+  // web there's no native splash to hide behind: mounting early briefly
+  // evaluates the guards with "no session", which redirects a reloaded deep
+  // link (e.g. /loan/123) to the welcome screen and then on to Home.
+  if (sessionLoading || lockLoading) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

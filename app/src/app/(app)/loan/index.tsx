@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
@@ -27,6 +28,7 @@ type ReviewNeeded = { loan_id: string; principal: number };
 // loan and a reviewer on someone else's, so both live on the same hub.
 export default function LoanHubScreen() {
   const router = useRouter();
+  const theme = useTheme();
   const { session } = useSession();
   const { group } = useMembership();
 
@@ -88,15 +90,29 @@ export default function LoanHubScreen() {
           ListHeaderComponent={
             <View style={styles.header}>
               {openLoan ? (
+                // A filled, bordered card with an explicit call to action, so
+                // it reads as tappable (repayments live on the detail screen).
                 <Pressable
+                  accessibilityRole="button"
                   onPress={() => router.push({ pathname: '/(app)/loan/[id]', params: { id: openLoan.id } })}
-                  style={styles.card}>
+                  style={({ pressed }) => [
+                    styles.openLoanCard,
+                    {
+                      backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement,
+                      borderColor: theme.primary,
+                    },
+                  ]}>
                   <ThemedText type="subtitle">My Loan</ThemedText>
                   <ThemedText type="title">
                     {group.currency} {openLoan.principal.toLocaleString()}
                   </ThemedText>
-                  <ThemedText type="small" themeColor="primary">
-                    {openLoan.status.replace('_', ' ')}
+                  <ThemedText type="small" themeColor="textSecondary">
+                    Status: {openLoan.status.replace('_', ' ')}
+                  </ThemedText>
+                  <ThemedText type="smallBold" themeColor="primary">
+                    {openLoan.status === 'disbursed' || openLoan.status === 'repaying'
+                      ? 'View details & make a repayment →'
+                      : 'View details →'}
                   </ThemedText>
                 </Pressable>
               ) : (
@@ -165,4 +181,5 @@ const styles = StyleSheet.create({
   header: { gap: Spacing.two },
   sectionTitle: { marginTop: Spacing.three },
   card: { gap: Spacing.one, paddingVertical: Spacing.three, borderBottomWidth: StyleSheet.hairlineWidth },
+  openLoanCard: { gap: Spacing.one, padding: Spacing.four, borderRadius: 16, borderWidth: 1 },
 });

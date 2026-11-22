@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
+import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 
 type Motion = {
@@ -41,10 +42,13 @@ export default function MotionDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inFlight = useRef(false);
 
+  // `loading` is only true before the first load. Later refreshes (after a
+  // vote, or when the session token refreshes on returning to the tab) keep
+  // the current content on screen instead of blanking it.
   const load = useCallback(async () => {
     if (!id || !session) return;
-    setLoading(true);
 
     const { data: motionRow } = await supabase.from('motions').select('*').eq('id', id).single();
     setMotion(motionRow);
@@ -98,18 +102,25 @@ export default function MotionDetailScreen() {
   if (loading || !motion || !applicant) return null;
 
   async function castVote(choice: 'approve' | 'decline') {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setError(null);
     setBusy(true);
-    const { data, error: fnError } = await supabase.functions.invoke('cast-vote', {
-      body: { motion_id: id, choice },
-    });
-    setBusy(false);
-    const errorMessage = (data as { error?: string })?.error ?? fnError?.message;
-    if (errorMessage) {
-      setError(errorMessage);
-      return;
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('cast-vote', {
+        body: { motion_id: id, choice },
+      });
+      const errorMessage =
+        (data as { error?: string } | null)?.error ?? (await functionErrorMessage(fnError));
+      if (errorMessage) {
+        setError(errorMessage);
+        return;
+      }
+      await load();
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
     }
-    await load();
   }
 
   return (

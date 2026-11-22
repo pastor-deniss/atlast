@@ -135,28 +135,35 @@ export default function HomeScreen() {
                 </ThemedText>
               </Pressable>
 
+              {/* Each shortcut grows to share the row evenly (and wraps to
+                  two per row on narrow phones) instead of shrinking to its
+                  label's width. */}
               <View style={styles.shortcuts}>
-                <Button
-                  title="Contribute"
-                  variant="secondary"
-                  onPress={() => router.push('/(app)/contribute')}
-                />
-                <Button
-                  title="Loan"
-                  variant="secondary"
-                  onPress={() => router.push('/(app)/loan')}
-                />
-                <Button
-                  title="Vote"
-                  variant="secondary"
-                  onPress={() => router.push('/(app)/governance')}
-                />
-                {membership.role === 'group_admin' ? (
+                <View style={styles.shortcut}>
+                  <Button title="Contribute" onPress={() => router.push('/(app)/contribute')} />
+                </View>
+                <View style={styles.shortcut}>
                   <Button
-                    title="Admin"
+                    title="Loan"
                     variant="secondary"
-                    onPress={() => router.push('/(app)/admin')}
+                    onPress={() => router.push('/(app)/loan')}
                   />
+                </View>
+                <View style={styles.shortcut}>
+                  <Button
+                    title="Vote"
+                    variant="secondary"
+                    onPress={() => router.push('/(app)/governance')}
+                  />
+                </View>
+                {membership.role === 'group_admin' ? (
+                  <View style={styles.shortcut}>
+                    <Button
+                      title="Admin"
+                      variant="secondary"
+                      onPress={() => router.push('/(app)/admin')}
+                    />
+                  </View>
                 ) : null}
               </View>
             </>
@@ -175,5 +182,6 @@ const styles = StyleSheet.create({
   content: { flex: 1, padding: Spacing.four, gap: Spacing.three },
   statsRow: { flexDirection: 'row', gap: Spacing.five, marginTop: Spacing.two },
   shortcuts: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
+  shortcut: { flexGrow: 1, flexBasis: 140 },
   spacer: { flex: 1 },
 });

@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,8 +8,10 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
+import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 
 type Loan = {
@@ -53,10 +55,16 @@ export default function LoanDetailScreen() {
   const [clarificationText, setClarificationText] = useState('');
   const [repayAmount, setRepayAmount] = useState('');
   const [repayReference, setRepayReference] = useState('');
+  const [success, setSuccess] = useState<string | null>(null);
+  // Synchronous guard: `busy` state only disables the button after the next
+  // render, so a fast double-click could still fire two requests.
+  const inFlight = useRef(false);
+  const theme = useTheme();
 
+  // `loading` only blanks the screen on the first load (see the early return
+  // below); refreshes after an action keep the current content on screen.
   const load = useCallback(async () => {
     if (!id || !session) return;
-    setLoading(true);
 
     const { data: loanRow } = await supabase.from('loans').select('*').eq('id', id).single();
     setLoan(loanRow);
@@ -132,17 +140,38 @@ export default function LoanDetailScreen() {
     isAdmin && loan.review_mode === 'admin_fallback' && loan.status === 'pending_review';
 
   async function invoke(name: string, body: Record<string, unknown>) {
+    if (inFlight.current) return false;
+    inFlight.current = true;
     setError(null);
+    setSuccess(null);
     setBusy(true);
-    const { data, error: fnError } = await supabase.functions.invoke(name, { body });
-    setBusy(false);
-    const errorMessage = (data as { error?: string })?.error ?? fnError?.message;
-    if (errorMessage) {
-      setError(errorMessage);
-      return false;
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke(name, { body });
+      const errorMessage =
+        (data as { error?: string } | null)?.error ?? (await functionErrorMessage(fnError));
+      if (errorMessage) {
+        setError(errorMessage);
+        return false;
+      }
+      await load();
+      return true;
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
     }
-    await load();
-    return true;
+  }
+
+  async function confirmRepayment() {
+    const amount = Number(repayAmount || loan!.installment_amount);
+    const reference = repayReference.trim();
+    const ok = await invoke('record-loan-repayment', { loan_id: id, amount, reference });
+    if (ok) {
+      setRepayAmount('');
+      setRepayReference('');
+      setSuccess(
+        `Payment recorded: ${group!.currency} ${amount.toLocaleString()} (reference ${reference}).`
+      );
+    }
   }
 
   const declineCount = progress?.filter((d) => d === 'decline').length ?? 0;
@@ -168,6 +197,14 @@ export default function LoanDetailScreen() {
             <ThemedText type="small" themeColor="danger">
               {error}
             </ThemedText>
+          ) : null}
+
+          {success ? (
+            <View style={[styles.successBanner, { borderColor: theme.primary }]}>
+              <ThemedText type="smallBold" themeColor="primary">
+                ✓ {success}
+              </ThemedText>
+            </View>
           ) : null}
 
           {/* Under review: anonymized progress, visible to everyone (ticket 12/17) */}
@@ -281,13 +318,7 @@ export default function LoanDetailScreen() {
                   <TextField label="Reference" value={repayReference} onChangeText={setRepayReference} />
                   <Button
                     title="Confirm Payment"
-                    onPress={() =>
-                      invoke('record-loan-repayment', {
-                        loan_id: id,
-                        amount: Number(repayAmount || loan.installment_amount),
-                        reference: repayReference,
-                      })
-                    }
+                    onPress={confirmRepayment}
                     loading={busy}
                     disabled={!repayReference.trim()}
                   />
@@ -341,4 +372,5 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.four, gap: Spacing.two },
   section: { gap: Spacing.two, marginTop: Spacing.three, paddingTop: Spacing.three, borderTopWidth: StyleSheet.hairlineWidth },
   row: { flexDirection: 'row', gap: Spacing.two },
+  successBanner: { borderWidth: 1, borderRadius: 12, padding: Spacing.three },
 });

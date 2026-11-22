@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
+import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 
 // Ticket 16: Payment Method is fixed to "Mobile Money" — no selector (matches
@@ -23,6 +24,8 @@ export default function ContributeScreen() {
   const [reference, setReference] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Synchronous double-submit guard (state alone updates a render too late).
+  const inFlight = useRef(false);
 
   if (!group) return null;
 
@@ -47,13 +50,23 @@ export default function ContributeScreen() {
       return;
     }
 
+    if (inFlight.current) return;
+    inFlight.current = true;
     setSubmitting(true);
-    const { data, error: fnError } = await supabase.functions.invoke('report-contribution', {
-      body: { group_id: group!.id, amount: numericAmount, reference: reference.trim() },
-    });
-    setSubmitting(false);
+    let data: unknown;
+    let errorMessage: string | null;
+    try {
+      const result = await supabase.functions.invoke('report-contribution', {
+        body: { group_id: group!.id, amount: numericAmount, reference: reference.trim() },
+      });
+      data = result.data;
+      errorMessage =
+        (data as { error?: string } | null)?.error ?? (await functionErrorMessage(result.error));
+    } finally {
+      inFlight.current = false;
+      setSubmitting(false);
+    }
 
-    const errorMessage = (data as { error?: string })?.error ?? fnError?.message;
     if (errorMessage) {
       setError(errorMessage);
       return;
