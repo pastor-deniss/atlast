@@ -160,6 +160,13 @@ export default function MoreScreen() {
           />
           <Divider />
           <MenuRow
+            iconName={icon('percent', 'percent')}
+            title={t('Loan Rates')}
+            subtitle={t('Interest and late penalties')}
+            onPress={() => router.push('/(app)/admin/loan-rates')}
+          />
+          <Divider />
+          <MenuRow
             iconName={icon('scalemass', 'balance')}
             title={t('Reconciliation')}
             subtitle={t('Compare the money held with the system')}

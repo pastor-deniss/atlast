@@ -11,6 +11,7 @@ import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { fetchLoanRates, formatRate, type LoanRates } from '@/lib/loans';
 
 const OPEN_LOAN_STATUSES = ['pending_review', 'approved', 'disbursed', 'repaying'];
 
@@ -23,6 +24,10 @@ export default function GroupDashboardScreen() {
   const { membership, group } = useMembership();
   const t = useT();
   const [memberCount, setMemberCount] = useState<number | null>(null);
+  const [rates, setRates] = useState<LoanRates | null>(null);
+  useEffect(() => {
+    if (group) fetchLoanRates(group.id).then(setRates);
+  }, [group]);
   const [loanAvailable, setLoanAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -81,6 +86,18 @@ export default function GroupDashboardScreen() {
               {group.currency} {group.share_value.toLocaleString()}
             </ThemedText>
           </View>
+          {rates ? (
+            <>
+              <View style={styles.row}>
+                <ThemedText type="default">{t('Loan interest')}</ThemedText>
+                <ThemedText type="default">{formatRate(rates.interestRate)}</ThemedText>
+              </View>
+              <View style={styles.row}>
+                <ThemedText type="default">{t('Late penalty per week')}</ThemedText>
+                <ThemedText type="default">{formatRate(rates.penaltyWeeklyRate)}</ThemedText>
+              </View>
+            </>
+          ) : null}
           <View style={styles.row}>
             <ThemedText type="default">{t('Loan availability')}</ThemedText>
             <ThemedText type="default" themeColor={loanAvailable ? 'primary' : 'textSecondary'}>

@@ -15,6 +15,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { countActiveComplaints } from '@/lib/complaints';
+import { fetchLoanRates, formatRate, type LoanRates } from '@/lib/loans';
 import { countUnread } from '@/lib/notifications';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
@@ -60,6 +61,7 @@ export default function HomeScreen() {
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
   const [complaintsWaiting, setComplaintsWaiting] = useState(0);
   const [unread, setUnread] = useState(0);
+  const [rates, setRates] = useState<LoanRates | null>(null);
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [groupFund, setGroupFund] = useState<number | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
@@ -127,6 +129,8 @@ export default function HomeScreen() {
       .eq('group_id', group.id)
       .eq('status', 'active');
     setMemberCount(count ?? 0);
+
+    setRates(await fetchLoanRates(group.id));
 
     const [newest] = await fetchAnnouncements(group.id, 1);
     const freshSince = Date.now() - ANNOUNCEMENT_FRESH_DAYS * 24 * 60 * 60 * 1000;
@@ -491,6 +495,12 @@ export default function HomeScreen() {
               />
               <Stat value={String(memberCount ?? '—')} label={t('Members')} />
             </View>
+            {rates && (rates.interestRate > 0 || rates.penaltyWeeklyRate > 0) ? (
+              <View style={styles.statsRow}>
+                <Stat value={formatRate(rates.interestRate)} label={t('Loan interest')} />
+                <Stat value={formatRate(rates.penaltyWeeklyRate)} label={t('Late penalty per week')} />
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>

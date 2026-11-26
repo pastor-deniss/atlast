@@ -15,6 +15,7 @@ import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { fetchLoanDue, formatRate, type LoanDue } from '@/lib/loans';
 import { needsReference, paymentMethodLabel, type PaymentMethod } from '@/lib/payment-methods';
 
 type Loan = {
@@ -51,7 +52,7 @@ export default function LoanDetailScreen() {
   const [myReview, setMyReview] = useState<{ decision: string } | null>(null);
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const [messages, setMessages] = useState<{ message: string; created_at: string }[]>([]);
-  const [outstanding, setOutstanding] = useState<{ total_repaid: number } | null>(null);
+  const [due, setDue] = useState<LoanDue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -120,14 +121,9 @@ export default function LoanDetailScreen() {
       .order('created_at', { ascending: false });
     setMessages(messageRows ?? []);
 
-    if (loanRow.status === 'disbursed' || loanRow.status === 'repaying' || loanRow.status === 'repaid') {
-      const { data: balance } = await supabase
-        .from('loan_balances')
-        .select('total_repaid')
-        .eq('loan_id', id)
-        .maybeSingle();
-      setOutstanding(balance ?? { total_repaid: 0 });
-    }
+    // Interest, penalties so far and what is still owed, worked out by the
+    // database (loan_dues), so every screen agrees with the repayment rules.
+    setDue(await fetchLoanDue(id));
 
     setLoading(false);
   }, [id, session]);
@@ -167,7 +163,9 @@ export default function LoanDetailScreen() {
   }
 
   async function confirmRepayment() {
-    const amount = Number(repayAmount || loan!.installment_amount);
+    const amount = Number(
+      repayAmount || Math.min(loan!.installment_amount, due?.outstanding ?? loan!.installment_amount)
+    );
     const reference = repayReference.trim();
     const ok = await invoke('record-loan-repayment', {
       loan_id: id,
@@ -209,6 +207,35 @@ export default function LoanDetailScreen() {
           <ThemedText type="small" themeColor="primary">
             {t(loan.status.replace('_', ' '))}
           </ThemedText>
+
+          {due && (due.interest_amount > 0 || due.penalty_weekly_rate > 0) ? (
+            <View style={[styles.costBox, { backgroundColor: theme.backgroundElement }]}>
+              <View style={styles.costItem}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Interest ({rate})', { rate: formatRate(due.interest_rate) })}
+                </ThemedText>
+                <ThemedText type="smallBold">
+                  {group.currency} {due.interest_amount.toLocaleString()}
+                </ThemedText>
+              </View>
+              <View style={styles.costItem}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Penalty ({rate}/week)', { rate: formatRate(due.penalty_weekly_rate) })}
+                </ThemedText>
+                <ThemedText type="smallBold" themeColor={due.penalty > 0 ? 'danger' : 'text'}>
+                  {group.currency} {due.penalty.toLocaleString()}
+                </ThemedText>
+              </View>
+              <View style={styles.costItem}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Total to repay')}
+                </ThemedText>
+                <ThemedText type="smallBold">
+                  {group.currency} {due.total_due.toLocaleString()}
+                </ThemedText>
+              </View>
+            </View>
+          ) : null}
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
@@ -327,20 +354,30 @@ export default function LoanDetailScreen() {
             </View>
           ) : null}
 
-          {(loan.status === 'disbursed' || loan.status === 'repaying') && outstanding ? (
+          {(loan.status === 'disbursed' || loan.status === 'repaying') && due ? (
             <View style={styles.section}>
               <ThemedText type="subtitle">{t('Loan Progress')}</ThemedText>
               <ThemedText type="default">
                 {t('Paid {paid} of {total}', {
-                  paid: `${group.currency} ${outstanding.total_repaid.toLocaleString()}`,
-                  total: `${group.currency} ${loan.principal.toLocaleString()}`,
+                  paid: `${group.currency} ${due.repaid.toLocaleString()}`,
+                  total: `${group.currency} ${due.total_due.toLocaleString()}`,
                 })}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
                 {t('Remaining: {amount}', {
-                  amount: `${group.currency} ${(loan.principal - outstanding.total_repaid).toLocaleString()}`,
+                  amount: `${group.currency} ${due.outstanding.toLocaleString()}`,
                 })}
               </ThemedText>
+              {due.due_at ? (
+                <ThemedText type="small" themeColor={due.is_overdue ? 'danger' : 'textSecondary'}>
+                  {due.is_overdue
+                    ? t('Overdue since {date}. A penalty of {rate} of what is owed is added each full week late.', {
+                        date: new Date(due.due_at).toLocaleDateString(),
+                        rate: formatRate(due.penalty_weekly_rate),
+                      })
+                    : t('Due date: {date}', { date: new Date(due.due_at).toLocaleDateString() })}
+                </ThemedText>
+              ) : null}
 
               {isBorrower ? (
                 <>
@@ -349,7 +386,7 @@ export default function LoanDetailScreen() {
                     value={repayAmount}
                     onChangeText={setRepayAmount}
                     keyboardType="numeric"
-                    placeholder={String(loan.installment_amount)}
+                    placeholder={String(Math.min(loan.installment_amount, due.outstanding))}
                   />
                   <PaymentMethodPicker value={repayMethod} onChange={setRepayMethod} />
                   {repayMethod ? (
@@ -416,6 +453,8 @@ export default function LoanDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  costBox: { flexDirection: 'row', borderRadius: 14, padding: Spacing.three, gap: Spacing.two },
+  costItem: { flex: 1, alignItems: 'center', gap: 2 },
   flex: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.two },
   section: { gap: Spacing.two, marginTop: Spacing.three, paddingTop: Spacing.three, borderTopWidth: StyleSheet.hairlineWidth },

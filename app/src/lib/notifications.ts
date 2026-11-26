@@ -100,6 +100,14 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
       return { title: t('Your complaint was resolved'), body: subject };
     case 'complaint.rejected':
       return { title: t('Your complaint was not upheld'), body: subject };
+    case 'group.loan_rates_changed':
+      return {
+        title: t('Loan rates changed'),
+        body: t('New loans: {interest} interest, {penalty} per week late.', {
+          interest: `${Number(p.interest ?? 0)}%`,
+          penalty: `${Number(p.penalty ?? 0)}%`,
+        }),
+      };
     default:
       return { title: t('Notification'), body: '' };
   }
@@ -124,6 +132,8 @@ export function destination(n: AppNotification): Href | null {
       return '/(app)/statement';
     case 'complaint':
       return { pathname: '/(app)/complaints/[id]', params: { id } };
+    case 'group':
+      return '/(app)/group-dashboard';
     default:
       return null;
   }
@@ -145,6 +155,8 @@ export function iconFor(kind: string): [string, string] {
       return ['arrow.uturn.backward', 'undo'];
     case 'complaint':
       return ['exclamationmark.bubble', 'report'];
+    case 'group':
+      return ['percent', 'percent'];
     default:
       return ['bell', 'notifications'];
   }

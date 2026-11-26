@@ -40,7 +40,7 @@ export type Statement = {
   /** Savings (net contributions) at the end of the period. */
   savings: number;
   shares: number;
-  /** Loan principal still owed at the end of the period. */
+  /** Still owed on loans at the end of the period: principal + interest + penalties - repaid. */
   loansOutstanding: number;
 };
 
@@ -119,6 +119,15 @@ export async function loadStatement(
     rows.push({ id: r.id, date: r.created_at, label, reference: r.reference, method, amount });
   }
 
+  // Interest and late penalties are owed on top of what was paid out, so the
+  // database works the amount out (same rules as repayments), as at `to`.
+  const { data: owed, error: owedError } = await supabase.rpc('member_loans_outstanding_as_of', {
+    p_group_id: groupId,
+    p_member_id: memberId,
+    p_as_of: to.toISOString(),
+  });
+  const loansOutstanding = owedError ? Math.max(0, -loanSum) : Number(owed ?? 0);
+
   return {
     memberName: profile ? `${profile.first_name} ${profile.last_name}`.trim() : '',
     groupName: group?.name ?? '',
@@ -132,7 +141,7 @@ export async function loadStatement(
     paidOutDuringPeriod: paidOut,
     savings,
     shares,
-    loansOutstanding: Math.max(0, -loanSum),
+    loansOutstanding,
   };
 }
 
@@ -240,7 +249,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
     </tr></tfoot>
   </table>
   <div class="foot">
-    ${escapeHtml(t('Paid in: contributions and loan repayments you made. Paid out: loans paid to you, and reversed entries. Balances are as at the end of the period. Loans in Atlast carry no interest or fees.'))}
+    ${escapeHtml(t('Paid in: contributions and loan repayments you made. Paid out: loans paid to you, and reversed entries. Balances are as at the end of the period. Loans outstanding include any interest and late penalties under your group\'s loan rates.'))}
   </div>
 </div>`;
 
