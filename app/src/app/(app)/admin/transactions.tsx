@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { paymentMethodLabel } from '@/lib/payment-methods';
 
 type TransactionRow = {
   id: string;
@@ -17,6 +18,7 @@ type TransactionRow = {
   amount: number;
   status: string;
   reference: string | null;
+  payment_method: string | null;
   created_at: string;
 };
 
@@ -42,7 +44,7 @@ export default function AdminTransactionsScreen() {
     setLoading(true);
     supabase
       .from('transactions')
-      .select('id, type, amount, status, reference, created_at')
+      .select('id, type, amount, status, reference, payment_method, created_at')
       .eq('group_id', group.id)
       .order('created_at', { ascending: false })
       .limit(100)
@@ -77,6 +79,9 @@ export default function AdminTransactionsScreen() {
                 <ThemedText type="default">{t(item.type.replace('_', ' '))}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {new Date(item.created_at).toLocaleDateString()}
+                  {item.type === 'contribution' || item.type === 'repayment'
+                    ? ` · ${t(paymentMethodLabel(item.payment_method))}`
+                    : ''}
                   {item.reference ? ` · ${item.reference}` : ''}
                 </ThemedText>
               </View>

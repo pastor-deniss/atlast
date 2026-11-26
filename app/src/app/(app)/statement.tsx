@@ -171,6 +171,7 @@ export default function StatementScreen() {
                         </ThemedText>
                         <ThemedText type="small" themeColor="textSecondary">
                           {new Date(row.date).toLocaleDateString()}
+                          {row.method ? ` • ${t(row.method)}` : ''}
                           {row.reference ? ` • ${row.reference}` : ''}
                         </ThemedText>
                       </View>

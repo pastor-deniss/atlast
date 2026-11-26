@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { useT } from '@/lib/i18n';
+import { paymentMethodLabel } from '@/lib/payment-methods';
 
 // Ticket 16: no PDF generation in V1 (same undesigned-capability gap as
 // report export, ticket 13/19). This screen with the reference code is the
@@ -16,10 +17,11 @@ export default function ContributionReceiptScreen() {
   const router = useRouter();
   const { group } = useMembership();
   const t = useT();
-  const { amount, sharesEarned, reference } = useLocalSearchParams<{
+  const { amount, sharesEarned, reference, method } = useLocalSearchParams<{
     amount: string;
     sharesEarned: string;
     reference: string;
+    method?: string;
   }>();
 
   return (
@@ -36,12 +38,14 @@ export default function ContributionReceiptScreen() {
           </View>
           <View style={styles.row}>
             <ThemedText type="default">{t('Payment Method')}</ThemedText>
-            <ThemedText type="default">{t('Mobile Money')}</ThemedText>
+            <ThemedText type="default">{t(paymentMethodLabel(method))}</ThemedText>
           </View>
-          <View style={styles.row}>
-            <ThemedText type="default">{t('Reference')}</ThemedText>
-            <ThemedText type="default">{reference}</ThemedText>
-          </View>
+          {reference ? (
+            <View style={styles.row}>
+              <ThemedText type="default">{t('Reference')}</ThemedText>
+              <ThemedText type="default">{reference}</ThemedText>
+            </View>
+          ) : null}
           <View style={styles.row}>
             <ThemedText type="default">{t('Shares Earned')}</ThemedText>
             <ThemedText type="default">{sharesEarned}</ThemedText>

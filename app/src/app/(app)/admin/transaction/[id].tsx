@@ -11,6 +11,7 @@ import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { paymentMethodLabel } from '@/lib/payment-methods';
 
 type Transaction = {
   id: string;
@@ -19,6 +20,7 @@ type Transaction = {
   amount: number;
   status: string;
   reference: string | null;
+  payment_method: string | null;
   reversed_transaction_id: string | null;
   created_at: string;
 };
@@ -55,10 +57,12 @@ export default function AdminTransactionDetailScreen() {
 
     const { data: row } = await supabase
       .from('transactions')
-      .select('id, member_id, type, amount, status, reference, reversed_transaction_id, created_at')
+      .select('id, member_id, type, amount, status, reference, payment_method, reversed_transaction_id, created_at')
       .eq('id', id)
       .single();
     setTxn(row);
+    // Check it against the provider the member said they paid with.
+    if (row?.payment_method && row.payment_method !== 'cash') setProvider(row.payment_method);
     if (!row) {
       setLoading(false);
       return;
@@ -148,6 +152,11 @@ export default function AdminTransactionDetailScreen() {
             {t(txn.type.replace('_', ' '))} · {new Date(txn.created_at).toLocaleString()}
           </ThemedText>
           {memberName ? <ThemedText type="default">{memberName}</ThemedText> : null}
+          {txn.type === 'contribution' || txn.type === 'repayment' ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('Paid by: {method}', { method: t(paymentMethodLabel(txn.payment_method)) })}
+            </ThemedText>
+          ) : null}
           {txn.reference ? (
             <ThemedText type="small" themeColor="textSecondary">
               {t('Reference: {reference}', { reference: txn.reference })}

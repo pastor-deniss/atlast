@@ -475,4 +475,12 @@ export const sw: Record<string, string> = {
   'Previous Checks': 'Ukaguzi Uliopita',
   'Held {actual} • Expected {expected}': 'Iliyopo {actual} • Inayotarajiwa {expected}',
   'A check never changes any money. Fix a difference by verifying transactions and reversing mistakes.': 'Ukaguzi haubadilishi fedha yoyote. Rekebisha tofauti kwa kuthibitisha miamala na kurudisha makosa.',
+  // Payment methods
+  'Choose Payment Method': 'Chagua Njia ya Malipo',
+  Cash: 'Fedha Taslimu',
+  'Choose how you paid.': 'Chagua njia uliyolipia.',
+  'Receipt number (optional)': 'Namba ya risiti (si lazima)',
+  'If the person you paid gave you a receipt': 'Kama uliyemlipa alikupa risiti',
+  'Payment recorded: {amount} ({method}).': 'Malipo yamerekodiwa: {amount} ({method}).',
+  'Paid by: {method}': 'Imelipwa kwa: {method}',
 };

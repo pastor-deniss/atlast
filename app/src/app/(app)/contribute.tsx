@@ -1,20 +1,23 @@
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
+import { PaymentMethodPicker } from '@/components/payment-method-picker';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
+import { needsReference, type PaymentMethod } from '@/lib/payment-methods';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
 
-// Ticket 16: Payment Method is fixed to "Mobile Money" — no selector (matches
-// ticket 03's mobile-money-centric V1 scope). Live client-side validation of
+// The member picks how they paid: M-Pesa, Airtel Money or Tigo Pesa need the
+// confirmation code as reference; for Cash a receipt number is optional
+// (payment-methods.sql). Live client-side validation of
 // the share_value-multiple rule is a UX nicety; reportContribution (ticket
 // 13) remains the actual enforcement point.
 export default function ContributeScreen() {
@@ -23,6 +26,7 @@ export default function ContributeScreen() {
   const t = useT();
 
   const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [reference, setReference] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +55,11 @@ export default function ContributeScreen() {
       );
       return;
     }
-    if (!reference.trim()) {
+    if (!method) {
+      setError('Choose how you paid.');
+      return;
+    }
+    if (needsReference(method) && !reference.trim()) {
       setError('Enter the mobile money reference.');
       return;
     }
@@ -63,7 +71,12 @@ export default function ContributeScreen() {
     let errorMessage: string | null;
     try {
       const result = await supabase.functions.invoke('report-contribution', {
-        body: { group_id: group!.id, amount: numericAmount, reference: reference.trim() },
+        body: {
+          group_id: group!.id,
+          amount: numericAmount,
+          reference: reference.trim(),
+          payment_method: method,
+        },
       });
       data = result.data;
       errorMessage =
@@ -78,14 +91,18 @@ export default function ContributeScreen() {
       return;
     }
 
-    const transaction = (data as { transaction: { amount: number; shares_earned: number; reference: string } })
-      .transaction;
+    const transaction = (
+      data as {
+        transaction: { amount: number; shares_earned: number; reference: string | null; payment_method: string };
+      }
+    ).transaction;
     router.replace({
       pathname: '/(app)/contribution-receipt',
       params: {
         amount: String(transaction.amount),
         sharesEarned: String(transaction.shares_earned),
-        reference: transaction.reference,
+        reference: transaction.reference ?? '',
+        method: transaction.payment_method,
       },
     });
   }
@@ -112,19 +129,20 @@ export default function ContributeScreen() {
             }
           />
 
-          <View style={styles.field}>
-            <ThemedText type="small" themeColor="textSecondary">
-              {t('Payment Method')}
-            </ThemedText>
-            <ThemedText type="default">{t('Mobile Money')}</ThemedText>
-          </View>
+          <PaymentMethodPicker value={method} onChange={setMethod} />
 
-          <TextField
-            label={t('Reference')}
-            value={reference}
-            onChangeText={setReference}
-            placeholder={t('Mobile money confirmation code')}
-          />
+          {method ? (
+            <TextField
+              label={method === 'cash' ? t('Receipt number (optional)') : t('Reference')}
+              value={reference}
+              onChangeText={setReference}
+              placeholder={
+                method === 'cash'
+                  ? t('If the person you paid gave you a receipt')
+                  : t('Mobile money confirmation code')
+              }
+            />
+          ) : null}
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
@@ -136,7 +154,7 @@ export default function ContributeScreen() {
             title={t('Contribute')}
             onPress={handleSubmit}
             loading={submitting}
-            disabled={!isMultiple || !reference.trim()}
+            disabled={!isMultiple || !method || (needsReference(method) && !reference.trim())}
           />
         </ScrollView>
       </SafeAreaView>
@@ -147,5 +165,4 @@ export default function ContributeScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
-  field: { gap: Spacing.one },
 });

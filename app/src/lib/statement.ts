@@ -1,3 +1,4 @@
+import { paymentMethodLabel } from '@/lib/payment-methods';
 import { supabase } from '@/lib/supabase';
 
 // Member account statement: every ledger row for one member in one group,
@@ -20,6 +21,8 @@ export type StatementRow = {
   /** English label; translate with t() for display. */
   label: string;
   reference: string | null;
+  /** English payment-method label for contributions and repayments, else null. */
+  method: string | null;
   amount: number;
 };
 
@@ -74,7 +77,7 @@ export async function loadStatement(
     // closing balances, and to label reversals by what they reverse.
     supabase
       .from('transactions')
-      .select('id, type, amount, shares_earned, loan_id, reference, reversed_transaction_id, created_at')
+      .select('id, type, amount, shares_earned, loan_id, reference, payment_method, reversed_transaction_id, created_at')
       .eq('group_id', groupId)
       .eq('member_id', memberId)
       .lt('created_at', to.toISOString())
@@ -111,7 +114,9 @@ export async function loadStatement(
     } else {
       label = LABELS[r.type as Exclude<TxType, 'reversal'>] ?? r.type;
     }
-    rows.push({ id: r.id, date: r.created_at, label, reference: r.reference, amount });
+    const method =
+      r.type === 'contribution' || r.type === 'repayment' ? paymentMethodLabel(r.payment_method) : null;
+    rows.push({ id: r.id, date: r.created_at, label, reference: r.reference, method, amount });
   }
 
   return {
@@ -165,7 +170,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
           .map(
             (r) => `<tr>
   <td>${escapeHtml(formatDate(r.date))}</td>
-  <td>${escapeHtml(t(r.label))}</td>
+  <td>${escapeHtml(t(r.label))}${r.method ? `<div class="sub">${escapeHtml(t(r.method))}</div>` : ''}</td>
   <td class="ref">${escapeHtml(r.reference ?? '—')}</td>
   <td class="num">${r.amount >= 0 ? money(r.amount) : ''}</td>
   <td class="num">${r.amount < 0 ? money(-r.amount) : ''}</td>
@@ -196,6 +201,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
 .atlast-statement .num { text-align: right; white-space: nowrap; }
 .atlast-statement th.num { text-align: right; }
 .atlast-statement .ref { color: #5B635F; word-break: break-all; }
+.atlast-statement .sub { color: #5B635F; font-size: 10px; }
 .atlast-statement .empty { text-align: center; color: #5B635F; padding: 18px; }
 .atlast-statement tfoot td { font-weight: 700; border-top: 2px solid #0F3D2E; border-bottom: none; }
 .atlast-statement .foot { margin-top: 18px; font-size: 10px; color: #5B635F; }

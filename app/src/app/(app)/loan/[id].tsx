@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PaymentMethodPicker } from '@/components/payment-method-picker';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { needsReference, paymentMethodLabel, type PaymentMethod } from '@/lib/payment-methods';
 
 type Loan = {
   id: string;
@@ -56,6 +58,7 @@ export default function LoanDetailScreen() {
   const [clarificationText, setClarificationText] = useState('');
   const [repayAmount, setRepayAmount] = useState('');
   const [repayReference, setRepayReference] = useState('');
+  const [repayMethod, setRepayMethod] = useState<PaymentMethod | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   // Synchronous guard: `busy` state only disables the button after the next
   // render, so a fast double-click could still fire two requests.
@@ -166,15 +169,24 @@ export default function LoanDetailScreen() {
   async function confirmRepayment() {
     const amount = Number(repayAmount || loan!.installment_amount);
     const reference = repayReference.trim();
-    const ok = await invoke('record-loan-repayment', { loan_id: id, amount, reference });
+    const ok = await invoke('record-loan-repayment', {
+      loan_id: id,
+      amount,
+      reference,
+      payment_method: repayMethod,
+    });
     if (ok) {
+      const amountText = `${group!.currency} ${amount.toLocaleString()}`;
       setRepayAmount('');
       setRepayReference('');
+      setRepayMethod(null);
       setSuccess(
-        t('Payment recorded: {amount} (reference {reference}).', {
-          amount: `${group!.currency} ${amount.toLocaleString()}`,
-          reference,
-        })
+        reference
+          ? t('Payment recorded: {amount} (reference {reference}).', { amount: amountText, reference })
+          : t('Payment recorded: {amount} ({method}).', {
+              amount: amountText,
+              method: t(paymentMethodLabel(repayMethod)),
+            })
       );
     }
   }
@@ -339,12 +351,24 @@ export default function LoanDetailScreen() {
                     keyboardType="numeric"
                     placeholder={String(loan.installment_amount)}
                   />
-                  <TextField label={t('Reference')} value={repayReference} onChangeText={setRepayReference} />
+                  <PaymentMethodPicker value={repayMethod} onChange={setRepayMethod} />
+                  {repayMethod ? (
+                    <TextField
+                      label={repayMethod === 'cash' ? t('Receipt number (optional)') : t('Reference')}
+                      value={repayReference}
+                      onChangeText={setRepayReference}
+                      placeholder={
+                        repayMethod === 'cash'
+                          ? t('If the person you paid gave you a receipt')
+                          : t('Mobile money confirmation code')
+                      }
+                    />
+                  ) : null}
                   <Button
                     title={t('Confirm Payment')}
                     onPress={confirmRepayment}
                     loading={busy}
-                    disabled={!repayReference.trim()}
+                    disabled={!repayMethod || (needsReference(repayMethod) && !repayReference.trim())}
                   />
                 </>
               ) : null}

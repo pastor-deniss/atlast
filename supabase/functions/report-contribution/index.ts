@@ -3,12 +3,20 @@
 // write path. Enforces ticket 09's invariant: amount must be an exact
 // multiple of the group's share_value; shares_earned is computed here, not
 // trusted from the client.
+//
+// payment_method: M-Pesa / Airtel Money / Tigo Pesa need the mobile-money
+// confirmation code as reference; for cash the reference (a receipt
+// number) is optional. Older app versions send no payment_method -- that is
+// accepted and stored as NULL ("Mobile Money"), with a reference required.
 import { withSupabase } from 'jsr:@supabase/server@^1';
+
+const PAYMENT_METHODS = ['mpesa', 'airtel_money', 'tigo_pesa', 'cash'];
 
 interface ReportContributionPayload {
   group_id: string;
   amount: number;
-  reference: string;
+  reference?: string;
+  payment_method?: string;
 }
 
 export default {
@@ -22,9 +30,17 @@ export default {
       return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const { group_id, amount, reference } = body;
-    if (!group_id || !reference || !reference.trim()) {
-      return Response.json({ error: 'group_id and reference are required' }, { status: 400 });
+    const { group_id, amount } = body;
+    const reference = (body.reference ?? '').trim();
+    const paymentMethod = body.payment_method ?? null;
+    if (!group_id) {
+      return Response.json({ error: 'group_id is required' }, { status: 400 });
+    }
+    if (paymentMethod !== null && !PAYMENT_METHODS.includes(paymentMethod)) {
+      return Response.json({ error: 'Choose how you paid.' }, { status: 400 });
+    }
+    if (paymentMethod !== 'cash' && !reference) {
+      return Response.json({ error: 'Enter the mobile money reference.' }, { status: 400 });
     }
     if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       return Response.json({ error: 'amount must be a positive number' }, { status: 400 });
@@ -73,10 +89,11 @@ export default {
         amount,
         shares_earned: sharesEarned,
         status: 'posted',
-        reference: reference.trim(),
+        reference: reference || null,
+        payment_method: paymentMethod,
         created_by: userClaims!.id,
       })
-      .select('id, amount, shares_earned, reference, status, created_at')
+      .select('id, amount, shares_earned, reference, payment_method, status, created_at')
       .single();
 
     if (insertError) {

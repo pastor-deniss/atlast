@@ -23,10 +23,11 @@ import {
   type GrowthTransaction,
 } from '@/lib/contribution-growth';
 import { useT } from '@/lib/i18n';
+import { paymentMethodLabel } from '@/lib/payment-methods';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 
-type ContributionRow = { id: string; amount: number; created_at: string };
+type ContributionRow = { id: string; amount: number; created_at: string; payment_method: string | null };
 
 const PERIODS_PER_YEAR: Record<string, number> = {
   daily: 365,
@@ -60,7 +61,7 @@ export default function ContributionsScreen() {
 
     const { data: contributionRows } = await supabase
       .from('transactions')
-      .select('id, amount, created_at')
+      .select('id, amount, created_at, payment_method')
       .eq('group_id', group.id)
       .eq('member_id', session.user.id)
       .eq('type', 'contribution')
@@ -168,7 +169,7 @@ export default function ContributionsScreen() {
                 {group.currency} {item.amount.toLocaleString()}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {t('Mobile Money')} • {new Date(item.created_at).toLocaleDateString()}
+                {t(paymentMethodLabel(item.payment_method))} • {new Date(item.created_at).toLocaleDateString()}
               </ThemedText>
             </View>
             <View style={[styles.check, { backgroundColor: theme.backgroundSelected }]}>
