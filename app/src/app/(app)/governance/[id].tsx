@@ -10,6 +10,7 @@ import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
+import { formatDateTime } from '@/lib/datetime';
 import { useT } from '@/lib/i18n';
 
 type Motion = {
@@ -40,6 +41,7 @@ export default function MotionDetailScreen() {
   const [motion, setMotion] = useState<Motion | null>(null);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [myVote, setMyVote] = useState<'approve' | 'decline' | null>(null);
+  const [votedAt, setVotedAt] = useState<string | null>(null);
   const [tally, setTally] = useState<{ approve_count: number; decline_count: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -77,11 +79,12 @@ export default function MotionDetailScreen() {
 
     const { data: voteRow } = await supabase
       .from('votes')
-      .select('choice')
+      .select('choice, voted_at')
       .eq('motion_id', id)
       .eq('voter_id', session.user.id)
       .maybeSingle();
     setMyVote((voteRow?.choice as 'approve' | 'decline' | undefined) ?? null);
+    setVotedAt(voteRow?.voted_at ?? null);
 
     // Never queried while status='open' (Q per ticket 18's Answer) -- shown
     // only once the Motion has actually resolved.
@@ -163,6 +166,11 @@ export default function MotionDetailScreen() {
               <ThemedText type="default" themeColor="textSecondary">
                 {t('Your vote has been recorded. Results will be shown once voting closes.')}
               </ThemedText>
+              {votedAt ? (
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Voted on {date}', { date: formatDateTime(votedAt) })}
+                </ThemedText>
+              ) : null}
             </View>
           ) : null}
 

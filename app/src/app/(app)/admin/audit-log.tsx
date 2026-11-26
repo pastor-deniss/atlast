@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
@@ -128,7 +129,7 @@ export default function AuditLogScreen() {
             <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="default">{t(humanize(item.action))}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {t(item.actor_name ?? '')} · {new Date(item.created_at).toLocaleString()}
+                {t(item.actor_name ?? '')} · {formatDateTime(item.created_at)}
               </ThemedText>
               {item.reason ? (
                 <ThemedText type="small" themeColor="textSecondary">

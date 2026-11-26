@@ -725,4 +725,8 @@ export const sw: Record<string, string> = {
   'Open requests': 'Maombi yanayoendelea',
   'Nothing is waiting for a decision right now.': 'Hakuna ombi linalosubiri uamuzi kwa sasa.',
   'Decided in the last 30 days': 'Yaliyoamuliwa siku 30 zilizopita',
+  // Date and time stamps
+  'Date & time': 'Tarehe na saa',
+  'Voted on {date}': 'Ulipiga kura {date}',
+  'Requested {date}': 'Liliombwa {date}',
 };

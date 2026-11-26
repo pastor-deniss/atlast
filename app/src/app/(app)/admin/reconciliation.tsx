@@ -10,6 +10,7 @@ import { Card, Divider, icon, MenuRow, Pill, ProgressBar } from '@/components/ui
 import { TextField } from '@/components/ui/text-field';
 import { Brand, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { functionErrorMessage } from '@/lib/function-error';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -217,7 +218,7 @@ export default function ReconciliationScreen() {
             {latest ? (
               <Line
                 label={t('Actually held (last check, {date})', {
-                  date: new Date(latest.created_at).toLocaleDateString(),
+                  date: formatDateTime(latest.created_at),
                 })}
                 value={money(latest.actual_balance)}
                 strong
@@ -235,7 +236,7 @@ export default function ReconciliationScreen() {
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary" style={styles.resultText}>
                   {t('The money held matched the system on {date}.', {
-                    date: new Date(latest.created_at).toLocaleDateString(),
+                    date: formatDateTime(latest.created_at),
                   })}
                 </ThemedText>
               </View>
@@ -329,7 +330,7 @@ export default function ReconciliationScreen() {
                   <View style={styles.historyRow}>
                     <View style={styles.flex}>
                       <ThemedText type="smallBold">
-                        {new Date(c.created_at).toLocaleDateString()}
+                        {formatDateTime(c.created_at)}
                         {c.checker_name ? ` • ${c.checker_name}` : ''}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">

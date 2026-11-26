@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Divider, icon, MenuRow, Pill } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import {
   CATEGORY_LABELS,
@@ -118,7 +119,7 @@ export default function ComplaintDetailScreen() {
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               {isMine ? t('You') : memberName} • {t(CATEGORY_LABELS[complaint.category])} •{' '}
-              {new Date(complaint.created_at).toLocaleDateString()}
+              {formatDateTime(complaint.created_at)}
             </ThemedText>
             <Divider />
             <ThemedText type="default">{complaint.details}</ThemedText>
@@ -133,7 +134,7 @@ export default function ComplaintDetailScreen() {
                 <View style={styles.flex}>
                   <ThemedText type="smallBold">{t(TX_LABELS[tx.type] ?? tx.type)}</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    {new Date(tx.created_at).toLocaleDateString()}
+                    {formatDateTime(tx.created_at)}
                     {tx.reference ? ` • ${tx.reference}` : ''}
                   </ThemedText>
                 </View>
@@ -161,7 +162,7 @@ export default function ComplaintDetailScreen() {
             <Card>
               <ThemedText type="small" themeColor="textSecondary">
                 {t('Response from {name}', { name: responderName || t('Group Admin') })}
-                {complaint.responded_at ? ` • ${new Date(complaint.responded_at).toLocaleDateString()}` : ''}
+                {complaint.responded_at ? ` • ${formatDateTime(complaint.responded_at)}` : ''}
               </ThemedText>
               <ThemedText type="default">{complaint.admin_response}</ThemedText>
             </Card>

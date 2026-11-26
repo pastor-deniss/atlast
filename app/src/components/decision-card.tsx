@@ -6,6 +6,7 @@ import { Card, icon, IconBadge, Pill, ProgressBar } from '@/components/ui/screen
 import { Brand, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import type { DecisionItem, Verdict } from '@/lib/decisions';
 import { useT } from '@/lib/i18n';
 
@@ -177,8 +178,14 @@ export function DecisionCard({
         ) : footer ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
             {footer}
+            {item.myDecidedAt && item.myVerdict !== 'pending' ? `\n${formatDateTime(item.myDecidedAt)}` : ''}
           </ThemedText>
         ) : null}
+        {item.kind === 'membership' || item.status !== 'open' ? null : (
+          <ThemedText type="small" themeColor="textSecondary" style={[styles.center, styles.requested]}>
+            {t('Requested {date}', { date: formatDateTime(item.createdAt) })}
+          </ThemedText>
+        )}
       </Card>
     </Pressable>
   );
@@ -203,6 +210,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   tileLabel: { fontSize: 12 },
+  requested: { fontSize: 11 },
   voteButton: {
     alignItems: 'center',
     borderRadius: 12,

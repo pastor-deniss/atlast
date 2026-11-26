@@ -1,4 +1,5 @@
 import { STATUS } from '@/components/charts/status-colors';
+import { formatDateTime } from '@/lib/datetime';
 import { healthBand, type GroupOverview, type PeriodReport, type PeriodTotals } from '@/lib/group-report';
 
 // The group report as a printable page (shared as a PDF via the same export
@@ -126,7 +127,7 @@ export function groupReportHtml(
   <div class="band">
     <div class="brand">atlast<span>.</span></div>
     <h1>${escapeHtml(t('Group Report'))}</h1>
-    <div class="muted">${escapeHtml(input.groupName)} · ${escapeHtml(t('Generated'))} ${escapeHtml(new Date().toLocaleDateString())}</div>
+    <div class="muted">${escapeHtml(input.groupName)} · ${escapeHtml(t('Generated'))} ${escapeHtml(formatDateTime(new Date()))}</div>
   </div>
 
   <div class="section">

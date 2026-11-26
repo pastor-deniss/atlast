@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/screen';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import {
   computeGrowthSeries,
@@ -187,7 +188,7 @@ export default function ContributionsScreen() {
                 {group.currency} {item.amount.toLocaleString()}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {t(paymentMethodLabel(item.payment_method))} • {new Date(item.created_at).toLocaleDateString()}
+                {t(paymentMethodLabel(item.payment_method))} • {formatDateTime(item.created_at)}
               </ThemedText>
             </View>
             <View style={[styles.check, { backgroundColor: theme.backgroundSelected }]}>

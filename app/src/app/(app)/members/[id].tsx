@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
@@ -44,7 +45,7 @@ export default function MemberProfileScreen() {
         first_name: profile.first_name,
         last_name: profile.last_name,
         role: membership.role,
-        joinDate: new Date(membership.decided_at ?? membership.applied_at).toLocaleDateString(),
+        joinDate: formatDateTime(membership.decided_at ?? membership.applied_at),
       });
     })();
   }, [group, id]);

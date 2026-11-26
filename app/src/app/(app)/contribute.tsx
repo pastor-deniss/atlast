@@ -116,7 +116,13 @@ export default function ContributeScreen() {
 
     const transaction = (
       data as {
-        transaction: { amount: number; shares_earned: number; reference: string | null; payment_method: string };
+        transaction: {
+          amount: number;
+          shares_earned: number;
+          reference: string | null;
+          payment_method: string;
+          created_at: string;
+        };
       }
     ).transaction;
     router.replace({
@@ -126,6 +132,7 @@ export default function ContributeScreen() {
         sharesEarned: String(transaction.shares_earned),
         reference: transaction.reference ?? '',
         method: transaction.payment_method,
+        at: transaction.created_at,
       },
     });
   }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Chevron, icon, IconBadge, Pill } from '@/components/ui/screen';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import {
   CATEGORY_LABELS,
@@ -116,7 +117,7 @@ export default function ComplaintsScreen() {
                     </ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
                       {isAdmin ? `${mine ? t('You') : c.member_name} • ` : ''}
-                      {t(CATEGORY_LABELS[c.category])} • {new Date(c.created_at).toLocaleDateString()}
+                      {t(CATEGORY_LABELS[c.category])} • {formatDateTime(c.created_at)}
                     </ThemedText>
                     <Pill label={t(STATUS_LABELS[c.status])} tone={STATUS_TONES[c.status]} />
                   </View>

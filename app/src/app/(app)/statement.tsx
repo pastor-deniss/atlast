@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Divider, icon } from '@/components/ui/screen';
 import { Brand, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -170,7 +171,7 @@ export default function StatementScreen() {
                           {t(row.label)}
                         </ThemedText>
                         <ThemedText type="small" themeColor="textSecondary">
-                          {new Date(row.date).toLocaleDateString()}
+                          {formatDateTime(row.date)}
                           {row.method ? ` • ${t(row.method)}` : ''}
                           {row.reference ? ` • ${row.reference}` : ''}
                         </ThemedText>

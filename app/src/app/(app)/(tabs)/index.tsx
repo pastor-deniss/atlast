@@ -376,7 +376,7 @@ export default function HomeScreen() {
 
           {latestAnnouncement ? (
             <Pressable accessibilityRole="button" onPress={() => router.push('/(app)/announcements')}>
-              <AnnouncementCard announcement={latestAnnouncement} />
+              <AnnouncementCard announcement={latestAnnouncement} highlight />
             </Pressable>
           ) : null}
 

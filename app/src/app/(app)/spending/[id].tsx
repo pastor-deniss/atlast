@@ -11,6 +11,7 @@ import { Card, Divider, icon, Pill } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -128,12 +129,12 @@ export default function SpendRequestScreen() {
             <ThemedText type="small" themeColor="textSecondary">
               {t('Started by {name} on {date}', {
                 name: names.get(request.created_by) || t('Group Admin'),
-                date: new Date(request.created_at).toLocaleDateString(),
+                date: formatDateTime(request.created_at),
               })}
             </ThemedText>
             {request.paid_at ? (
               <ThemedText type="small" themeColor="textSecondary">
-                {t('Paid on {date}', { date: new Date(request.paid_at).toLocaleDateString() })}
+                {t('Paid on {date}', { date: formatDateTime(request.paid_at) })}
               </ThemedText>
             ) : null}
           </Card>
@@ -157,6 +158,11 @@ export default function SpendRequestScreen() {
                         {names.get(a.approver_id) || t('Member')}
                         {a.approver_id === me ? ` (${t('you')})` : ''}
                       </ThemedText>
+                      {a.decided_at ? (
+                        <ThemedText type="small" themeColor="textSecondary">
+                          {formatDateTime(a.decided_at)}
+                        </ThemedText>
+                      ) : null}
                       {a.comment ? (
                         <ThemedText type="small" themeColor="textSecondary">
                           “{a.comment}”

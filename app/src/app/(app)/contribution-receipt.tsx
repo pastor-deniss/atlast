@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { useT } from '@/lib/i18n';
 import { paymentMethodLabel } from '@/lib/payment-methods';
@@ -17,11 +18,12 @@ export default function ContributionReceiptScreen() {
   const router = useRouter();
   const { group } = useMembership();
   const t = useT();
-  const { amount, sharesEarned, reference, method } = useLocalSearchParams<{
+  const { amount, sharesEarned, reference, method, at } = useLocalSearchParams<{
     amount: string;
     sharesEarned: string;
     reference: string;
     method?: string;
+    at?: string;
   }>();
 
   return (
@@ -50,6 +52,12 @@ export default function ContributionReceiptScreen() {
             <ThemedText type="default">{t('Shares Earned')}</ThemedText>
             <ThemedText type="default">{sharesEarned}</ThemedText>
           </View>
+          {at ? (
+            <View style={styles.row}>
+              <ThemedText type="default">{t('Date & time')}</ThemedText>
+              <ThemedText type="default">{formatDateTime(at)}</ThemedText>
+            </View>
+          ) : null}
           <View style={styles.row}>
             <ThemedText type="default">{t('Status')}</ThemedText>
             <ThemedText type="default" themeColor="primary">

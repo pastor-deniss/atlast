@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Chevron, Divider, icon, IconBadge, Pill } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { Brand, MaxContentWidth, Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -98,7 +99,7 @@ export default function SpendingListScreen() {
         <View style={styles.flex}>
           <ThemedText type="smallBold">{title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-            {r.reason} · {new Date(r.created_at).toLocaleDateString()}
+            {r.reason} · {formatDateTime(r.created_at)}
           </ThemedText>
           <View style={styles.pillRow}>
             <Pill label={t(STATUS_LABEL[r.status])} tone={STATUS_TONE[r.status]} />

@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import { CATEGORY_LABELS, type ComplaintCategory } from '@/lib/complaints';
 import { functionErrorMessage } from '@/lib/function-error';
@@ -141,7 +142,7 @@ export default function NewComplaintScreen() {
                   <View style={styles.flex}>
                     <ThemedText type="smallBold">{t(TX_LABELS[tx.type] ?? tx.type)}</ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
-                      {new Date(tx.created_at).toLocaleDateString()}
+                      {formatDateTime(tx.created_at)}
                       {tx.reference ? ` • ${tx.reference}` : ''}
                     </ThemedText>
                   </View>

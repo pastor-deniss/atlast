@@ -33,6 +33,7 @@ export type DecisionItem = {
   needed: number | null;
   myRole: 'decider' | 'applicant' | 'viewer';
   myVerdict: Verdict | null; // when myRole is decider
+  myDecidedAt: string | null; // when I voted / reviewed
   closesAt: string | null; // membership votes
 };
 
@@ -88,8 +89,8 @@ export async function loadDecisions(
       ? supabase.from('motion_tallies').select('motion_id, approve_count, decline_count').in('motion_id', motionIds)
       : Promise.resolve({ data: [] as { motion_id: string; approve_count: number; decline_count: number }[] }),
     motionIds.length
-      ? supabase.from('votes').select('motion_id, choice').eq('voter_id', me).in('motion_id', motionIds)
-      : Promise.resolve({ data: [] as { motion_id: string; choice: string }[] }),
+      ? supabase.from('votes').select('motion_id, choice, voted_at').eq('voter_id', me).in('motion_id', motionIds)
+      : Promise.resolve({ data: [] as { motion_id: string; choice: string; voted_at: string }[] }),
   ]);
 
   // Loans: anonymous decision lists for everyone; reviewer rows (names) only
@@ -100,11 +101,11 @@ export async function loadDecisions(
       ? supabase.from('loan_review_progress').select('loan_id, reviewer_decisions').in('loan_id', loanIds)
       : Promise.resolve({ data: [] as { loan_id: string; reviewer_decisions: string[] }[] }),
     loanIds.length
-      ? supabase.from('loan_reviewers').select('loan_id, reviewer_id, decision, assigned_at').in('loan_id', loanIds).order('assigned_at')
-      : Promise.resolve({ data: [] as { loan_id: string; reviewer_id: string; decision: string; assigned_at: string }[] }),
+      ? supabase.from('loan_reviewers').select('loan_id, reviewer_id, decision, assigned_at, decided_at').in('loan_id', loanIds).order('assigned_at')
+      : Promise.resolve({ data: [] as { loan_id: string; reviewer_id: string; decision: string; assigned_at: string; decided_at: string | null }[] }),
     spends.length
-      ? supabase.from('group_spend_approvers').select('request_id, approver_id, decision').in('request_id', spends.map((s) => s.id))
-      : Promise.resolve({ data: [] as { request_id: string; approver_id: string; decision: string }[] }),
+      ? supabase.from('group_spend_approvers').select('request_id, approver_id, decision, decided_at').in('request_id', spends.map((s) => s.id))
+      : Promise.resolve({ data: [] as { request_id: string; approver_id: string; decision: string; decided_at: string | null }[] }),
   ]);
 
   const subjects = new Map((subjectsRes.data ?? []).map((m) => [m.id, m]));
@@ -138,6 +139,7 @@ export async function loadDecisions(
       needed: null,
       myRole: 'decider',
       myVerdict: mine ? verdictOf(mine.choice) : 'pending',
+      myDecidedAt: mine?.voted_at ?? null,
       closesAt: m.closes_at,
     });
   }
@@ -173,6 +175,7 @@ export async function loadDecisions(
       needed: l.review_mode === 'three_eye' ? 2 : null,
       myRole: myRow ? 'decider' : isBorrower ? 'applicant' : 'viewer',
       myVerdict: myRow ? verdictOf(myRow.decision) : null,
+      myDecidedAt: myRow?.decided_at ?? null,
       closesAt: null,
     });
   }
@@ -195,6 +198,7 @@ export async function loadDecisions(
       needed: rows.length ? rows.length : null,
       myRole: mine ? 'decider' : s.beneficiary_id === me ? 'applicant' : 'viewer',
       myVerdict: mine ? verdictOf(mine.decision) : null,
+      myDecidedAt: mine?.decided_at ?? null,
       closesAt: null,
     });
   }

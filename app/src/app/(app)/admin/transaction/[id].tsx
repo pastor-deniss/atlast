@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
@@ -149,7 +150,7 @@ export default function AdminTransactionDetailScreen() {
             {group.currency} {txn.amount.toLocaleString()}
           </ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            {t(txn.type.replace('_', ' '))} · {new Date(txn.created_at).toLocaleString()}
+            {t(txn.type.replace('_', ' '))} · {formatDateTime(txn.created_at)}
           </ThemedText>
           {memberName ? <ThemedText type="default">{memberName}</ThemedText> : null}
           {txn.type === 'contribution' || txn.type === 'repayment' ? (

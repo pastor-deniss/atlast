@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/lib/datetime';
 import { paymentMethodLabel } from '@/lib/payment-methods';
 import { supabase } from '@/lib/supabase';
 
@@ -199,7 +200,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
       : s.rows
           .map(
             (r) => `<tr>
-  <td>${escapeHtml(formatDate(r.date))}</td>
+  <td>${escapeHtml(formatDateTime(r.date))}</td>
   <td>${escapeHtml(t(r.label))}${r.method ? `<div class="sub">${escapeHtml(t(r.method))}</div>` : ''}</td>
   <td class="ref">${escapeHtml(r.reference ?? '—')}</td>
   <td class="num">${r.amount >= 0 ? money(r.amount) : ''}</td>
@@ -246,7 +247,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
   <div class="meta">
     <div><div class="label">${escapeHtml(t('Member'))}</div><div class="value">${escapeHtml(s.memberName)}</div></div>
     <div><div class="label">${escapeHtml(t('Period'))}</div><div class="value">${escapeHtml(periodText)}</div></div>
-    <div><div class="label">${escapeHtml(t('Generated'))}</div><div class="value">${escapeHtml(formatDate(s.generatedAt))}</div></div>
+    <div><div class="label">${escapeHtml(t('Generated'))}</div><div class="value">${escapeHtml(formatDateTime(s.generatedAt))}</div></div>
   </div>
   <div class="cards">
     <div class="card"><div class="label">${escapeHtml(t('Total Savings'))}</div><div class="value">${money(s.savings)}</div></div>

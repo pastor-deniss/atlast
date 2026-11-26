@@ -8,6 +8,7 @@ import { Card, Divider, icon, IconBadge } from '@/components/ui/screen';
 import { Brand, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useT } from '@/lib/i18n';
 import {
   describe,
@@ -106,7 +107,7 @@ export default function NotificationsScreen() {
                           </ThemedText>
                         ) : null}
                         <ThemedText type="small" themeColor="textSecondary" style={styles.time}>
-                          {timeAgo(n.created_at, t)}
+                          {timeAgo(n.created_at, t)} · {formatDateTime(n.created_at)}
                         </ThemedText>
                       </View>
                       {unread ? <View style={[styles.dot, { backgroundColor: unreadDot }]} /> : null}

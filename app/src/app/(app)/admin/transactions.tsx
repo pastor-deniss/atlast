@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
@@ -78,7 +79,7 @@ export default function AdminTransactionsScreen() {
               <View>
                 <ThemedText type="default">{t(item.type.replace('_', ' '))}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {new Date(item.created_at).toLocaleDateString()}
+                  {formatDateTime(item.created_at)}
                   {item.type === 'contribution' || item.type === 'repayment'
                     ? ` · ${t(paymentMethodLabel(item.payment_method))}`
                     : ''}

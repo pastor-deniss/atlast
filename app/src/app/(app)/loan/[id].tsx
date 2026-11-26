@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
@@ -440,9 +441,12 @@ export default function LoanDetailScreen() {
             <View style={styles.section}>
               <ThemedText type="subtitle">{t('Messages from Reviewers')}</ThemedText>
               {messages.map((m, i) => (
-                <ThemedText key={i} type="default">
-                  {m.message}
-                </ThemedText>
+                <View key={i}>
+                  <ThemedText type="default">{m.message}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {formatDateTime(m.created_at)}
+                  </ThemedText>
+                </View>
               ))}
             </View>
           ) : null}

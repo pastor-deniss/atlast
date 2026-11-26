@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
+import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
@@ -168,7 +169,7 @@ export default function ReconciliationCaseScreen() {
               {item.notes ? <ThemedText type="default">{item.notes}</ThemedText> : null}
               {item.resolved_at ? (
                 <ThemedText type="small" themeColor="textSecondary">
-                  {t('Resolved {date}', { date: new Date(item.resolved_at).toLocaleString() })}
+                  {t('Resolved {date}', { date: formatDateTime(item.resolved_at) })}
                 </ThemedText>
               ) : null}
             </View>
