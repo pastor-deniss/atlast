@@ -77,7 +77,7 @@ export default function AdminMembershipReviewScreen() {
       const motion = (data as { motion: { id: string } }).motion;
       router.replace({ pathname: '/(app)/governance/[id]', params: { id: motion.id } });
     } else {
-      router.replace('/(app)/governance');
+      router.replace('/governance');
     }
   }
 

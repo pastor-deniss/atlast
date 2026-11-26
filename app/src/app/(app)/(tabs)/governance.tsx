@@ -1,12 +1,20 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import {
+  Card,
+  Chevron,
+  Divider,
+  icon,
+  IconBadge,
+  Pill,
+  Screen,
+  ScreenHeader,
+  SectionTitle,
+} from '@/components/ui/screen';
 import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
@@ -33,7 +41,6 @@ function daysRemaining(closesAt: string) {
 // (open + past) both live here since a Group Admin is also a voting member.
 export default function GovernanceScreen() {
   const router = useRouter();
-  const theme = useTheme();
   const t = useT();
   const { session } = useSession();
   const { group, membership } = useMembership();
@@ -45,7 +52,8 @@ export default function GovernanceScreen() {
 
   const isAdmin = membership?.role === 'group_admin';
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     if (!group || !session) return;
     (async () => {
       setLoading(true);
@@ -115,96 +123,110 @@ export default function GovernanceScreen() {
       setPastMotions(enriched.filter((m) => m.status !== 'open'));
       setLoading(false);
     })();
-  }, [group, session, isAdmin]);
+  }, [group, session, isAdmin])
+  );
 
   if (!group) return null;
 
   return (
-    <ThemedView style={styles.flex}>
-      <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <FlatList
-          data={openMotions}
-          keyExtractor={(m) => m.id}
-          refreshing={loading}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              {isAdmin && pending.length > 0 ? (
-                <View style={styles.section}>
-                  <ThemedText type="subtitle">{t('Pending Applications')}</ThemedText>
-                  {pending.map((p) => (
-                    <Pressable
-                      key={p.id}
-                      onPress={() =>
-                        router.push({ pathname: '/(app)/governance/application/[id]', params: { id: p.id } })
-                      }
-                      style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-                      <ThemedText type="default">{p.name}</ThemedText>
-                      <ThemedText type="small" themeColor="primary">
-                        {t('Review →')}
-                      </ThemedText>
-                    </Pressable>
-                  ))}
-                </View>
-              ) : null}
-
-              <ThemedText type="subtitle" style={styles.sectionTitle}>
-                {t('Open Votes')}
-              </ThemedText>
-              {openMotions.length === 0 && !loading ? (
-                <ThemedText type="default" themeColor="textSecondary">
-                  {t('No open votes right now.')}
-                </ThemedText>
-              ) : null}
-            </View>
-          }
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => router.push({ pathname: '/(app)/governance/[id]', params: { id: item.id } })}
-              style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="default">{item.applicant_name}</ThemedText>
-              <View style={styles.row}>
-                <ThemedText type="small" themeColor={item.my_vote ? 'primary' : 'textSecondary'}>
-                  {item.my_vote ? t('Your vote: Cast') : t('Your vote: Not yet cast')}
-                </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t('{days}d left', { days: daysRemaining(item.closes_at) })}
-                </ThemedText>
-              </View>
-            </Pressable>
-          )}
-          ListFooterComponent={
-            pastMotions.length > 0 ? (
-              <View>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                  {t('Past Motions')}
-                </ThemedText>
-                {pastMotions.map((m) => (
-                  <Pressable
-                    key={m.id}
-                    onPress={() => router.push({ pathname: '/(app)/governance/[id]', params: { id: m.id } })}
-                    style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-                    <ThemedText type="default">{m.applicant_name}</ThemedText>
-                    <ThemedText type="small" themeColor={m.status === 'approved' ? 'primary' : 'danger'}>
-                      {m.status === 'approved' ? t('Approved') : t('Declined')}
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </View>
-            ) : null
-          }
+    <Screen
+      header={
+        <ScreenHeader
+          title={t('Governance')}
+          subtitle={t('Membership decisions by the whole group')}
+          admin={isAdmin}
         />
-      </SafeAreaView>
-    </ThemedView>
+      }>
+      {isAdmin && pending.length > 0 ? (
+        <>
+          <SectionTitle title={t('Pending Applications')} iconName={icon('person.badge.plus', 'person_add')} />
+          {pending.map((p) => (
+            <Pressable
+              key={p.id}
+              accessibilityRole="button"
+              onPress={() =>
+                router.push({ pathname: '/(app)/governance/application/[id]', params: { id: p.id } })
+              }>
+              <Card style={styles.row}>
+                <IconBadge name={icon('person', 'person')} size={40} />
+                <View style={styles.main}>
+                  <ThemedText type="smallBold" style={styles.name}>
+                    {p.name}
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="primary">
+                    {t('Review →')}
+                  </ThemedText>
+                </View>
+                <Chevron />
+              </Card>
+            </Pressable>
+          ))}
+        </>
+      ) : null}
+
+      <SectionTitle title={t('Open Votes')} iconName={icon('checkmark.square', 'how_to_vote')} />
+      {openMotions.length === 0 && !loading ? (
+        <Card>
+          <ThemedText type="default" themeColor="textSecondary" style={styles.center}>
+            {t('No open votes right now.')}
+          </ThemedText>
+        </Card>
+      ) : null}
+      {openMotions.map((item) => (
+        <Pressable
+          key={item.id}
+          accessibilityRole="button"
+          onPress={() => router.push({ pathname: '/(app)/governance/[id]', params: { id: item.id } })}>
+          <Card style={styles.row}>
+            <IconBadge name={icon('person.badge.plus', 'person_add')} size={40} />
+            <View style={styles.main}>
+              <ThemedText type="smallBold" style={styles.name}>
+                {item.applicant_name}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('Membership application')} · {t('{days}d left', { days: daysRemaining(item.closes_at) })}
+              </ThemedText>
+            </View>
+            <Pill
+              label={item.my_vote ? t('Voted') : t('Vote now')}
+              tone={item.my_vote ? 'good' : 'warn'}
+            />
+          </Card>
+        </Pressable>
+      ))}
+
+      {pastMotions.length > 0 ? (
+        <>
+          <SectionTitle title={t('Past Motions')} iconName={icon('clock', 'history')} />
+          <Card>
+            {pastMotions.map((m, i) => (
+              <View key={m.id}>
+                {i > 0 ? <Divider /> : null}
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push({ pathname: '/(app)/governance/[id]', params: { id: m.id } })}
+                  style={styles.pastRow}>
+                  <ThemedText type="default" style={styles.main}>
+                    {m.applicant_name}
+                  </ThemedText>
+                  <Pill
+                    label={m.status === 'approved' ? t('Approved') : t('Declined')}
+                    tone={m.status === 'approved' ? 'good' : 'bad'}
+                  />
+                </Pressable>
+              </View>
+            ))}
+          </Card>
+        </>
+      ) : null}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  list: { padding: Spacing.four, gap: Spacing.two },
-  header: { gap: Spacing.two },
-  section: { gap: Spacing.two },
-  sectionTitle: { marginTop: Spacing.three },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  card: { gap: Spacing.one, padding: Spacing.three, borderRadius: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  main: { flex: 1, gap: Spacing.half },
+  name: { fontSize: 16 },
+  center: { textAlign: 'center' },
+  pastRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.two, gap: Spacing.two },
 });

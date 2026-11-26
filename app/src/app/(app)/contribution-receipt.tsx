@@ -54,8 +54,8 @@ export default function ContributionReceiptScreen() {
           </View>
 
           <View style={styles.spacer} />
-          <Button title={t('View History')} onPress={() => router.replace('/(app)/contributions')} />
-          <Button title={t('Back to Home')} variant="secondary" onPress={() => router.replace('/(app)')} />
+          <Button title={t('View History')} onPress={() => router.replace('/contributions')} />
+          <Button title={t('Back to Home')} variant="secondary" onPress={() => router.replace('/')} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

@@ -21,7 +21,7 @@ export default function WelcomeToGroupScreen() {
 
   async function handleEnter() {
     if (flagKey) await AsyncStorage.setItem(flagKey, 'true');
-    router.replace('/(app)');
+    router.replace('/');
   }
 
   return (

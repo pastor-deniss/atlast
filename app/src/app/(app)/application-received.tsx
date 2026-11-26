@@ -24,7 +24,7 @@ export default function ApplicationReceivedScreen() {
           <ThemedText type="default" themeColor="textSecondary">
             {t('Your application to join {group} has been received and is being reviewed.', { group: groupName ?? '' })}
           </ThemedText>
-          <Button title={t('Back to Home')} onPress={() => router.replace('/(app)')} />
+          <Button title={t('Back to Home')} onPress={() => router.replace('/')} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

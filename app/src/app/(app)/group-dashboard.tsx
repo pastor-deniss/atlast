@@ -95,7 +95,7 @@ export default function GroupDashboardScreen() {
           </View>
 
           <View style={styles.spacer} />
-          <Button title={t('Member Directory')} onPress={() => router.push('/(app)/members')} />
+          <Button title={t('Member Directory')} onPress={() => router.push('/members')} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

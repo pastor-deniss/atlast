@@ -7,10 +7,10 @@ import { useT } from '@/lib/i18n';
 
 // Keeps Home underneath any screen opened directly by URL (e.g. after a
 // browser reload on /loan/123), so the header's back button still works.
-export const unstable_settings = { initialRouteName: 'index' };
+export const unstable_settings = { initialRouteName: '(tabs)' };
 
-// Full tab navigation (Home/Members/Money/Governance/More) lands once
-// Governance/Reporting (tickets 18-19) exist. For now this is a plain stack.
+// The tab bar (Home/Members/Contributions/Votes/More) lives in (tabs);
+// everything else opens on this stack, on top of it.
 export default function AppLayout() {
   const contentStyle = useCenteredColumnStyle(MaxContentWidth);
   const t = useT();
@@ -18,7 +18,7 @@ export default function AppLayout() {
   return (
     <MembershipProvider>
       <Stack screenOptions={{ headerShown: false, contentStyle }}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="join-group" options={{ headerShown: true, title: t('Join a Group') }} />
         <Stack.Screen name="application-received" />
         <Stack.Screen name="welcome-to-group" />
@@ -26,21 +26,12 @@ export default function AppLayout() {
           name="group-dashboard"
           options={{ headerShown: true, title: t('Group Dashboard') }}
         />
-        <Stack.Screen
-          name="members/index"
-          options={{ headerShown: true, title: t('Member Directory') }}
-        />
         <Stack.Screen name="members/[id]" options={{ headerShown: true, title: t('Member') }} />
         <Stack.Screen name="contribute" options={{ headerShown: true, title: t('Make Contribution') }} />
         <Stack.Screen name="contribution-receipt" />
-        <Stack.Screen
-          name="contributions"
-          options={{ headerShown: true, title: t('Contributions') }}
-        />
         <Stack.Screen name="loan/index" options={{ headerShown: true, title: t('My Loan') }} />
         <Stack.Screen name="loan/apply" options={{ headerShown: true, title: t('Loan Application') }} />
         <Stack.Screen name="loan/[id]" options={{ headerShown: true, title: t('Loan') }} />
-        <Stack.Screen name="governance/index" options={{ headerShown: true, title: t('Governance') }} />
         <Stack.Screen name="governance/[id]" options={{ headerShown: true, title: t('Vote') }} />
         <Stack.Screen
           name="governance/application/[id]"
@@ -60,7 +51,6 @@ export default function AppLayout() {
         <Stack.Screen name="admin/reports" options={{ headerShown: true, title: t('Reports') }} />
         <Stack.Screen name="admin/audit-log" options={{ headerShown: true, title: t('Audit Log') }} />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />
-        <Stack.Screen name="settings/index" options={{ headerShown: true, title: t('Settings') }} />
         <Stack.Screen name="settings/profile" options={{ headerShown: true, title: t('Profile') }} />
         <Stack.Screen name="settings/security" options={{ headerShown: true, title: t('Security') }} />
       </Stack>
