@@ -916,4 +916,9 @@ export const sw: Record<string, string> = {
   'Loan declined': 'Mkopo umekataliwa',
   'Spend approved': 'Matumizi yameidhinishwa',
   'Spend declined': 'Matumizi yamekataliwa',
+  // Past results
+  'Past results': 'Matokeo yaliyopita',
+  'Every decided vote and approval, read only': 'Kila kura na idhini iliyoamuliwa, kusoma tu',
+  'Decisions from the last 12 months. Read only: these can no longer be changed.': 'Maamuzi ya miezi 12 iliyopita. Kusoma tu: haya hayawezi kubadilishwa tena.',
+  'No decided votes yet.': 'Bado hakuna kura zilizoamuliwa.',
 };

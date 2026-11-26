@@ -33,6 +33,7 @@ export default function AppLayout() {
         <Stack.Screen name="loan/apply" options={{ headerShown: true, title: t('Loan Application') }} />
         <Stack.Screen name="loan/[id]" options={{ headerShown: true, title: t('Loan') }} />
         <Stack.Screen name="governance/[id]" options={{ headerShown: true, title: t('Vote') }} />
+        <Stack.Screen name="governance/results" options={{ headerShown: true, title: t('Past results') }} />
         <Stack.Screen
           name="governance/application/[id]"
           options={{ headerShown: true, title: t('Membership Review') }}

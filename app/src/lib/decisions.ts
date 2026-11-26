@@ -46,9 +46,10 @@ function verdictOf(decision: string | null | undefined): Verdict {
 export async function loadDecisions(
   groupId: string,
   me: string,
-  isAdmin: boolean
+  isAdmin: boolean,
+  recentDays: number = RECENT_DAYS
 ): Promise<{ open: DecisionItem[]; recent: DecisionItem[] }> {
-  const since = new Date(Date.now() - RECENT_DAYS * 86_400_000).toISOString();
+  const since = new Date(Date.now() - recentDays * 86_400_000).toISOString();
 
   const [motionsRes, loansRes, spendRes, membersRes] = await Promise.all([
     supabase

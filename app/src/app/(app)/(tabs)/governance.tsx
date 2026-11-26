@@ -134,11 +134,20 @@ export default function GovernanceScreen() {
         <DecisionCard key={`${item.kind}-${item.id}`} item={item} currency={group.currency} onPress={() => openItem(item)} />
       ))}
 
-      {isAdmin ? (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-          {t('Once a vote or approval is decided it leaves this list. Its result is kept in the Audit Log.')}
-        </ThemedText>
-      ) : null}
+      <Pressable accessibilityRole="button" onPress={() => router.push('/(app)/governance/results')}>
+        <Card style={styles.row}>
+          <IconBadge name={icon('clock', 'history')} size={40} />
+          <View style={styles.main}>
+            <ThemedText type="smallBold" style={styles.name}>
+              {t('Past results')}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('Every decided vote and approval, read only')}
+            </ThemedText>
+          </View>
+          <Chevron />
+        </Card>
+      </Pressable>
     </Screen>
   );
 }
