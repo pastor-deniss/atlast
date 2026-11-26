@@ -1,4 +1,5 @@
 import { useFocusEffect } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -8,7 +9,7 @@ import { HealthGauge } from '@/components/charts/health-gauge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Card, Divider, icon, IconBadge, Pill } from '@/components/ui/screen';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Brand, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import {
   healthBand,
@@ -18,9 +19,11 @@ import {
   type PeriodReport,
   type PeriodTotals,
 } from '@/lib/group-report';
+import { groupReportFileName, groupReportHtml } from '@/lib/group-report-html';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
 import { isFuturePeriod, shiftPeriod, type ReportPeriodType } from '@/lib/report-periods';
+import { exportStatementPdf } from '@/lib/statement-export';
 
 const PERIOD_TYPES: { key: ReportPeriodType; label: string }[] = [
   { key: 'monthly', label: 'Monthly' },
@@ -110,6 +113,8 @@ export default function ReportsScreen() {
   const [reference, setReference] = useState(new Date());
   const [period, setPeriod] = useState<{ report: PeriodReport; trend: PeriodTotals[] } | null>(null);
   const [measure, setMeasure] = useState<TrendMeasure>('contributions');
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!group || !isAdmin) return;
@@ -141,6 +146,25 @@ export default function ReportsScreen() {
   const money = (n: number) => `${group.currency} ${Math.round(n).toLocaleString()}`;
   const band = overview ? healthBand(overview.health.score) : null;
   const nextDisabled = isFuturePeriod(type, shiftPeriod(type, reference, 1));
+
+  async function share() {
+    if (!overview || !period || !group) return;
+    setShareError(null);
+    setSharing(true);
+    try {
+      await exportStatementPdf(
+        groupReportHtml(
+          { groupName: group.name, currency: group.currency, overview, period: period.report, trend: period.trend, measure },
+          t
+        ),
+        groupReportFileName(group.name, period.report.title)
+      );
+    } catch {
+      setShareError('Could not create the report. Please try again.');
+    } finally {
+      setSharing(false);
+    }
+  }
 
   return (
     <ThemedView style={styles.flex}>
@@ -269,6 +293,24 @@ export default function ReportsScreen() {
               </View>
             </Card>
           ) : null}
+
+          {overview && period ? (
+            <Pressable
+              accessibilityRole="button"
+              disabled={sharing}
+              onPress={share}
+              style={({ pressed }) => [styles.shareButton, { opacity: pressed || sharing ? 0.8 : 1 }]}>
+              <SymbolView name={icon('square.and.arrow.up', 'share')} size={20} tintColor={Brand.cream} />
+              <ThemedText type="default" style={styles.shareText}>
+                {sharing ? t('Preparing…') : t('Share Report')}
+              </ThemedText>
+            </Pressable>
+          ) : null}
+          {shareError ? (
+            <ThemedText type="small" themeColor="danger">
+              {t(shareError)}
+            </ThemedText>
+          ) : null}
         </View>
       </ScrollView>
     </ThemedView>
@@ -289,5 +331,15 @@ const styles = StyleSheet.create({
   miniValue: { fontSize: 22, lineHeight: 28 },
   segmented: { flexDirection: 'row', borderRadius: 12, padding: 3 },
   segment: { flex: 1, paddingVertical: Spacing.two, paddingHorizontal: Spacing.one, borderRadius: 10 },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+    backgroundColor: Brand.green,
+    borderRadius: 16,
+    paddingVertical: Spacing.three,
+  },
+  shareText: { color: Brand.cream, fontWeight: '700', fontSize: 17 },
   periodPicker: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.four },
 });

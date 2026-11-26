@@ -693,4 +693,10 @@ export const sw: Record<string, string> = {
   'Say what the money is for.': 'Eleza fedha ni za nini.',
   'Choose 3 approvers.': 'Chagua waidhinishaji 3.',
   'Amount must be zero or more.': 'Kiasi lazima kiwe sifuri au zaidi.',
+  // Share report
+  'Share Report': 'Shiriki Ripoti',
+  'Preparing…': 'Inaandaa…',
+  'Group Report': 'Ripoti ya Kikundi',
+  'Could not create the report. Please try again.': 'Imeshindikana kuandaa ripoti. Tafadhali jaribu tena.',
+  'Figures are worked out from the group ledger at the time this report was made. Jamii money is kept apart and not included in savings or money held.': 'Takwimu zimekokotolewa kutoka leja ya kikundi wakati ripoti hii ilipoandaliwa. Fedha za Jamii zimetengwa na hazijajumuishwa kwenye akiba wala fedha zilizopo.',
 };
