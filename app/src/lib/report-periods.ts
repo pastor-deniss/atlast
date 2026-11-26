@@ -28,12 +28,20 @@ export function periodLabel(type: ReportPeriodType, reference: Date): string {
   return String(reference.getFullYear());
 }
 
-export function shiftPeriod(type: ReportPeriodType, reference: Date, direction: 1 | -1): Date {
-  const copy = new Date(reference);
-  if (type === 'monthly') copy.setMonth(copy.getMonth() + direction);
-  else if (type === 'quarterly') copy.setMonth(copy.getMonth() + direction * 3);
-  else copy.setFullYear(copy.getFullYear() + direction);
+/** Move by `steps` periods (negative = back). Shifts from the period's first day, so the 31st never skips a month. */
+export function shiftPeriod(type: ReportPeriodType, reference: Date, steps: number): Date {
+  const copy = periodBounds(type, reference).start;
+  if (type === 'monthly') copy.setMonth(copy.getMonth() + steps);
+  else if (type === 'quarterly') copy.setMonth(copy.getMonth() + steps * 3);
+  else copy.setFullYear(copy.getFullYear() + steps);
   return copy;
+}
+
+/** Compact label for chart axes: "Nov", "Q3", "2026". */
+export function shortPeriodLabel(type: ReportPeriodType, reference: Date): string {
+  if (type === 'monthly') return reference.toLocaleDateString(undefined, { month: 'short' });
+  if (type === 'quarterly') return `Q${Math.floor(reference.getMonth() / 3) + 1}`;
+  return String(reference.getFullYear());
 }
 
 export function isFuturePeriod(type: ReportPeriodType, reference: Date): boolean {

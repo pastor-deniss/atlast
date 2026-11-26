@@ -1,33 +1,26 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BarList } from '@/components/charts/bar-list';
+import { ColumnChart } from '@/components/charts/column-chart';
+import { HealthGauge } from '@/components/charts/health-gauge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Button } from '@/components/ui/button';
-import { Spacing } from '@/constants/theme';
+import { Card, Divider, icon, IconBadge, Pill } from '@/components/ui/screen';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useMembership } from '@/lib/membership-context';
 import {
-  isFuturePeriod,
-  periodBounds,
-  periodLabel,
-  shiftPeriod,
-  type ReportPeriodType,
-} from '@/lib/report-periods';
-import { supabase } from '@/lib/supabase';
+  healthBand,
+  loadGroupOverview,
+  loadPeriodReport,
+  type GroupOverview,
+  type PeriodReport,
+  type PeriodTotals,
+} from '@/lib/group-report';
 import { useT } from '@/lib/i18n';
-
-type Report = {
-  contributions: number;
-  disbursed: number;
-  repayments: number;
-  newMembers: number;
-  loansApproved: number;
-  loansDeclined: number;
-  motionsApproved: number;
-  motionsDeclined: number;
-};
+import { useMembership } from '@/lib/membership-context';
+import { isFuturePeriod, shiftPeriod, type ReportPeriodType } from '@/lib/report-periods';
 
 const PERIOD_TYPES: { key: ReportPeriodType; label: string }[] = [
   { key: 'monthly', label: 'Monthly' },
@@ -35,169 +28,266 @@ const PERIOD_TYPES: { key: ReportPeriodType; label: string }[] = [
   { key: 'annual', label: 'Annual' },
 ];
 
-function ReportRow({ label, value }: { label: string; value: string | number }) {
-  const t = useT();
+type TrendMeasure = 'contributions' | 'disbursed' | 'repayments';
+const MEASURES: { key: TrendMeasure; label: string }[] = [
+  { key: 'contributions', label: 'Contributions' },
+  { key: 'disbursed', label: 'Loans Disbursed' },
+  { key: 'repayments', label: 'Repayments Collected' },
+];
+
+function StatTile({ iconName, label, value }: { iconName: [string, string]; label: string; value: string }) {
   return (
-    <View style={styles.row}>
-      <ThemedText type="default">{t(label)}</ThemedText>
-      <ThemedText type="default">{value}</ThemedText>
+    <Card style={styles.statTile}>
+      <IconBadge name={icon(iconName[0], iconName[1])} size={48} />
+      <View style={styles.flex}>
+        <ThemedText type="small" themeColor="textSecondary">
+          {label}
+        </ThemedText>
+        <ThemedText type="subtitle" style={styles.statValue}>
+          {value}
+        </ThemedText>
+      </View>
+    </Card>
+  );
+}
+
+function MiniTile({ iconName, value, label }: { iconName: [string, string]; value: string; label: string }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.miniTile, { backgroundColor: theme.backgroundSelected }]}>
+      <IconBadge name={icon(iconName[0], iconName[1])} size={32} />
+      <ThemedText type="subtitle" style={styles.miniValue}>
+        {value}
+      </ThemedText>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+        {label}
+      </ThemedText>
     </View>
   );
 }
 
-// Ticket 19: "Generate Report" computes live from transactions/loans/
-// memberships/motions and renders -- no `reports` table, no persistence, no
-// PDF export (same precedent as ticket 16's contribution receipt).
-export default function ReportsScreen() {
+function Segmented<K extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { key: K; label: string }[];
+  value: K;
+  onChange: (k: K) => void;
+}) {
   const theme = useTheme();
-  const { group, membership } = useMembership();
   const t = useT();
+  return (
+    <View style={[styles.segmented, { backgroundColor: theme.backgroundSelected }]}>
+      {options.map((o) => {
+        const active = o.key === value;
+        return (
+          <Pressable
+            key={o.key}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            onPress={() => onChange(o.key)}
+            style={[styles.segment, active && { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type={active ? 'smallBold' : 'small'} numberOfLines={1} style={styles.center}>
+              {t(o.label)}
+            </ThemedText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+// Group report: a health score, headline figures and charts, computed live
+// from the ledger (nothing stored). Admin-only, as before.
+export default function ReportsScreen() {
+  const t = useT();
+  const { group, membership } = useMembership();
+  const isAdmin = membership?.role === 'group_admin';
+
+  const [overview, setOverview] = useState<GroupOverview | null>(null);
   const [type, setType] = useState<ReportPeriodType>('monthly');
   const [reference, setReference] = useState(new Date());
-  const [report, setReport] = useState<Report | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [period, setPeriod] = useState<{ report: PeriodReport; trend: PeriodTotals[] } | null>(null);
+  const [measure, setMeasure] = useState<TrendMeasure>('contributions');
 
-  const isAdmin = membership?.role === 'group_admin';
+  const load = useCallback(async () => {
+    if (!group || !isAdmin) return;
+    const [o, p] = await Promise.all([
+      loadGroupOverview(group.id, group.contribution_frequency ?? 'monthly'),
+      loadPeriodReport(group.id, type, reference),
+    ]);
+    setOverview(o);
+    setPeriod(p);
+  }, [group, isAdmin, type, reference]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   if (!group || !membership) return null;
   if (!isAdmin) {
     return (
-      <ThemedView style={styles.flex}>
-        <SafeAreaView style={styles.flex} edges={['bottom']}>
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            <ThemedText type="default" themeColor="textSecondary">
-              {t('This area is for Group Admins only.')}
-            </ThemedText>
-          </ScrollView>
-        </SafeAreaView>
+      <ThemedView style={[styles.flex, styles.centerBox]}>
+        <ThemedText type="default" themeColor="textSecondary">
+          {t('This area is for Group Admins only.')}
+        </ThemedText>
       </ThemedView>
     );
   }
 
-  function changeType(next: ReportPeriodType) {
-    setType(next);
-    setReference(new Date());
-    setReport(null);
-  }
-
-  function shift(direction: 1 | -1) {
-    setReference((r) => shiftPeriod(type, r, direction));
-    setReport(null);
-  }
-
-  async function generate() {
-    setBusy(true);
-    const { start, end } = periodBounds(type, reference);
-    const startIso = start.toISOString();
-    const endIso = end.toISOString();
-
-    const { data: txnRows } = await supabase
-      .from('transactions')
-      .select('type, amount')
-      .eq('group_id', group!.id)
-      .gte('created_at', startIso)
-      .lt('created_at', endIso)
-      .in('type', ['contribution', 'loan_disbursement', 'repayment']);
-    const sums = { contributions: 0, disbursed: 0, repayments: 0 };
-    for (const r of txnRows ?? []) {
-      if (r.type === 'contribution') sums.contributions += r.amount;
-      else if (r.type === 'loan_disbursement') sums.disbursed += Math.abs(r.amount);
-      else if (r.type === 'repayment') sums.repayments += r.amount;
-    }
-
-    const { data: memberRows } = await supabase
-      .from('memberships')
-      .select('id')
-      .eq('group_id', group!.id)
-      .eq('status', 'active')
-      .gte('decided_at', startIso)
-      .lt('decided_at', endIso);
-
-    const { data: loanRows } = await supabase
-      .from('loans')
-      .select('status')
-      .eq('group_id', group!.id)
-      .gte('decided_at', startIso)
-      .lt('decided_at', endIso);
-    const loansApproved = (loanRows ?? []).filter((l) => l.status !== 'declined').length;
-    const loansDeclined = (loanRows ?? []).filter((l) => l.status === 'declined').length;
-
-    const { data: motionRows } = await supabase
-      .from('motions')
-      .select('status')
-      .eq('group_id', group!.id)
-      .gte('decided_at', startIso)
-      .lt('decided_at', endIso);
-    const motionsApproved = (motionRows ?? []).filter((m) => m.status === 'approved').length;
-    const motionsDeclined = (motionRows ?? []).filter((m) => m.status === 'declined').length;
-
-    setReport({
-      ...sums,
-      newMembers: (memberRows ?? []).length,
-      loansApproved,
-      loansDeclined,
-      motionsApproved,
-      motionsDeclined,
-    });
-    setBusy(false);
-  }
+  const money = (n: number) => `${group.currency} ${Math.round(n).toLocaleString()}`;
+  const band = overview ? healthBand(overview.health.score) : null;
+  const nextDisabled = isFuturePeriod(type, shiftPeriod(type, reference, 1));
 
   return (
     <ThemedView style={styles.flex}>
-      <SafeAreaView style={styles.flex} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">{t('Reports')}</ThemedText>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.column}>
+          {overview && band ? (
+            <>
+              <Card>
+                <View style={styles.cardHead}>
+                  <View style={styles.flex}>
+                    <ThemedText type="subtitle">{t('Financial Health')}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {t('How the group is doing financially')}
+                    </ThemedText>
+                  </View>
+                  <Pill label={t(band.label)} tone={band.tone} />
+                </View>
+                <HealthGauge
+                  score={overview.health.score}
+                  tone={band.tone}
+                  bandLabel={t(band.label)}
+                  caption={t('out of 100')}
+                />
+                <Divider />
+                <ThemedText type="smallBold">{t('What makes up the score')}</ThemedText>
+                <BarList
+                  max={100}
+                  items={overview.health.parts.map((p) => ({
+                    key: p.key,
+                    label: p.detail ? `${t(p.label)} (${p.detail})` : t(p.label),
+                    value: p.value,
+                    display: `${p.value}%`,
+                  }))}
+                />
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('The score is the average of the three parts above.')}
+                </ThemedText>
+              </Card>
 
-          <View style={styles.row}>
-            {PERIOD_TYPES.map((p) => (
-              <Button
-                key={p.key}
-                title={t(p.label)}
-                variant={type === p.key ? 'primary' : 'secondary'}
-                onPress={() => changeType(p.key)}
+              <StatTile iconName={['banknote', 'payments']} label={t('Total Savings')} value={money(overview.savings)} />
+              <StatTile
+                iconName={['building.columns', 'account_balance']}
+                label={t('Active Loans ({count})', { count: overview.activeLoans })}
+                value={money(overview.activeLoansOwed)}
               />
-            ))}
-          </View>
+              <StatTile iconName={['tray.full', 'savings']} label={t('Money held')} value={money(overview.cash)} />
 
-          <View style={[styles.row, styles.periodPicker]}>
-            <Pressable onPress={() => shift(-1)}>
-              <ThemedText type="subtitle">{'‹'}</ThemedText>
-            </Pressable>
-            <ThemedText type="subtitle">{periodLabel(type, reference)}</ThemedText>
-            <Pressable onPress={() => shift(1)} disabled={isFuturePeriod(type, shiftPeriod(type, reference, 1))}>
-              <ThemedText
-                type="subtitle"
-                themeColor={isFuturePeriod(type, shiftPeriod(type, reference, 1)) ? 'textSecondary' : 'text'}>
-                {'›'}
-              </ThemedText>
-            </Pressable>
-          </View>
-
-          <Button title={t('Generate Report')} onPress={generate} loading={busy} />
-
-          {report ? (
-            <View style={[styles.section, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="subtitle">{t('{period} Report', { period: periodLabel(type, reference) })}</ThemedText>
-              <ReportRow label="Contributions" value={`${group.currency} ${report.contributions.toLocaleString()}`} />
-              <ReportRow label="Loans Disbursed" value={`${group.currency} ${report.disbursed.toLocaleString()}`} />
-              <ReportRow label="Repayments Collected" value={`${group.currency} ${report.repayments.toLocaleString()}`} />
-              <ReportRow label="New Members" value={report.newMembers} />
-              <ReportRow label="Loans Approved" value={report.loansApproved} />
-              <ReportRow label="Loans Declined" value={report.loansDeclined} />
-              <ReportRow label="Motions Approved" value={report.motionsApproved} />
-              <ReportRow label="Motions Declined" value={report.motionsDeclined} />
-            </View>
+              <Card>
+                <ThemedText type="subtitle">{t('Other Information')}</ThemedText>
+                <View style={styles.miniRow}>
+                  <MiniTile iconName={['person.2', 'group']} value={String(overview.members)} label={t('Members')} />
+                  <MiniTile
+                    iconName={['building.columns', 'account_balance']}
+                    value={String(overview.allLoans)}
+                    label={t('All Loans')}
+                  />
+                  <MiniTile
+                    iconName={['arrow.counterclockwise', 'history']}
+                    value={`${overview.repaidShare}%`}
+                    label={t('Repaid')}
+                  />
+                </View>
+              </Card>
+            </>
           ) : null}
-        </ScrollView>
-      </SafeAreaView>
+
+          <Card>
+            <ThemedText type="subtitle">{t('Trends')}</ThemedText>
+            <Segmented options={PERIOD_TYPES} value={type} onChange={(k) => {
+              setType(k);
+              setReference(new Date());
+            }} />
+            <View style={styles.periodPicker}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('Previous')}
+                hitSlop={12}
+                onPress={() => setReference((r) => shiftPeriod(type, r, -1))}>
+                <ThemedText type="subtitle">{'‹'}</ThemedText>
+              </Pressable>
+              <ThemedText type="smallBold">{period?.report.title ?? ''}</ThemedText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('Next')}
+                hitSlop={12}
+                disabled={nextDisabled}
+                onPress={() => setReference((r) => shiftPeriod(type, r, 1))}>
+                <ThemedText type="subtitle" themeColor={nextDisabled ? 'textSecondary' : 'text'}>
+                  {'›'}
+                </ThemedText>
+              </Pressable>
+            </View>
+            <Segmented options={MEASURES} value={measure} onChange={setMeasure} />
+            {period ? (
+              <ColumnChart
+                columns={period.trend.map((p) => ({ key: p.key, label: p.label, value: p[measure] }))}
+                format={money}
+              />
+            ) : null}
+          </Card>
+
+          {period ? (
+            <Card>
+              <ThemedText type="subtitle">{t('{period} Report', { period: period.report.title })}</ThemedText>
+              <ThemedText type="smallBold">{t('Money in and out')}</ThemedText>
+              <BarList
+                items={[
+                  { key: 'c', label: t('Contributions'), value: period.report.contributions, display: money(period.report.contributions) },
+                  { key: 'r', label: t('Repayments Collected'), value: period.report.repayments, display: money(period.report.repayments) },
+                  { key: 'd', label: t('Loans Disbursed'), value: period.report.disbursed, display: money(period.report.disbursed) },
+                ]}
+              />
+              <Divider />
+              <View style={styles.miniRow}>
+                <MiniTile iconName={['person.badge.plus', 'person_add']} value={String(period.report.newMembers)} label={t('New Members')} />
+                <MiniTile
+                  iconName={['checkmark.circle', 'check_circle']}
+                  value={`${period.report.loansApproved}/${period.report.loansApproved + period.report.loansDeclined}`}
+                  label={t('Loans Approved')}
+                />
+                <MiniTile
+                  iconName={['checkmark.square', 'how_to_vote']}
+                  value={`${period.report.motionsApproved}/${period.report.motionsApproved + period.report.motionsDeclined}`}
+                  label={t('Motions Approved')}
+                />
+              </View>
+            </Card>
+          ) : null}
+        </View>
+      </ScrollView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: Spacing.four, gap: Spacing.three },
-  row: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two },
-  periodPicker: { justifyContent: 'center', alignItems: 'center', gap: Spacing.four },
-  section: { gap: Spacing.two, padding: Spacing.three, borderRadius: 10 },
+  center: { textAlign: 'center' },
+  centerBox: { alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
+  content: { flexGrow: 1, padding: Spacing.four, paddingBottom: Spacing.five },
+  column: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', gap: Spacing.three },
+  cardHead: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
+  statTile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  statValue: { fontSize: 22, lineHeight: 28 },
+  miniRow: { flexDirection: 'row', gap: Spacing.two },
+  miniTile: { flex: 1, alignItems: 'center', gap: Spacing.one, padding: Spacing.three, borderRadius: 14 },
+  miniValue: { fontSize: 22, lineHeight: 28 },
+  segmented: { flexDirection: 'row', borderRadius: 12, padding: 3 },
+  segment: { flex: 1, paddingVertical: Spacing.two, paddingHorizontal: Spacing.one, borderRadius: 10 },
+  periodPicker: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.four },
 });
