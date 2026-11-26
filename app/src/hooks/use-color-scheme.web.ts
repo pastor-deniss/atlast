@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useColorScheme as useSystemColorScheme } from 'react-native';
+
+import { useThemePreference } from '@/lib/theme-preference';
 
 /**
- * To support static rendering, this value needs to be re-calculated on the client side for web
+ * The scheme to draw with: the user's Light/Dark choice, or the browser's setting.
+ * To support static rendering, this is re-calculated on the client after hydration.
  */
-export function useColorScheme() {
+export function useColorScheme(): 'light' | 'dark' {
   const [hasHydrated, setHasHydrated] = useState(false);
+  const { preference } = useThemePreference();
+  const system = useSystemColorScheme();
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const colorScheme = useRNColorScheme();
-
-  if (hasHydrated) {
-    return colorScheme;
-  }
-
-  return 'light';
+  if (!hasHydrated) return 'light';
+  if (preference !== 'system') return preference;
+  return system === 'dark' ? 'dark' : 'light';
 }

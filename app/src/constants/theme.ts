@@ -23,12 +23,13 @@ export const Brand = {
 } as const;
 
 export const Colors = {
+  // Atlast brand look: cream page, white cards, near-black green-tinted text.
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#13201B',
+    background: Brand.cream,
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#E7E1D3',
+    textSecondary: '#5B635F',
     primary: Brand.green,
     danger: Brand.danger,
     warning: Brand.warning,

@@ -9,6 +9,8 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useCenteredColumnStyle } from '@/hooks/use-is-wide-screen';
 import { AppLockProvider, useAppLock } from '@/lib/auth/app-lock-context';
 import { SessionProvider, useSession } from '@/lib/auth/session-context';
+import { LanguageProvider } from '@/lib/i18n';
+import { ThemePreferenceProvider } from '@/lib/theme-preference';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -71,20 +73,41 @@ function RootNavigator() {
 // navigation library's default grey.
 function navigationTheme(scheme: 'light' | 'dark') {
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
-  return { ...base, colors: { ...base.colors, background: Colors[scheme].background } };
+  const c = Colors[scheme];
+  return {
+    ...base,
+    colors: {
+      ...base.colors,
+      background: c.background,
+      card: c.background,
+      text: c.text,
+      primary: c.primary,
+      border: c.backgroundSelected,
+    },
+  };
 }
 
-export default function RootLayout() {
+function ThemedRoot() {
   const colorScheme = useColorScheme();
 
   return (
     <SessionProvider>
       <AppLockProvider>
-        <ThemeProvider value={navigationTheme(colorScheme === 'dark' ? 'dark' : 'light')}>
+        <ThemeProvider value={navigationTheme(colorScheme)}>
           <SplashScreenController />
           <RootNavigator />
         </ThemeProvider>
       </AppLockProvider>
     </SessionProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <LanguageProvider>
+      <ThemePreferenceProvider>
+        <ThemedRoot />
+      </ThemePreferenceProvider>
+    </LanguageProvider>
   );
 }
