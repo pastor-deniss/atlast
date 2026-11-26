@@ -134,6 +134,18 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
       return { title: t('Share-out rejected'), body: String(p.reason ?? '') };
     case 'shareout.paid':
       return { title: t('Profit share paid'), body: t('{amount} — your {year} profit share — has been paid to you.', { year: String(p.year ?? ''), amount }) };
+    case 'group.rules_locked':
+      return { title: t('Group rules locked'), body: t('Atlast has locked the key rules of {group}. Changes now need a member vote.', { group }) };
+    case 'rule_change.proposed':
+      return { title: t('Rule change proposed'), body: t('{group}: {reason}', { group, reason: String(p.reason ?? '') }) };
+    case 'rule_change.vote_opened':
+      return { title: t('Vote on a rule change'), body: String(p.reason ?? '') };
+    case 'rule_change.support_reached':
+      return { title: t('A third of members voted yes'), body: t('A rule change in {group} is ready for your decision.', { group }) };
+    case 'rule_change.approved':
+      return { title: t('Rule change approved'), body: t('The new rules of {group} are now in force.', { group }) };
+    case 'rule_change.rejected':
+      return { title: t('Rule change rejected'), body: String(p.reason ?? '') };
     default:
       return { title: t('Notification'), body: '' };
   }
@@ -148,6 +160,8 @@ export function destination(n: AppNotification): Href | null {
       return '/(app)/announcements';
     case 'shareout':
       return '/(app)/treasury/shareout';
+    case 'rule_change':
+      return '/(app)/group-rules';
     case 'membership':
       return n.kind === 'membership.role_changed'
         ? n.params?.role === 'treasurer'
@@ -165,6 +179,7 @@ export function destination(n: AppNotification): Href | null {
     case 'complaint':
       return { pathname: '/(app)/complaints/[id]', params: { id } };
     case 'group':
+      if (n.kind === 'group.rules_locked') return '/(app)/group-rules';
       return n.kind === 'group.jamii_amount_changed'
         ? { pathname: '/(app)/spending', params: { kind: 'jamii' } }
         : '/(app)/group-dashboard';
@@ -197,6 +212,8 @@ export function iconFor(kind: string): [string, string] {
       return ['heart.text.square', 'volunteer_activism'];
     case 'shareout':
       return ['chart.pie', 'pie_chart'];
+    case 'rule_change':
+      return ['lock.shield', 'gpp_good'];
     default:
       return ['bell', 'notifications'];
   }

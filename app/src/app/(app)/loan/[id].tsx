@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LoanProgressRing } from '@/components/charts/loan-progress-ring';
 import { PaymentMethodPicker } from '@/components/payment-method-picker';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -16,7 +17,7 @@ import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
-import { fetchLoanDue, formatRate, type LoanDue } from '@/lib/loans';
+import { defaultRate, fetchLoanDue, formatRate, loanStanding, type LoanDue } from '@/lib/loans';
 import { needsReference, paymentMethodLabel, type PaymentMethod } from '@/lib/payment-methods';
 
 type Loan = {
@@ -28,6 +29,7 @@ type Loan = {
   term_weeks: number;
   installment_amount: number;
   status: string;
+  disbursed_at: string | null;
   review_mode: 'three_eye' | 'admin_fallback';
 };
 
@@ -54,6 +56,7 @@ export default function LoanDetailScreen() {
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const [messages, setMessages] = useState<{ message: string; created_at: string }[]>([]);
   const [due, setDue] = useState<LoanDue | null>(null);
+  const [standing, setStanding] = useState<'good' | 'warn' | 'bad'>('good');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -124,7 +127,9 @@ export default function LoanDetailScreen() {
 
     // Interest, penalties so far and what is still owed, worked out by the
     // database (loan_dues), so every screen agrees with the repayment rules.
-    setDue(await fetchLoanDue(id));
+    const loanDue = await fetchLoanDue(id);
+    setDue(loanDue);
+    if (loanRow && loanDue) setStanding(loanStanding(defaultRate(loanRow, loanDue), loanDue.is_overdue));
 
     setLoading(false);
   }, [id, session]);
@@ -358,6 +363,12 @@ export default function LoanDetailScreen() {
           {(loan.status === 'disbursed' || loan.status === 'repaying') && due ? (
             <View style={styles.section}>
               <ThemedText type="subtitle">{t('Loan Progress')}</ThemedText>
+              <LoanProgressRing
+                paid={due.repaid}
+                total={due.total_due}
+                tone={standing}
+                format={(n) => `${group.currency} ${Math.round(n).toLocaleString()}`}
+              />
               <ThemedText type="default">
                 {t('Paid {paid} of {total}', {
                   paid: `${group.currency} ${due.repaid.toLocaleString()}`,

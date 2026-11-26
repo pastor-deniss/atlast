@@ -15,8 +15,9 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { countActiveComplaints } from '@/lib/complaints';
-import { fetchLoanRates, formatRate, type LoanRates } from '@/lib/loans';
+import { defaultRate, fetchLoanRates, formatRate, type LoanDue, type LoanRates } from '@/lib/loans';
 import { countUnread } from '@/lib/notifications';
+import { ruleVoteWaitingOnMe } from '@/lib/group-rules';
 import { fetchMyPendingApprovals, type SpendRequest } from '@/lib/spending';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
@@ -26,6 +27,37 @@ import { supabase } from '@/lib/supabase';
 type IconName = SymbolViewProps['name'];
 
 type Leader = { memberId: string; name: string; total: number };
+
+/** Members who fail the clean-record test, for the Top Contributors board. */
+async function membersWithoutCleanRecord(groupId: string): Promise<Set<string>> {
+  const { data: loans } = await supabase
+    .from('loans')
+    .select('id, borrower_id, status, disbursed_at, installment_amount, term_weeks')
+    .eq('group_id', groupId)
+    .not('disbursed_at', 'is', null);
+  const out = new Set<string>();
+  const list = loans ?? [];
+  for (const l of list) if (l.status === 'defaulted') out.add(l.borrower_id);
+  if (list.length === 0) return out;
+  const { data: dues } = await supabase
+    .from('loan_dues')
+    .select('loan_id, principal, interest_amount, penalty, repaid, outstanding, is_overdue')
+    .in('loan_id', list.map((l) => l.id));
+  for (const d of dues ?? []) {
+    const loan = list.find((l) => l.id === d.loan_id);
+    if (!loan) continue;
+    const due = {
+      principal: Number(d.principal),
+      interest_amount: Number(d.interest_amount),
+      penalty: Number(d.penalty),
+      repaid: Number(d.repaid),
+      outstanding: Number(d.outstanding),
+    } as LoanDue;
+    const open = loan.status === 'disbursed' || loan.status === 'repaying';
+    if (d.is_overdue || due.penalty > 0 || (open && defaultRate(loan, due) > 0)) out.add(loan.borrower_id);
+  }
+  return out;
+}
 
 const LEADERBOARD_SIZE = 5;
 // Home shows the newest announcement only while it is recent.
@@ -61,6 +93,7 @@ export default function HomeScreen() {
   const [votesWaiting, setVotesWaiting] = useState(0);
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
   const [spendWaiting, setSpendWaiting] = useState<SpendRequest[]>([]);
+  const [ruleVote, setRuleVote] = useState<string | null>(null);
   const [complaintsWaiting, setComplaintsWaiting] = useState(0);
   const [unread, setUnread] = useState(0);
   const [rates, setRates] = useState<LoanRates | null>(null);
@@ -105,7 +138,12 @@ export default function HomeScreen() {
     const mine = rows.find((r) => r.member_id === userId);
     setTotals({ contributed: mine?.total_contributed ?? 0, shares: mine?.total_shares ?? 0 });
 
-    const top = rows.filter((r) => r.total_contributed > 0).slice(0, LEADERBOARD_SIZE);
+    // Clean records only (strict): never defaulted, nothing overdue, never a
+    // late penalty, and every open loan at a 0% default rate.
+    const notClean = await membersWithoutCleanRecord(group.id);
+    const top = rows
+      .filter((r) => r.total_contributed > 0 && !notClean.has(r.member_id))
+      .slice(0, LEADERBOARD_SIZE);
     const ids = top.map((r) => r.member_id);
     const { data: profiles } =
       ids.length > 0
@@ -158,6 +196,7 @@ export default function HomeScreen() {
       .eq('decision', 'pending');
     setReviewsWaiting(reviewCount ?? 0);
     setSpendWaiting(await fetchMyPendingApprovals(group.id, userId));
+    setRuleVote(await ruleVoteWaitingOnMe(group.id, userId));
 
     // Admins: member complaints still to answer (their own don't count --
     // another admin has to answer those).
@@ -306,6 +345,32 @@ export default function HomeScreen() {
 
         <View style={styles.body}>
           {/* Jamii payouts / group charges this member must approve */}
+          {ruleVote ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(app)/group-rules')}
+              style={[styles.alert, scheme === 'dark' ? styles.alertDark : styles.alertLight]}>
+              <SymbolView
+                name={{ ios: 'lock.shield', android: 'gpp_good', web: 'gpp_good' }}
+                size={22}
+                tintColor={scheme === 'dark' ? Brand.gold : '#9A5B00'}
+              />
+              <View style={styles.flexShrink}>
+                <ThemedText type="smallBold" style={{ color: scheme === 'dark' ? Brand.gold : '#9A5B00' }}>
+                  {t('Vote on a change to the group rules')}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Opened by Atlast · Tap to vote')}
+                </ThemedText>
+              </View>
+              <SymbolView
+                name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
+                size={18}
+                tintColor={theme.textSecondary}
+              />
+            </Pressable>
+          ) : null}
+
           {spendWaiting.length > 0 ? (
             <Pressable
               accessibilityRole="button"
@@ -489,10 +554,20 @@ export default function HomeScreen() {
                 {t('Total contributed')}
               </ThemedText>
             </View>
+            <View style={styles.cleanRow}>
+              <SymbolView
+                name={{ ios: 'checkmark.seal.fill', android: 'verified', web: 'verified' }}
+                size={16}
+                tintColor={theme.primary}
+              />
+              <ThemedText type="small" themeColor="textSecondary" style={styles.flexShrink}>
+                {t('Clean records only: 0% default rate, no overdue loans, never a late penalty.')}
+              </ThemedText>
+            </View>
 
             {leaders.length === 0 ? (
               <ThemedText type="small" themeColor="textSecondary">
-                {t('No contributions yet.')}
+                {t('No member with a clean record has contributed yet.')}
               </ThemedText>
             ) : (
               leaders.map((leader, i) => {
@@ -604,6 +679,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 const styles = StyleSheet.create({
+  cleanRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
   flex: { flex: 1 },
   flexShrink: { flex: 1, flexShrink: 1 },
   simpleContent: { flexGrow: 1, padding: Spacing.four, gap: Spacing.three },

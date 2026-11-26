@@ -86,6 +86,17 @@ export function defaultRate(loan: ScheduleLoan, due: LoanDue) {
   return Math.round((Math.max(0, expected - due.repaid) / expected) * 100);
 }
 
+/**
+ * Where a loan stands, for the progress ring: overdue past its due date, or
+ * by default rate (below 30% on track, 30-60% falling behind, above 60%
+ * badly behind -- the same bands as the default-rate figure).
+ */
+export function loanStanding(rate: number, overdue: boolean): 'good' | 'warn' | 'bad' {
+  if (overdue || rate > 60) return 'bad';
+  if (rate >= 30) return 'warn';
+  return 'good';
+}
+
 /** The date of the next weekly installment not yet covered by repayments. */
 export function nextRepaymentDate(loan: ScheduleLoan, due: LoanDue) {
   const start = new Date(loan.disbursed_at ?? Date.now()).getTime();

@@ -111,16 +111,10 @@ export default function MoreScreen() {
           <MenuRow
             iconName={icon('building.columns', 'account_balance')}
             title={t('Loans')}
-            subtitle={t('Apply for and repay loans')}
+            subtitle={t('Apply, repay, interest and late penalties')}
             onPress={() => router.push('/(app)/loan')}
           />
           <Divider />
-          <MenuRow
-            iconName={icon('doc.richtext', 'picture_as_pdf')}
-            title={t('Account Statement')}
-            subtitle={t('Download your statement as a PDF')}
-            onPress={() => router.push('/(app)/statement')}
-          />          <Divider />
           <MenuRow
             iconName={icon('exclamationmark.bubble', 'report')}
             title={t('Complaints')}
@@ -137,7 +131,7 @@ export default function MoreScreen() {
           <MenuRow
             iconName={icon('doc.text', 'description')}
             title={t('Group Info')}
-            subtitle={t('Contribution rules and loan availability')}
+            subtitle={t('Group rules, your account statement and members')}
             onPress={() => router.push('/(app)/group-dashboard')}
           />
         </Card>
@@ -157,13 +151,6 @@ export default function MoreScreen() {
             title={t('Reports')}
             subtitle={t('Monthly, quarterly and yearly reports')}
             onPress={() => router.push('/(app)/admin/reports')}
-          />
-          <Divider />
-          <MenuRow
-            iconName={icon('percent', 'percent')}
-            title={t('Loan Rates')}
-            subtitle={t('Interest and late penalties')}
-            onPress={() => router.push('/(app)/admin/loan-rates')}
           />
           <Divider />
           <MenuRow

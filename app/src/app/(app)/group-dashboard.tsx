@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
+import { Card, icon, MenuRow } from '@/components/ui/screen';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
@@ -107,9 +108,33 @@ export default function GroupDashboardScreen() {
           <View style={styles.row}>
             <ThemedText type="default">{t('Your Status')}</ThemedText>
             <ThemedText type="default">
-              {membership.role === 'group_admin' ? t('Group Admin') : t('Active Member')}
+              {membership.role === 'group_admin'
+                ? t('Group Admin')
+                : membership.role === 'treasurer'
+                  ? t('Treasurer')
+                  : t('Active Member')}
             </ThemedText>
           </View>
+
+          <Card>
+            <MenuRow
+              iconName={icon('lock.shield', 'gpp_good')}
+              title={t('Group Rules')}
+              subtitle={t('Locked by Atlast; changes need a member vote')}
+              onPress={() => router.push('/(app)/group-rules')}
+            />
+          </Card>
+
+          {/* Account Statement lives here (moved from More); the statement
+              screen itself is unchanged. */}
+          <Card>
+            <MenuRow
+              iconName={icon('doc.richtext', 'picture_as_pdf')}
+              title={t('Account Statement')}
+              subtitle={t('Your contributions, loans and repayments; download as a PDF')}
+              onPress={() => router.push('/(app)/statement')}
+            />
+          </Card>
 
           <View style={styles.spacer} />
           <Button title={t('Member Directory')} onPress={() => router.push('/members')} />

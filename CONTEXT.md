@@ -52,12 +52,16 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 **Announcement status** — Draft (only Admin/Treasurer see it), Active (members see it; notified the first time only), Archived (still readable in the archive; can be activated again), Deleted (Group Admin only; hidden from everyone, its text kept in the audit log). Edits show "Edited" with date and time and keep the old text in the audit log.
 
+**Locked Group Rules** — contribution amount and frequency, share value, loan interest, weekly late penalty and Jamii amount, once the Atlast admin locks them (added 2026-11-26). Nobody can change them directly, not the Group Admin and not Atlast; a database guard blocks every other path. A change: the Group Admin proposes it with a reason → the Atlast admin opens an ordinary secret-ballot vote open to every active member (7 days) → once at least a third of active members (rounded up) vote yes, the Atlast admin approves (the new values apply) or rejects. Every step audited; members notified.
+
+**Clean record** — what Home's Top Contributors board requires (2026-11-26): never a defaulted loan, nothing overdue, never a late penalty, every open loan at a 0% default rate.
+
 ## Roles (V1)
 
 - **Member** — views own/permitted group info, contributes, requests loans, votes, sits on Three-Eye Panels when eligible.
 - **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports, appoints the Treasurer and approves the Year-end Share-out.
 - **Treasurer** (added 2026-11-26) — one Member per Group, appointed by the Group Admin (never the admin themself, so money always has two people on it). Handles the money side: pays out approved loans, Jamii and charges, reconciliation and balance checks, reports, prepares the Year-end Share-out and records its payouts, posts and manages announcements. Cannot approve members, loans, rates, reversals or the share-out, and cannot delete announcements.
-- **System Admin** — platform-level (support, security, audit) — deferred until Atlast operates more than a pilot group.
+- **Atlast admin** (System Admin, `profiles.is_system_admin`) — the platform owner's oversight of each group (added 2026-11-26). Enters a group's key rules and locks them; opens member votes on proposed changes and approves or rejects them. Can never be the Group Admin of the group they oversee.
 
 ## Out of scope for V1 (deferred to later platform layers)
 
