@@ -9,6 +9,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type AuditEvent = {
   id: string;
@@ -34,6 +35,7 @@ function humanize(value: string) {
 export default function AuditLogScreen() {
   const theme = useTheme();
   const { group, membership } = useMembership();
+  const t = useT();
   const [filter, setFilter] = useState<(typeof ENTITY_FILTERS)[number]>('all');
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [page, setPage] = useState(0);
@@ -87,7 +89,7 @@ export default function AuditLogScreen() {
         <SafeAreaView style={styles.flex} edges={['bottom']}>
           <View style={styles.content}>
             <ThemedText type="default" themeColor="textSecondary">
-              This area is for Group Admins only.
+              {t('This area is for Group Admins only.')}
             </ThemedText>
           </View>
         </SafeAreaView>
@@ -108,7 +110,7 @@ export default function AuditLogScreen() {
               {ENTITY_FILTERS.map((f) => (
                 <Button
                   key={f}
-                  title={humanize(f)}
+                  title={t(humanize(f))}
                   variant={filter === f ? 'primary' : 'secondary'}
                   onPress={() => setFilter(f)}
                 />
@@ -118,15 +120,15 @@ export default function AuditLogScreen() {
           ListEmptyComponent={
             !loading ? (
               <ThemedText type="default" themeColor="textSecondary">
-                No audit events yet.
+                {t('No audit events yet.')}
               </ThemedText>
             ) : null
           }
           renderItem={({ item }) => (
             <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="default">{humanize(item.action)}</ThemedText>
+              <ThemedText type="default">{t(humanize(item.action))}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {item.actor_name} · {new Date(item.created_at).toLocaleString()}
+                {t(item.actor_name ?? '')} · {new Date(item.created_at).toLocaleString()}
               </ThemedText>
               {item.reason ? (
                 <ThemedText type="small" themeColor="textSecondary">
@@ -138,7 +140,7 @@ export default function AuditLogScreen() {
           ListFooterComponent={
             hasMore ? (
               <Button
-                title="Load More"
+                title={t('Load More')}
                 variant="secondary"
                 loading={loading}
                 onPress={() => {

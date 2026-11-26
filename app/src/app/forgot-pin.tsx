@@ -11,6 +11,7 @@ import { useAppLock } from '@/lib/auth/app-lock-context';
 import { useSession } from '@/lib/auth/session-context';
 import { clearPin } from '@/lib/auth/pin';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 // Ticket 14, Q3: recovery is phone + OTP re-verification — the same identity
 // factor Supabase Auth already trusts — then straight into Create PIN.
@@ -18,6 +19,7 @@ import { supabase } from '@/lib/supabase';
 export default function ForgotPinScreen() {
   const { session } = useSession();
   const { refreshPinExists } = useAppLock();
+  const t = useT();
   const phone = session?.user.phone ? `+${session.user.phone}` : '';
 
   const [step, setStep] = useState<'request' | 'verify'>('request');
@@ -69,29 +71,29 @@ export default function ForgotPinScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Forgot PIN</ThemedText>
+          <ThemedText type="title">{t('Forgot PIN')}</ThemedText>
 
           {step === 'request' ? (
             <>
               <ThemedText type="default" themeColor="textSecondary">
-                We'll send a verification code to {phone} to confirm it's you.
+                {t("We'll send a verification code to {phone} to confirm it's you.", { phone })}
               </ThemedText>
               {error ? (
                 <ThemedText type="small" themeColor="danger">
-                  {error}
+                  {t(error)}
                 </ThemedText>
               ) : null}
-              <Button title="Send Code" onPress={handleSendCode} loading={submitting} />
+              <Button title={t('Send Code')} onPress={handleSendCode} loading={submitting} />
             </>
           ) : (
             <>
               <ThemedText type="default" themeColor="textSecondary">
-                Enter the 6-digit code sent to {phone}
+                {t('Enter the 6-digit code sent to {phone}', { phone })}
               </ThemedText>
               <TextField
-                label="Verification Code"
+                label={t('Verification Code')}
                 value={code}
-                onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, 6))}
+                onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
                 maxLength={6}
                 autoFocus
@@ -99,10 +101,10 @@ export default function ForgotPinScreen() {
               />
               {error ? (
                 <ThemedText type="small" themeColor="danger">
-                  {error}
+                  {t(error)}
                 </ThemedText>
               ) : null}
-              <Button title="Verify" onPress={handleVerify} loading={submitting} />
+              <Button title={t('Verify')} onPress={handleVerify} loading={submitting} />
             </>
           )}
         </ScrollView>

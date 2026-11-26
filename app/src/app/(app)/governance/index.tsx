@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type PendingApplication = { id: string; name: string };
 
@@ -33,6 +34,7 @@ function daysRemaining(closesAt: string) {
 export default function GovernanceScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
   const { session } = useSession();
   const { group, membership } = useMembership();
 
@@ -129,7 +131,7 @@ export default function GovernanceScreen() {
             <View style={styles.header}>
               {isAdmin && pending.length > 0 ? (
                 <View style={styles.section}>
-                  <ThemedText type="subtitle">Pending Applications</ThemedText>
+                  <ThemedText type="subtitle">{t('Pending Applications')}</ThemedText>
                   {pending.map((p) => (
                     <Pressable
                       key={p.id}
@@ -139,7 +141,7 @@ export default function GovernanceScreen() {
                       style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
                       <ThemedText type="default">{p.name}</ThemedText>
                       <ThemedText type="small" themeColor="primary">
-                        Review →
+                        {t('Review →')}
                       </ThemedText>
                     </Pressable>
                   ))}
@@ -147,11 +149,11 @@ export default function GovernanceScreen() {
               ) : null}
 
               <ThemedText type="subtitle" style={styles.sectionTitle}>
-                Open Votes
+                {t('Open Votes')}
               </ThemedText>
               {openMotions.length === 0 && !loading ? (
                 <ThemedText type="default" themeColor="textSecondary">
-                  No open votes right now.
+                  {t('No open votes right now.')}
                 </ThemedText>
               ) : null}
             </View>
@@ -163,10 +165,10 @@ export default function GovernanceScreen() {
               <ThemedText type="default">{item.applicant_name}</ThemedText>
               <View style={styles.row}>
                 <ThemedText type="small" themeColor={item.my_vote ? 'primary' : 'textSecondary'}>
-                  {item.my_vote ? 'Your vote: Cast' : 'Your vote: Not yet cast'}
+                  {item.my_vote ? t('Your vote: Cast') : t('Your vote: Not yet cast')}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {daysRemaining(item.closes_at)}d left
+                  {t('{days}d left', { days: daysRemaining(item.closes_at) })}
                 </ThemedText>
               </View>
             </Pressable>
@@ -175,7 +177,7 @@ export default function GovernanceScreen() {
             pastMotions.length > 0 ? (
               <View>
                 <ThemedText type="subtitle" style={styles.sectionTitle}>
-                  Past Motions
+                  {t('Past Motions')}
                 </ThemedText>
                 {pastMotions.map((m) => (
                   <Pressable
@@ -184,7 +186,7 @@ export default function GovernanceScreen() {
                     style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
                     <ThemedText type="default">{m.applicant_name}</ThemedText>
                     <ThemedText type="small" themeColor={m.status === 'approved' ? 'primary' : 'danger'}>
-                      {m.status === 'approved' ? 'Approved' : 'Declined'}
+                      {m.status === 'approved' ? t('Approved') : t('Declined')}
                     </ThemedText>
                   </Pressable>
                 ))}

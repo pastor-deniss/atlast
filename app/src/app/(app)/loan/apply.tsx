@@ -11,6 +11,7 @@ import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 // Ticket 17: requestLoan (Edge Function) rejects over-eligible amounts and
 // existing-open-loan attempts server-side -- this form's own validation is a
@@ -19,6 +20,7 @@ export default function LoanApplyScreen() {
   const router = useRouter();
   const { session } = useSession();
   const { group } = useMembership();
+  const t = useT();
 
   const [eligibleAmount, setEligibleAmount] = useState<number | null>(null);
   const [amount, setAmount] = useState('');
@@ -48,7 +50,11 @@ export default function LoanApplyScreen() {
       return;
     }
     if (eligibleAmount !== null && numericAmount > eligibleAmount) {
-      setError(`Amount exceeds your eligible amount of ${group?.currency} ${eligibleAmount.toLocaleString()}.`);
+      setError(
+        t('Amount exceeds your eligible amount of {amount}.', {
+          amount: `${group?.currency} ${eligibleAmount.toLocaleString()}`,
+        })
+      );
       return;
     }
     if (!purpose.trim()) {
@@ -79,24 +85,26 @@ export default function LoanApplyScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Loan Application</ThemedText>
+          <ThemedText type="title">{t('Loan Application')}</ThemedText>
           {eligibleAmount !== null ? (
             <ThemedText type="small" themeColor="textSecondary">
-              Eligible up to {group?.currency} {eligibleAmount.toLocaleString()}
+              {t('Eligible up to {amount}', {
+                amount: `${group?.currency} ${eligibleAmount.toLocaleString()}`,
+              })}
             </ThemedText>
           ) : null}
 
-          <TextField label="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" />
-          <TextField label="Purpose" value={purpose} onChangeText={setPurpose} placeholder="School expenses" />
-          <TextField label="Term (weeks)" value={termWeeks} onChangeText={setTermWeeks} keyboardType="numeric" />
+          <TextField label={t('Amount')} value={amount} onChangeText={setAmount} keyboardType="numeric" />
+          <TextField label={t('Purpose')} value={purpose} onChangeText={setPurpose} placeholder={t('School expenses')} />
+          <TextField label={t('Term (weeks)')} value={termWeeks} onChangeText={setTermWeeks} keyboardType="numeric" />
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
-          <Button title="Submit Application" onPress={handleSubmit} loading={submitting} />
+          <Button title={t('Submit Application')} onPress={handleSubmit} loading={submitting} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

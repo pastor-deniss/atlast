@@ -13,6 +13,7 @@ import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Loan = {
   id: string;
@@ -60,6 +61,7 @@ export default function LoanDetailScreen() {
   // render, so a fast double-click could still fire two requests.
   const inFlight = useRef(false);
   const theme = useTheme();
+  const t = useT();
 
   // `loading` only blanks the screen on the first load (see the early return
   // below); refreshes after an action keep the current content on screen.
@@ -169,7 +171,10 @@ export default function LoanDetailScreen() {
       setRepayAmount('');
       setRepayReference('');
       setSuccess(
-        `Payment recorded: ${group!.currency} ${amount.toLocaleString()} (reference ${reference}).`
+        t('Payment recorded: {amount} (reference {reference}).', {
+          amount: `${group!.currency} ${amount.toLocaleString()}`,
+          reference,
+        })
       );
     }
   }
@@ -186,16 +191,16 @@ export default function LoanDetailScreen() {
           </ThemedText>
           {loan.purpose ? (
             <ThemedText type="default" themeColor="textSecondary">
-              {loan.purpose} · {loan.term_weeks} weeks
+              {loan.purpose} · {t('{count} weeks', { count: loan.term_weeks })}
             </ThemedText>
           ) : null}
           <ThemedText type="small" themeColor="primary">
-            {loan.status.replace('_', ' ')}
+            {t(loan.status.replace('_', ' '))}
           </ThemedText>
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
@@ -210,10 +215,18 @@ export default function LoanDetailScreen() {
           {/* Under review: anonymized progress, visible to everyone (ticket 12/17) */}
           {loan.status === 'pending_review' && loan.review_mode === 'three_eye' && progress ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Three-Eye Approval</ThemedText>
+              <ThemedText type="subtitle">{t('Three-Eye Approval')}</ThemedText>
               {progress.map((decision, i) => (
                 <ThemedText key={i} type="default">
-                  Reviewer {i + 1}: {decision === 'pending' ? 'Pending' : decision === 'approve' ? 'Approved' : 'Declined'}
+                  {t('Reviewer {number}: {decision}', {
+                    number: i + 1,
+                    decision:
+                      decision === 'pending'
+                        ? t('Pending')
+                        : decision === 'approve'
+                          ? t('Approved')
+                          : t('Declined'),
+                  })}
                 </ThemedText>
               ))}
             </View>
@@ -221,32 +234,32 @@ export default function LoanDetailScreen() {
 
           {loan.status === 'pending_review' && loan.review_mode === 'admin_fallback' && !canAdminDecide ? (
             <ThemedText type="default" themeColor="textSecondary">
-              Your loan application is under review. You will be notified of the decision.
+              {t('Your loan application is under review. You will be notified of the decision.')}
             </ThemedText>
           ) : null}
 
           {/* Reviewer action panel */}
           {canReview && evidence ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Borrower Eligibility</ThemedText>
-              <ThemedText type="default">Total contributed: {group.currency} {evidence.total_contributed.toLocaleString()}</ThemedText>
-              <ThemedText type="default">Previous loans: {evidence.previous_loans}</ThemedText>
-              <ThemedText type="default">Previous loans repaid: {evidence.previous_loans_repaid}</ThemedText>
-              <ThemedText type="default">Defaults: {evidence.defaults}</ThemedText>
+              <ThemedText type="subtitle">{t('Borrower Eligibility')}</ThemedText>
+              <ThemedText type="default">{t('Total contributed: {amount}', { amount: `${group.currency} ${evidence.total_contributed.toLocaleString()}` })}</ThemedText>
+              <ThemedText type="default">{t('Previous loans: {count}', { count: evidence.previous_loans })}</ThemedText>
+              <ThemedText type="default">{t('Previous loans repaid: {count}', { count: evidence.previous_loans_repaid })}</ThemedText>
+              <ThemedText type="default">{t('Defaults: {count}', { count: evidence.defaults })}</ThemedText>
 
               <View style={styles.row}>
-                <Button title="Approve" onPress={() => invoke('cast-loan-review-decision', { loan_id: id, decision: 'approve' })} loading={busy} />
-                <Button title="Decline" variant="danger" onPress={() => invoke('cast-loan-review-decision', { loan_id: id, decision: 'decline' })} loading={busy} />
+                <Button title={t('Approve')} onPress={() => invoke('cast-loan-review-decision', { loan_id: id, decision: 'approve' })} loading={busy} />
+                <Button title={t('Decline')} variant="danger" onPress={() => invoke('cast-loan-review-decision', { loan_id: id, decision: 'decline' })} loading={busy} />
               </View>
 
               <TextField
-                label="Request Clarification"
-                placeholder="Ask the borrower a question"
+                label={t('Request Clarification')}
+                placeholder={t('Ask the borrower a question')}
                 value={clarificationText}
                 onChangeText={setClarificationText}
               />
               <Button
-                title="Send"
+                title={t('Send')}
                 variant="secondary"
                 disabled={!clarificationText.trim()}
                 onPress={async () => {
@@ -260,64 +273,75 @@ export default function LoanDetailScreen() {
           {/* Admin fallback decision panel */}
           {canAdminDecide ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Admin Review</ThemedText>
+              <ThemedText type="subtitle">{t('Admin Review')}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                Fewer than 3 eligible reviewers exist — this loan falls back to Admin decision.
+                {t('Fewer than 3 eligible reviewers exist — this loan falls back to Admin decision.')}
               </ThemedText>
               <View style={styles.row}>
-                <Button title="Approve" onPress={() => invoke('admin-decide-loan', { loan_id: id, decision: 'approve' })} loading={busy} />
-                <Button title="Decline" variant="danger" onPress={() => invoke('admin-decide-loan', { loan_id: id, decision: 'decline' })} loading={busy} />
+                <Button title={t('Approve')} onPress={() => invoke('admin-decide-loan', { loan_id: id, decision: 'approve' })} loading={busy} />
+                <Button title={t('Decline')} variant="danger" onPress={() => invoke('admin-decide-loan', { loan_id: id, decision: 'decline' })} loading={busy} />
               </View>
             </View>
           ) : null}
 
           {loan.status === 'approved' ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Loan Approved!</ThemedText>
+              <ThemedText type="subtitle">{t('Loan Approved!')}</ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                The money will be sent to your selected payment channel.
+                {t('The money will be sent to your selected payment channel.')}
               </ThemedText>
               {isAdmin ? (
-                <Button title="Money Sent (Disburse)" onPress={() => invoke('disburse-loan', { loan_id: id })} loading={busy} />
+                <Button title={t('Money Sent (Disburse)')} onPress={() => invoke('disburse-loan', { loan_id: id })} loading={busy} />
               ) : null}
             </View>
           ) : null}
 
           {loan.status === 'declined' ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Loan Declined</ThemedText>
+              <ThemedText type="subtitle">{t('Loan Declined')}</ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
                 {loan.review_mode === 'three_eye'
-                  ? `${declineCount} of ${declineCount + approveCount + (progress?.filter((d) => d === 'pending').length ?? 0)} reviewers declined your application.`
-                  : 'Your application was not approved.'}{' '}
-                You may submit a new application.
+                  ? t('{declined} of {total} reviewers declined your application.', {
+                      declined: declineCount,
+                      total:
+                        declineCount +
+                        approveCount +
+                        (progress?.filter((d) => d === 'pending').length ?? 0),
+                    })
+                  : t('Your application was not approved.')}{' '}
+                {t('You may submit a new application.')}
               </ThemedText>
-              {isBorrower ? <Button title="Apply Again" onPress={() => router.replace('/(app)/loan/apply')} /> : null}
+              {isBorrower ? <Button title={t('Apply Again')} onPress={() => router.replace('/(app)/loan/apply')} /> : null}
             </View>
           ) : null}
 
           {(loan.status === 'disbursed' || loan.status === 'repaying') && outstanding ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Loan Progress</ThemedText>
+              <ThemedText type="subtitle">{t('Loan Progress')}</ThemedText>
               <ThemedText type="default">
-                Paid {group.currency} {outstanding.total_repaid.toLocaleString()} of {group.currency} {loan.principal.toLocaleString()}
+                {t('Paid {paid} of {total}', {
+                  paid: `${group.currency} ${outstanding.total_repaid.toLocaleString()}`,
+                  total: `${group.currency} ${loan.principal.toLocaleString()}`,
+                })}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                Remaining: {group.currency} {(loan.principal - outstanding.total_repaid).toLocaleString()}
+                {t('Remaining: {amount}', {
+                  amount: `${group.currency} ${(loan.principal - outstanding.total_repaid).toLocaleString()}`,
+                })}
               </ThemedText>
 
               {isBorrower ? (
                 <>
                   <TextField
-                    label="Repayment Amount"
+                    label={t('Repayment Amount')}
                     value={repayAmount}
                     onChangeText={setRepayAmount}
                     keyboardType="numeric"
                     placeholder={String(loan.installment_amount)}
                   />
-                  <TextField label="Reference" value={repayReference} onChangeText={setRepayReference} />
+                  <TextField label={t('Reference')} value={repayReference} onChangeText={setRepayReference} />
                   <Button
-                    title="Confirm Payment"
+                    title={t('Confirm Payment')}
                     onPress={confirmRepayment}
                     loading={busy}
                     disabled={!repayReference.trim()}
@@ -327,7 +351,7 @@ export default function LoanDetailScreen() {
 
               {isAdmin ? (
                 <Button
-                  title="Flag Default"
+                  title={t('Flag Default')}
                   variant="danger"
                   onPress={() => invoke('flag-loan-default', { loan_id: id, reason: 'Manually flagged by Group Admin' })}
                   loading={busy}
@@ -338,22 +362,22 @@ export default function LoanDetailScreen() {
 
           {loan.status === 'repaid' ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Loan Fully Repaid!</ThemedText>
+              <ThemedText type="subtitle">{t('Loan Fully Repaid!')}</ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                You have successfully repaid your loan. Ready for next loan.
+                {t('You have successfully repaid your loan. Ready for next loan.')}
               </ThemedText>
             </View>
           ) : null}
 
           {loan.status === 'defaulted' ? (
             <ThemedText type="default" themeColor="danger">
-              This loan was flagged as defaulted.
+              {t('This loan was flagged as defaulted.')}
             </ThemedText>
           ) : null}
 
           {messages.length > 0 ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Messages from Reviewers</ThemedText>
+              <ThemedText type="subtitle">{t('Messages from Reviewers')}</ThemedText>
               {messages.map((m, i) => (
                 <ThemedText key={i} type="default">
                   {m.message}

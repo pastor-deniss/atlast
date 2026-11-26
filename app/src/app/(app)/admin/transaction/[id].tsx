@@ -10,6 +10,7 @@ import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Transaction = {
   id: string;
@@ -31,6 +32,7 @@ export default function AdminTransactionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { group } = useMembership();
+  const t = useT();
 
   const [txn, setTxn] = useState<Transaction | null>(null);
   const [memberName, setMemberName] = useState<string | null>(null);
@@ -143,27 +145,27 @@ export default function AdminTransactionDetailScreen() {
             {group.currency} {txn.amount.toLocaleString()}
           </ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            {txn.type.replace('_', ' ')} · {new Date(txn.created_at).toLocaleString()}
+            {t(txn.type.replace('_', ' '))} · {new Date(txn.created_at).toLocaleString()}
           </ThemedText>
           {memberName ? <ThemedText type="default">{memberName}</ThemedText> : null}
           {txn.reference ? (
             <ThemedText type="small" themeColor="textSecondary">
-              Reference: {txn.reference}
+              {t('Reference: {reference}', { reference: txn.reference })}
             </ThemedText>
           ) : null}
           <ThemedText type="small" themeColor="primary">
-            Status: {txn.status}
+            {t('Status: {status}', { status: t(txn.status) })}
           </ThemedText>
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
           {openCaseId ? (
             <Button
-              title="View Reconciliation Case"
+              title={t('View Reconciliation Case')}
               variant="secondary"
               onPress={() =>
                 router.push({ pathname: '/(app)/admin/reconciliation-case/[id]', params: { id: openCaseId } })
@@ -173,28 +175,28 @@ export default function AdminTransactionDetailScreen() {
 
           {canReconcile ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Submit Reconciliation Record</ThemedText>
+              <ThemedText type="subtitle">{t('Submit Reconciliation Record')}</ThemedText>
               {matchResult === 'matched' ? (
                 <ThemedText type="default" themeColor="primary">
-                  ✓ Matched — reconciled.
+                  {t('✓ Matched — reconciled.')}
                 </ThemedText>
               ) : (
                 <>
-                  <TextField label="Provider" value={provider} onChangeText={setProvider} />
+                  <TextField label={t('Provider')} value={provider} onChangeText={setProvider} />
                   <TextField
-                    label="Provider Reference"
+                    label={t('Provider Reference')}
                     value={providerReference}
                     onChangeText={setProviderReference}
                   />
                   <TextField
-                    label="Provider Amount"
+                    label={t('Provider Amount')}
                     value={providerAmount}
                     onChangeText={setProviderAmount}
                     keyboardType="numeric"
                     placeholder={String(Math.abs(txn.amount))}
                   />
                   <Button
-                    title="Submit"
+                    title={t('Submit')}
                     onPress={submitReconciliation}
                     loading={busy}
                     disabled={!provider.trim() || !providerAmount.trim()}
@@ -206,22 +208,22 @@ export default function AdminTransactionDetailScreen() {
 
           {canReverse ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Reverse Transaction</ThemedText>
+              <ThemedText type="subtitle">{t('Reverse Transaction')}</ThemedText>
               {showReverseForm ? (
                 <>
-                  <TextField label="Reason" value={reverseReason} onChangeText={setReverseReason} />
+                  <TextField label={t('Reason')} value={reverseReason} onChangeText={setReverseReason} />
                   <View style={styles.row}>
-                    <Button title="Confirm Reversal" variant="danger" onPress={submitReversal} loading={busy} />
-                    <Button title="Cancel" variant="secondary" onPress={() => setShowReverseForm(false)} />
+                    <Button title={t('Confirm Reversal')} variant="danger" onPress={submitReversal} loading={busy} />
+                    <Button title={t('Cancel')} variant="secondary" onPress={() => setShowReverseForm(false)} />
                   </View>
                 </>
               ) : (
-                <Button title="Reverse Transaction" variant="danger" onPress={() => setShowReverseForm(true)} />
+                <Button title={t('Reverse Transaction')} variant="danger" onPress={() => setShowReverseForm(true)} />
               )}
             </View>
           ) : alreadyReversed ? (
             <ThemedText type="small" themeColor="textSecondary">
-              This transaction has already been reversed.
+              {t('This transaction has already been reversed.')}
             </ThemedText>
           ) : null}
         </ScrollView>

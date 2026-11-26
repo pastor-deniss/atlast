@@ -9,6 +9,7 @@ import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type TransactionRow = {
   id: string;
@@ -31,6 +32,7 @@ function statusColor(status: string): ThemeColor {
 export default function AdminTransactionsScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
   const { group } = useMembership();
   const [rows, setRows] = useState<TransactionRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function AdminTransactionsScreen() {
           ListEmptyComponent={
             !loading ? (
               <ThemedText type="default" themeColor="textSecondary">
-                No transactions yet.
+                {t('No transactions yet.')}
               </ThemedText>
             ) : null
           }
@@ -72,7 +74,7 @@ export default function AdminTransactionsScreen() {
               onPress={() => router.push({ pathname: '/(app)/admin/transaction/[id]', params: { id: item.id } })}
               style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
               <View>
-                <ThemedText type="default">{item.type.replace('_', ' ')}</ThemedText>
+                <ThemedText type="default">{t(item.type.replace('_', ' '))}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {new Date(item.created_at).toLocaleDateString()}
                   {item.reference ? ` · ${item.reference}` : ''}
@@ -83,7 +85,7 @@ export default function AdminTransactionsScreen() {
                   {group.currency} {item.amount.toLocaleString()}
                 </ThemedText>
                 <ThemedText type="small" themeColor={statusColor(item.status)}>
-                  {item.status}
+                  {t(item.status)}
                 </ThemedText>
               </View>
             </Pressable>

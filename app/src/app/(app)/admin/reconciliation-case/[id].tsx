@@ -10,6 +10,7 @@ import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type ReconciliationCase = {
   id: string;
@@ -31,6 +32,7 @@ export default function ReconciliationCaseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { group } = useMembership();
+  const t = useT();
 
   const [item, setItem] = useState<ReconciliationCase | null>(null);
   const [recordedAmount, setRecordedAmount] = useState<number | null>(null);
@@ -94,40 +96,40 @@ export default function ReconciliationCaseScreen() {
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">
-            {item.status === 'investigate' ? 'Reconciliation Case' : 'Reconciliation Resolved'}
+            {item.status === 'investigate' ? t('Reconciliation Case') : t('Reconciliation Resolved')}
           </ThemedText>
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
           <View style={styles.row}>
-            <ThemedText type="default">Provider</ThemedText>
+            <ThemedText type="default">{t('Provider')}</ThemedText>
             <ThemedText type="default">{item.provider}</ThemedText>
           </View>
           {item.provider_reference ? (
             <View style={styles.row}>
-              <ThemedText type="default">Provider Reference</ThemedText>
+              <ThemedText type="default">{t('Provider Reference')}</ThemedText>
               <ThemedText type="default">{item.provider_reference}</ThemedText>
             </View>
           ) : null}
           <View style={styles.row}>
-            <ThemedText type="default">Provider Amount</ThemedText>
+            <ThemedText type="default">{t('Provider Amount')}</ThemedText>
             <ThemedText type="default">
               {group.currency} {item.provider_amount.toLocaleString()}
             </ThemedText>
           </View>
           <View style={styles.row}>
-            <ThemedText type="default">Recorded</ThemedText>
+            <ThemedText type="default">{t('Recorded')}</ThemedText>
             <ThemedText type="default">
               {group.currency} {(recordedAmount ?? 0).toLocaleString()}
             </ThemedText>
           </View>
           {difference !== null && difference !== 0 ? (
             <View style={styles.row}>
-              <ThemedText type="default">Difference</ThemedText>
+              <ThemedText type="default">{t('Difference')}</ThemedText>
               <ThemedText type="default" themeColor="warning">
                 {group.currency} {Math.abs(difference).toLocaleString()}
               </ThemedText>
@@ -140,7 +142,7 @@ export default function ReconciliationCaseScreen() {
           ) : null}
 
           <Button
-            title="View Transaction"
+            title={t('View Transaction')}
             variant="secondary"
             onPress={() =>
               router.push({ pathname: '/(app)/admin/transaction/[id]', params: { id: item.transaction_id } })
@@ -150,23 +152,23 @@ export default function ReconciliationCaseScreen() {
           {item.status === 'investigate' ? (
             <View style={styles.section}>
               <TextField
-                label="Notes"
-                placeholder="Explain what happened and how it was corrected"
+                label={t('Notes')}
+                placeholder={t('Explain what happened and how it was corrected')}
                 value={notes}
                 onChangeText={setNotes}
                 multiline
               />
-              <Button title="Resolve" onPress={resolve} loading={busy} disabled={!notes.trim()} />
+              <Button title={t('Resolve')} onPress={resolve} loading={busy} disabled={!notes.trim()} />
             </View>
           ) : (
             <View style={styles.section}>
               <ThemedText type="default" themeColor="primary">
-                Difference explained and corrected.
+                {t('Difference explained and corrected.')}
               </ThemedText>
               {item.notes ? <ThemedText type="default">{item.notes}</ThemedText> : null}
               {item.resolved_at ? (
                 <ThemedText type="small" themeColor="textSecondary">
-                  Resolved {new Date(item.resolved_at).toLocaleString()}
+                  {t('Resolved {date}', { date: new Date(item.resolved_at).toLocaleString() })}
                 </ThemedText>
               ) : null}
             </View>

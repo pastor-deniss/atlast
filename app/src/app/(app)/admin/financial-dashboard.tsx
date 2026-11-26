@@ -8,6 +8,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Totals = { contributions: number; disbursed: number; repayments: number };
 
@@ -28,6 +29,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 // are a single-pass sum of `transactions` by type, same underlying ledger.
 export default function FinancialDashboardScreen() {
   const { group } = useMembership();
+  const t = useT();
   const [balance, setBalance] = useState<number | null>(null);
   const [totals, setTotals] = useState<Totals | null>(null);
 
@@ -62,22 +64,22 @@ export default function FinancialDashboardScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Financial Dashboard</ThemedText>
+          <ThemedText type="title">{t('Financial Dashboard')}</ThemedText>
 
           <StatCard
-            label="Available Funds"
+            label={t('Available Funds')}
             value={`${group.currency} ${(balance ?? 0).toLocaleString()}`}
           />
           <StatCard
-            label="Total Contributions"
+            label={t('Total Contributions')}
             value={`${group.currency} ${(totals?.contributions ?? 0).toLocaleString()}`}
           />
           <StatCard
-            label="Loans Disbursed"
+            label={t('Loans Disbursed')}
             value={`${group.currency} ${(totals?.disbursed ?? 0).toLocaleString()}`}
           />
           <StatCard
-            label="Repayments Collected"
+            label={t('Repayments Collected')}
             value={`${group.currency} ${(totals?.repayments ?? 0).toLocaleString()}`}
           />
         </ScrollView>

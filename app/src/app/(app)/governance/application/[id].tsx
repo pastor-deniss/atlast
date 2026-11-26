@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Applicant = { name: string; application_note: string | null; status: string };
 
@@ -19,6 +20,7 @@ type Applicant = { name: string; application_note: string | null; status: string
 export default function AdminMembershipReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const t = useT();
 
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,23 +94,23 @@ export default function AdminMembershipReviewScreen() {
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
           {applicant.status === 'pending' ? (
             <View style={styles.row}>
               <Button
-                title="Reject"
+                title={t('Reject')}
                 variant="danger"
                 onPress={() => decide('reject-membership-application')}
                 loading={busy}
               />
-              <Button title="Initiate Vote" onPress={() => decide('initiate-membership-vote')} loading={busy} />
+              <Button title={t('Initiate Vote')} onPress={() => decide('initiate-membership-vote')} loading={busy} />
             </View>
           ) : (
             <ThemedText type="default" themeColor="textSecondary">
-              This application has already been decided.
+              {t('This application has already been decided.')}
             </ThemedText>
           )}
         </ScrollView>

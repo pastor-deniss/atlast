@@ -13,8 +13,10 @@ import {
   setBiometricEnabled,
 } from '@/lib/auth/biometric';
 import { isWeakPin, setPin, verifyPin } from '@/lib/auth/pin';
+import { useT } from '@/lib/i18n';
 
 export default function SecuritySettingsScreen() {
+const t = useT();
   const [biometricSupported, setBiometricSupported] = useState(false);
   const [biometricOn, setBiometricOn] = useState(false);
 
@@ -80,56 +82,56 @@ export default function SecuritySettingsScreen() {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {biometricSupported ? (
             <View style={styles.row}>
-              <ThemedText type="default">Use Face ID / Fingerprint</ThemedText>
+              <ThemedText type="default">{t('Use Face ID / Fingerprint')}</ThemedText>
               <Switch value={biometricOn} onValueChange={handleToggleBiometric} />
             </View>
           ) : null}
 
-          <ThemedText type="subtitle">Change PIN</ThemedText>
+          <ThemedText type="subtitle">{t('Change PIN')}</ThemedText>
 
           {stage === 'current' ? (
             <>
               <TextField
-                label="Current PIN"
+                label={t('Current PIN')}
                 value={currentPin}
-                onChangeText={(t) => setCurrentPin(t.replace(/\D/g, '').slice(0, 6))}
+                onChangeText={(v) => setCurrentPin(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
                 secureTextEntry
                 maxLength={6}
                 style={styles.pinInput}
               />
-              <Button title="Continue" onPress={handleCheckCurrentPin} />
+              <Button title={t('Continue')} onPress={handleCheckCurrentPin} />
             </>
           ) : (
             <>
               <TextField
-                label="New PIN"
+                label={t('New PIN')}
                 value={newPin}
-                onChangeText={(t) => setNewPin(t.replace(/\D/g, '').slice(0, 6))}
+                onChangeText={(v) => setNewPin(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
                 secureTextEntry
                 maxLength={6}
                 style={styles.pinInput}
               />
               <TextField
-                label="Confirm New PIN"
+                label={t('Confirm New PIN')}
                 value={confirmPin}
-                onChangeText={(t) => setConfirmPin(t.replace(/\D/g, '').slice(0, 6))}
+                onChangeText={(v) => setConfirmPin(v.replace(/\D/g, '').slice(0, 6))}
                 keyboardType="number-pad"
                 secureTextEntry
                 maxLength={6}
                 style={styles.pinInput}
               />
-              <Button title="Save New PIN" onPress={handleSetNewPin} loading={submitting} />
+              <Button title={t('Save New PIN')} onPress={handleSetNewPin} loading={submitting} />
             </>
           )}
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
-          {message ? <ThemedText type="small">{message}</ThemedText> : null}
+          {message ? <ThemedText type="small">{t(message)}</ThemedText> : null}
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

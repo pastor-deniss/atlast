@@ -10,6 +10,7 @@ import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Motion = {
   id: string;
@@ -34,6 +35,7 @@ function daysRemaining(closesAt: string) {
 export default function MotionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session } = useSession();
+  const t = useT();
 
   const [motion, setMotion] = useState<Motion | null>(null);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
@@ -136,28 +138,30 @@ export default function MotionDetailScreen() {
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
           {motion.status === 'open' && !myVote ? (
             <View style={styles.section}>
               <ThemedText type="small" themeColor="textSecondary">
-                {daysRemaining(motion.closes_at)} days left to vote. Your ballot is secret -- not even
-                the Group Admin can see how you voted.
+                {t(
+                  '{days} days left to vote. Your ballot is secret -- not even the Group Admin can see how you voted.',
+                  { days: daysRemaining(motion.closes_at) }
+                )}
               </ThemedText>
               <View style={styles.row}>
-                <Button title="Approve" onPress={() => castVote('approve')} loading={busy} />
-                <Button title="Decline" variant="danger" onPress={() => castVote('decline')} loading={busy} />
+                <Button title={t('Approve')} onPress={() => castVote('approve')} loading={busy} />
+                <Button title={t('Decline')} variant="danger" onPress={() => castVote('decline')} loading={busy} />
               </View>
             </View>
           ) : null}
 
           {motion.status === 'open' && myVote ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Vote Submitted</ThemedText>
+              <ThemedText type="subtitle">{t('Vote Submitted')}</ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                Your vote has been recorded. Results will be shown once voting closes.
+                {t('Your vote has been recorded. Results will be shown once voting closes.')}
               </ThemedText>
             </View>
           ) : null}
@@ -165,10 +169,13 @@ export default function MotionDetailScreen() {
           {motion.status !== 'open' && tally ? (
             <View style={styles.section}>
               <ThemedText type="subtitle">
-                Membership {motion.status === 'approved' ? 'Approved' : 'Declined'}
+                {motion.status === 'approved' ? t('Membership Approved') : t('Membership Declined')}
               </ThemedText>
               <ThemedText type="default">
-                Approve {tally.approve_count} / Decline {tally.decline_count}
+                {t('Approve {approve} / Decline {decline}', {
+                  approve: tally.approve_count,
+                  decline: tally.decline_count,
+                })}
               </ThemedText>
             </View>
           ) : null}

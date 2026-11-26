@@ -11,6 +11,7 @@ import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 // Ticket 16: Payment Method is fixed to "Mobile Money" — no selector (matches
 // ticket 03's mobile-money-centric V1 scope). Live client-side validation of
@@ -19,6 +20,7 @@ import { supabase } from '@/lib/supabase';
 export default function ContributeScreen() {
   const router = useRouter();
   const { group } = useMembership();
+  const t = useT();
 
   const [amount, setAmount] = useState('');
   const [reference, setReference] = useState('');
@@ -42,7 +44,11 @@ export default function ContributeScreen() {
       return;
     }
     if (!isMultiple) {
-      setError(`Must be a multiple of ${group!.currency} ${group!.share_value.toLocaleString()}.`);
+      setError(
+        t('Must be a multiple of {amount}.', {
+          amount: `${group!.currency} ${group!.share_value.toLocaleString()}`,
+        })
+      );
       return;
     }
     if (!reference.trim()) {
@@ -88,44 +94,46 @@ export default function ContributeScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Make Contribution</ThemedText>
+          <ThemedText type="title">{t('Make Contribution')}</ThemedText>
 
           <TextField
-            label="Amount"
+            label={t('Amount')}
             value={amount}
             onChangeText={setAmount}
             keyboardType="numeric"
             hint={
               isValidAmount
                 ? isMultiple
-                  ? `✓ ${sharesForAmount} share${sharesForAmount === 1 ? '' : 's'}`
-                  : `Must be a multiple of ${group.currency} ${group.share_value.toLocaleString()}`
+                  ? `✓ ${sharesForAmount === 1 ? t('1 share') : t('{count} shares', { count: sharesForAmount })}`
+                  : t('Must be a multiple of {amount}', {
+                      amount: `${group.currency} ${group.share_value.toLocaleString()}`,
+                    })
                 : undefined
             }
           />
 
           <View style={styles.field}>
             <ThemedText type="small" themeColor="textSecondary">
-              Payment Method
+              {t('Payment Method')}
             </ThemedText>
-            <ThemedText type="default">Mobile Money</ThemedText>
+            <ThemedText type="default">{t('Mobile Money')}</ThemedText>
           </View>
 
           <TextField
-            label="Reference"
+            label={t('Reference')}
             value={reference}
             onChangeText={setReference}
-            placeholder="Mobile money confirmation code"
+            placeholder={t('Mobile money confirmation code')}
           />
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
           <Button
-            title="Contribute"
+            title={t('Contribute')}
             onPress={handleSubmit}
             loading={submitting}
             disabled={!isMultiple || !reference.trim()}

@@ -16,6 +16,7 @@ import {
   type ReportPeriodType,
 } from '@/lib/report-periods';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type Report = {
   contributions: number;
@@ -35,9 +36,10 @@ const PERIOD_TYPES: { key: ReportPeriodType; label: string }[] = [
 ];
 
 function ReportRow({ label, value }: { label: string; value: string | number }) {
+  const t = useT();
   return (
     <View style={styles.row}>
-      <ThemedText type="default">{label}</ThemedText>
+      <ThemedText type="default">{t(label)}</ThemedText>
       <ThemedText type="default">{value}</ThemedText>
     </View>
   );
@@ -49,6 +51,7 @@ function ReportRow({ label, value }: { label: string; value: string | number }) 
 export default function ReportsScreen() {
   const theme = useTheme();
   const { group, membership } = useMembership();
+  const t = useT();
   const [type, setType] = useState<ReportPeriodType>('monthly');
   const [reference, setReference] = useState(new Date());
   const [report, setReport] = useState<Report | null>(null);
@@ -63,7 +66,7 @@ export default function ReportsScreen() {
         <SafeAreaView style={styles.flex} edges={['bottom']}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <ThemedText type="default" themeColor="textSecondary">
-              This area is for Group Admins only.
+              {t('This area is for Group Admins only.')}
             </ThemedText>
           </ScrollView>
         </SafeAreaView>
@@ -143,13 +146,13 @@ export default function ReportsScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Reports</ThemedText>
+          <ThemedText type="title">{t('Reports')}</ThemedText>
 
           <View style={styles.row}>
             {PERIOD_TYPES.map((p) => (
               <Button
                 key={p.key}
-                title={p.label}
+                title={t(p.label)}
                 variant={type === p.key ? 'primary' : 'secondary'}
                 onPress={() => changeType(p.key)}
               />
@@ -170,11 +173,11 @@ export default function ReportsScreen() {
             </Pressable>
           </View>
 
-          <Button title="Generate Report" onPress={generate} loading={busy} />
+          <Button title={t('Generate Report')} onPress={generate} loading={busy} />
 
           {report ? (
             <View style={[styles.section, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="subtitle">{periodLabel(type, reference)} Report</ThemedText>
+              <ThemedText type="subtitle">{t('{period} Report', { period: periodLabel(type, reference) })}</ThemedText>
               <ReportRow label="Contributions" value={`${group.currency} ${report.contributions.toLocaleString()}`} />
               <ReportRow label="Loans Disbursed" value={`${group.currency} ${report.disbursed.toLocaleString()}`} />
               <ReportRow label="Repayments Collected" value={`${group.currency} ${report.repayments.toLocaleString()}`} />

@@ -12,10 +12,12 @@ import { Spacing } from '@/constants/theme';
 import { useAppLock } from '@/lib/auth/app-lock-context';
 import { authenticateWithBiometric, isBiometricEnabled } from '@/lib/auth/biometric';
 import { verifyPin } from '@/lib/auth/pin';
+import { useT } from '@/lib/i18n';
 
 export default function UnlockScreen() {
   const router = useRouter();
   const { unlock } = useAppLock();
+  const t = useT();
 
   const [pin, setPinValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -58,13 +60,13 @@ export default function UnlockScreen() {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <AtlastLogo width={180} />
           <ThemedText type="default" themeColor="textSecondary">
-            Enter your PIN to continue
+            {t('Enter your PIN to continue')}
           </ThemedText>
 
           <TextField
-            label="PIN"
+            label={t('PIN')}
             value={pin}
-            onChangeText={(t) => setPinValue(t.replace(/\D/g, '').slice(0, 6))}
+            onChangeText={(v) => setPinValue(v.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={6}
@@ -74,19 +76,19 @@ export default function UnlockScreen() {
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
-          <Button title="Unlock" onPress={handleUnlock} loading={checking} />
+          <Button title={t('Unlock')} onPress={handleUnlock} loading={checking} />
 
           {biometricReady ? (
-            <Button title="Use Face ID / Fingerprint" variant="secondary" onPress={tryBiometric} />
+            <Button title={t('Use Face ID / Fingerprint')} variant="secondary" onPress={tryBiometric} />
           ) : null}
 
           <Pressable style={styles.forgot} onPress={() => router.push('/forgot-pin')}>
             <ThemedText type="link" themeColor="primary">
-              Forgot PIN?
+              {t('Forgot PIN?')}
             </ThemedText>
           </Pressable>
         </ScrollView>

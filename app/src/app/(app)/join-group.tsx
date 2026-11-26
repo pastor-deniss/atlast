@@ -10,6 +10,11 @@ import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
+
+function capitalize(word: string) {
+  return word ? word[0].toUpperCase() + word.slice(1) : word;
+}
 
 type GroupSummary = {
   id: string;
@@ -28,6 +33,7 @@ type GroupSummary = {
 export default function JoinGroupScreen() {
   const router = useRouter();
   const { refetch } = useMembership();
+  const t = useT();
   const [query, setQuery] = useState('');
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,18 +90,18 @@ export default function JoinGroupScreen() {
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <View style={styles.searchBar}>
           <TextField
-            placeholder="Search groups..."
+            placeholder={t('Search groups...')}
             value={query}
-            onChangeText={(t) => {
-              setQuery(t);
-              load(t);
+            onChangeText={(v) => {
+              setQuery(v);
+              load(v);
             }}
           />
         </View>
 
         {error ? (
           <ThemedText type="small" themeColor="danger" style={styles.error}>
-            {error}
+            {t(error)}
           </ThemedText>
         ) : null}
 
@@ -108,7 +114,7 @@ export default function JoinGroupScreen() {
           ListEmptyComponent={
             !loading ? (
               <ThemedText type="default" themeColor="textSecondary" style={styles.empty}>
-                No groups found.
+                {t('No groups found.')}
               </ThemedText>
             ) : null
           }
@@ -121,11 +127,11 @@ export default function JoinGroupScreen() {
                 </ThemedText>
               ) : null}
               <ThemedText type="small" themeColor="textSecondary">
-                {item.member_count} members · {item.contribution_frequency}:{' '}
+                {t('{count} members', { count: item.member_count })} · {t(capitalize(item.contribution_frequency))}:{' '}
                 {item.currency} {item.contribution_amount.toLocaleString()}
               </ThemedText>
               <Button
-                title="Apply to Join"
+                title={t('Apply to Join')}
                 onPress={() => handleApply(item.id, item.name)}
                 loading={applyingTo === item.id}
               />

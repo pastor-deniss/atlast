@@ -9,9 +9,11 @@ import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 export default function ProfileSettingsScreen() {
   const { session } = useSession();
+  const t = useT();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -50,21 +52,20 @@ export default function ProfileSettingsScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <TextField label="First Name" value={firstName} onChangeText={setFirstName} />
-          <TextField label="Last Name" value={lastName} onChangeText={setLastName} />
+          <TextField label={t('First Name')} value={firstName} onChangeText={setFirstName} />
+          <TextField label={t('Last Name')} value={lastName} onChangeText={setLastName} />
 
           {/* Photo upload (ticket 14, Q4: Settings-only, optional) needs a
               Supabase Storage bucket + policies not yet designed in the spec
               — left as a visible placeholder rather than a half-built
               upload flow. */}
           <ThemedText type="small" themeColor="textSecondary">
-            Profile photo upload isn't wired up yet — needs a Storage bucket
-            and policies the spec hasn't designed.
+            {t('Profile photos are coming soon.')}
           </ThemedText>
 
-          {message ? <ThemedText type="small">{message}</ThemedText> : null}
+          {message ? <ThemedText type="small">{t(message)}</ThemedText> : null}
 
-          <Button title="Save" onPress={handleSave} loading={saving} />
+          <Button title={t('Save')} onPress={handleSave} loading={saving} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

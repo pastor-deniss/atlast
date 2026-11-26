@@ -10,9 +10,11 @@ import { Spacing } from '@/constants/theme';
 import { useAppLock } from '@/lib/auth/app-lock-context';
 import { isBiometricSupported, setBiometricEnabled } from '@/lib/auth/biometric';
 import { isWeakPin, setPin } from '@/lib/auth/pin';
+import { useT } from '@/lib/i18n';
 
 export default function CreatePinScreen() {
   const { completePinSetup } = useAppLock();
+  const t = useT();
 
   const [pin, setPinValue] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -55,24 +57,24 @@ export default function CreatePinScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Create Your Atlast PIN</ThemedText>
+          <ThemedText type="title">{t('Create Your Atlast PIN')}</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            This unlocks Atlast on this device — separate from your phone verification.
+            {t('This unlocks Atlast on this device — separate from your phone verification.')}
           </ThemedText>
 
           <TextField
-            label="Enter a 6-digit PIN"
+            label={t('Enter a 6-digit PIN')}
             value={pin}
-            onChangeText={(t) => setPinValue(t.replace(/\D/g, '').slice(0, 6))}
+            onChangeText={(v) => setPinValue(v.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={6}
             style={styles.pinInput}
           />
           <TextField
-            label="Confirm PIN"
+            label={t('Confirm PIN')}
             value={confirmPin}
-            onChangeText={(t) => setConfirmPin(t.replace(/\D/g, '').slice(0, 6))}
+            onChangeText={(v) => setConfirmPin(v.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={6}
@@ -81,18 +83,18 @@ export default function CreatePinScreen() {
 
           {biometricAvailable ? (
             <View style={styles.row}>
-              <ThemedText type="default">Use Face ID / Fingerprint</ThemedText>
+              <ThemedText type="default">{t('Use Face ID / Fingerprint')}</ThemedText>
               <Switch value={biometricToggle} onValueChange={setBiometricToggle} />
             </View>
           ) : null}
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
-          <Button title="Next" onPress={handleNext} loading={submitting} />
+          <Button title={t('Next')} onPress={handleNext} loading={submitting} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

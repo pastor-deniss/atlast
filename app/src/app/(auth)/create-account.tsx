@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/lib/i18n';
 import { COUNTRIES, isValidE164, toE164, type CountryCode } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
 
 export default function CreateAccountScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -65,12 +67,12 @@ export default function CreateAccountScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <TextField label="First Name" value={firstName} onChangeText={setFirstName} autoComplete="given-name" />
-          <TextField label="Last Name" value={lastName} onChangeText={setLastName} autoComplete="family-name" />
+          <TextField label={t('First Name')} value={firstName} onChangeText={setFirstName} autoComplete="given-name" />
+          <TextField label={t('Last Name')} value={lastName} onChangeText={setLastName} autoComplete="family-name" />
 
           <View style={styles.field}>
             <ThemedText type="small" themeColor="textSecondary">
-              Country
+              {t('Country')}
             </ThemedText>
             <View style={styles.chipRow}>
               {COUNTRIES.map((c) => {
@@ -96,22 +98,22 @@ export default function CreateAccountScreen() {
           </View>
 
           <TextField
-            label="Phone Number"
+            label={t('Phone Number')}
             value={localNumber}
             onChangeText={setLocalNumber}
             keyboardType="phone-pad"
             autoComplete="tel"
             placeholder="712 345 678"
-            hint={`Will be sent as ${phone || country.dialCode}`}
+            hint={t('Will be sent as {phone}', { phone: phone || country.dialCode })}
           />
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
-          <Button title="Continue" onPress={handleContinue} loading={submitting} />
+          <Button title={t('Continue')} onPress={handleContinue} loading={submitting} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

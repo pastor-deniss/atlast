@@ -10,12 +10,14 @@ import { useSession } from '@/lib/auth/session-context';
 import { computeGrowthSeries, type GrowthBar, type GrowthTransaction } from '@/lib/contribution-growth';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type ContributionRow = { id: string; amount: number; created_at: string };
 
 export default function ContributionsScreen() {
   const { session } = useSession();
   const { group } = useMembership();
+  const t = useT();
   const [history, setHistory] = useState<ContributionRow[]>([]);
   const [bars, setBars] = useState<GrowthBar[]>([]);
   const [total, setTotal] = useState(0);
@@ -72,13 +74,13 @@ export default function ContributionsScreen() {
           ListHeaderComponent={
             <View style={styles.header}>
               <ThemedText type="small" themeColor="textSecondary">
-                Total Contributed
+                {t('Total Contributed')}
               </ThemedText>
               <ThemedText type="title">
                 {group.currency} {total.toLocaleString()}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {shares} shares
+                {t('{count} shares', { count: shares })}
               </ThemedText>
 
               <View style={styles.chart}>
@@ -86,7 +88,7 @@ export default function ContributionsScreen() {
               </View>
 
               <ThemedText type="subtitle" style={styles.historyTitle}>
-                History
+                {t('History')}
               </ThemedText>
             </View>
           }
@@ -98,7 +100,7 @@ export default function ContributionsScreen() {
                   {group.currency} {item.amount.toLocaleString()}
                 </ThemedText>
                 <ThemedText type="small" themeColor="primary">
-                  ✓ Confirmed
+                  {t('✓ Confirmed')}
                 </ThemedText>
               </View>
             </View>

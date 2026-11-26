@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type ProfileDetail = {
   first_name: string;
@@ -23,6 +24,7 @@ type ProfileDetail = {
 export default function MemberProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { group } = useMembership();
+  const t = useT();
   const [detail, setDetail] = useState<ProfileDetail | null>(null);
 
   useEffect(() => {
@@ -57,10 +59,10 @@ export default function MemberProfileScreen() {
             {detail.first_name} {detail.last_name}
           </ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            {detail.role === 'group_admin' ? 'Group Admin' : 'Member'}
+            {detail.role === 'group_admin' ? t('Group Admin') : t('Member')}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            Joined {detail.joinDate}
+            {t('Joined {date}', { date: detail.joinDate })}
           </ThemedText>
         </ScrollView>
       </SafeAreaView>

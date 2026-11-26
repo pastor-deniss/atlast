@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useMembership } from '@/lib/membership-context';
+import { useT } from '@/lib/i18n';
 
 // Ticket 15: shown once, the first time the app sees this membership as
 // active. V1 has no push notifications, so this is how an applicant finds
@@ -15,6 +16,7 @@ import { useMembership } from '@/lib/membership-context';
 export default function WelcomeToGroupScreen() {
   const router = useRouter();
   const { group } = useMembership();
+  const t = useT();
   const { flagKey } = useLocalSearchParams<{ flagKey: string }>();
 
   async function handleEnter() {
@@ -26,11 +28,11 @@ export default function WelcomeToGroupScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Welcome!</ThemedText>
+          <ThemedText type="title">{t('Welcome!')}</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            You are now an active member of {group?.name}.
+            {t('You are now an active member of {group}.', { group: group?.name ?? '' })}
           </ThemedText>
-          <Button title="Enter My Group" onPress={handleEnter} />
+          <Button title={t('Enter My Group')} onPress={handleEnter} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

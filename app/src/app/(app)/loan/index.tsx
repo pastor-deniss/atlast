@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 const OPEN_LOAN_STATUSES = ['pending_review', 'approved', 'disbursed', 'repaying'];
 
@@ -29,6 +30,7 @@ type ReviewNeeded = { loan_id: string; principal: number };
 export default function LoanHubScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
   const { session } = useSession();
   const { group } = useMembership();
 
@@ -102,35 +104,35 @@ export default function LoanHubScreen() {
                       borderColor: theme.primary,
                     },
                   ]}>
-                  <ThemedText type="subtitle">My Loan</ThemedText>
+                  <ThemedText type="subtitle">{t('My Loan')}</ThemedText>
                   <ThemedText type="title">
                     {group.currency} {openLoan.principal.toLocaleString()}
                   </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Status: {openLoan.status.replace('_', ' ')}
+                    {t('Status: {status}', { status: t(openLoan.status.replace('_', ' ')) })}
                   </ThemedText>
                   <ThemedText type="smallBold" themeColor="primary">
                     {openLoan.status === 'disbursed' || openLoan.status === 'repaying'
-                      ? 'View details & make a repayment →'
-                      : 'View details →'}
+                      ? t('View details & make a repayment →')
+                      : t('View details →')}
                   </ThemedText>
                 </Pressable>
               ) : (
                 <View style={styles.card}>
-                  <ThemedText type="subtitle">Eligible Amount</ThemedText>
+                  <ThemedText type="subtitle">{t('Eligible Amount')}</ThemedText>
                   <ThemedText type="title">
                     {group.currency} {(eligibleAmount ?? 0).toLocaleString()}
                   </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Your eligibility is based on your group rules and standing.
+                    {t('Your eligibility is based on your group rules and standing.')}
                   </ThemedText>
-                  <Button title="Apply for Loan" onPress={() => router.push('/(app)/loan/apply')} />
+                  <Button title={t('Apply for Loan')} onPress={() => router.push('/(app)/loan/apply')} />
                 </View>
               )}
 
               {reviewsNeeded.length > 0 ? (
                 <ThemedText type="subtitle" style={styles.sectionTitle}>
-                  Reviews Needed
+                  {t('Reviews Needed')}
                 </ThemedText>
               ) : null}
             </View>
@@ -140,10 +142,12 @@ export default function LoanHubScreen() {
               onPress={() => router.push({ pathname: '/(app)/loan/[id]', params: { id: item.loan_id } })}
               style={styles.card}>
               <ThemedText type="default">
-                Loan request: {group.currency} {item.principal.toLocaleString()}
+                {t('Loan request: {amount}', {
+                  amount: `${group.currency} ${item.principal.toLocaleString()}`,
+                })}
               </ThemedText>
               <ThemedText type="small" themeColor="primary">
-                Review needed →
+                {t('Review needed →')}
               </ThemedText>
             </Pressable>
           )}
@@ -151,7 +155,7 @@ export default function LoanHubScreen() {
             history.length > 0 ? (
               <View>
                 <ThemedText type="subtitle" style={styles.sectionTitle}>
-                  Past Loans
+                  {t('Past Loans')}
                 </ThemedText>
                 {history.map((l) => (
                   <Pressable
@@ -162,7 +166,7 @@ export default function LoanHubScreen() {
                       {group.currency} {l.principal.toLocaleString()}
                     </ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
-                      {l.status.replace('_', ' ')}
+                      {t(l.status.replace('_', ' '))}
                     </ThemedText>
                   </Pressable>
                 ))}

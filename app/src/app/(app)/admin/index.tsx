@@ -9,6 +9,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type PendingMembership = { id: string; name: string };
 type FallbackLoan = { id: string; name: string; principal: number };
@@ -38,6 +39,7 @@ export default function AdminControlCentreScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { group, membership } = useMembership();
+  const t = useT();
 
   const [pendingMemberships, setPendingMemberships] = useState<PendingMembership[]>([]);
   const [fallbackLoans, setFallbackLoans] = useState<FallbackLoan[]>([]);
@@ -140,7 +142,7 @@ export default function AdminControlCentreScreen() {
         <SafeAreaView style={styles.flex} edges={['bottom']}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <ThemedText type="default" themeColor="textSecondary">
-              This area is for Group Admins only.
+              {t('This area is for Group Admins only.')}
             </ThemedText>
           </ScrollView>
         </SafeAreaView>
@@ -155,16 +157,18 @@ export default function AdminControlCentreScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">Admin Control Centre</ThemedText>
+          <ThemedText type="title">{t('Admin Control Centre')}</ThemedText>
           {!loading ? (
             <ThemedText type="default" themeColor={actionsRequired > 0 ? 'warning' : 'textSecondary'}>
-              {actionsRequired} action{actionsRequired === 1 ? '' : 's'} required
+              {actionsRequired === 1
+                ? t('1 action required')
+                : t('{count} actions required', { count: actionsRequired })}
             </ThemedText>
           ) : null}
 
           {pendingMemberships.length > 0 ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Membership Applications</ThemedText>
+              <ThemedText type="subtitle">{t('Membership Applications')}</ThemedText>
               {pendingMemberships.map((m) => (
                 <Pressable
                   key={m.id}
@@ -174,7 +178,7 @@ export default function AdminControlCentreScreen() {
                   style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
                   <ThemedText type="default">{m.name}</ThemedText>
                   <ThemedText type="small" themeColor="primary">
-                    Review →
+                    {t('Review →')}
                   </ThemedText>
                 </Pressable>
               ))}
@@ -183,7 +187,7 @@ export default function AdminControlCentreScreen() {
 
           {fallbackLoans.length > 0 ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Loan Applications</ThemedText>
+              <ThemedText type="subtitle">{t('Loan Applications')}</ThemedText>
               {fallbackLoans.map((l) => (
                 <Pressable
                   key={l.id}
@@ -200,7 +204,7 @@ export default function AdminControlCentreScreen() {
 
           {openCases.length > 0 ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Reconciliation Cases</ThemedText>
+              <ThemedText type="subtitle">{t('Reconciliation Cases')}</ThemedText>
               {openCases.map((c) => (
                 <Pressable
                   key={c.id}
@@ -219,7 +223,7 @@ export default function AdminControlCentreScreen() {
 
           {defaultedLoans.length > 0 ? (
             <View style={styles.section}>
-              <ThemedText type="subtitle">Default Alerts</ThemedText>
+              <ThemedText type="subtitle">{t('Default Alerts')}</ThemedText>
               {defaultedLoans.map((l) => (
                 <Pressable
                   key={l.id}
@@ -235,11 +239,11 @@ export default function AdminControlCentreScreen() {
           ) : null}
 
           <View style={styles.section}>
-            <ThemedText type="subtitle">Manage</ThemedText>
-            <NavRow label="Financial Dashboard" onPress={() => router.push('/(app)/admin/financial-dashboard')} />
-            <NavRow label="Transactions" onPress={() => router.push('/(app)/admin/transactions')} />
-            <NavRow label="Reports" onPress={() => router.push('/(app)/admin/reports')} />
-            <NavRow label="Audit Log" onPress={() => router.push('/(app)/admin/audit-log')} />
+            <ThemedText type="subtitle">{t('Manage')}</ThemedText>
+            <NavRow label={t('Financial Dashboard')} onPress={() => router.push('/(app)/admin/financial-dashboard')} />
+            <NavRow label={t('Transactions')} onPress={() => router.push('/(app)/admin/transactions')} />
+            <NavRow label={t('Reports')} onPress={() => router.push('/(app)/admin/reports')} />
+            <NavRow label={t('Audit Log')} onPress={() => router.push('/(app)/admin/audit-log')} />
           </View>
         </ScrollView>
       </SafeAreaView>

@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/lib/i18n';
 import { COUNTRIES, isValidE164, toE164, type CountryCode } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
 
 export default function SignInScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
 
   const [localNumber, setLocalNumber] = useState('');
   const [countryCode, setCountryCode] = useState<CountryCode>('TZ');
@@ -63,7 +65,7 @@ export default function SignInScreen() {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.field}>
             <ThemedText type="small" themeColor="textSecondary">
-              Country
+              {t('Country')}
             </ThemedText>
             <View style={styles.chipRow}>
               {COUNTRIES.map((c) => {
@@ -89,31 +91,31 @@ export default function SignInScreen() {
           </View>
 
           <TextField
-            label="Phone Number"
+            label={t('Phone Number')}
             value={localNumber}
             onChangeText={setLocalNumber}
             keyboardType="phone-pad"
             autoComplete="tel"
             placeholder="712 345 678"
-            hint={`Will be sent as ${phone || country.dialCode}`}
+            hint={t('Will be sent as {phone}', { phone: phone || country.dialCode })}
           />
 
           {error ? (
             <View style={styles.errorBlock}>
               <ThemedText type="small" themeColor="danger">
-                {error}
+                {t(error)}
               </ThemedText>
               {/^No Atlast account/.test(error) ? (
                 <Pressable onPress={() => router.replace('/(auth)/create-account')}>
                   <ThemedText type="link" themeColor="primary">
-                    Create Account
+                    {t('Create Account')}
                   </ThemedText>
                 </Pressable>
               ) : null}
             </View>
           ) : null}
 
-          <Button title="Continue" onPress={handleContinue} loading={submitting} />
+          <Button title={t('Continue')} onPress={handleContinue} loading={submitting} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

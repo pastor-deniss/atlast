@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
+import { useT } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -15,6 +16,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 export default function VerifyPhoneScreen() {
   const { phone, mode } = useLocalSearchParams<{ phone: string; mode: 'create' | 'signin' }>();
 
+  const t = useT();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
@@ -67,11 +69,11 @@ export default function VerifyPhoneScreen() {
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="default" themeColor="textSecondary">
-            Enter the 6-digit code sent to {phone}
+            {t('Enter the 6-digit code sent to {phone}', { phone })}
           </ThemedText>
 
           <TextField
-            label="Verification Code"
+            label={t('Verification Code')}
             value={code}
             onChangeText={(text) => setCode(text.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"
@@ -82,14 +84,18 @@ export default function VerifyPhoneScreen() {
 
           {error ? (
             <ThemedText type="small" themeColor="danger">
-              {error}
+              {t(error)}
             </ThemedText>
           ) : null}
 
-          <Button title="Verify" onPress={handleVerify} loading={verifying} />
+          <Button title={t('Verify')} onPress={handleVerify} loading={verifying} />
 
           <Button
-            title={resendCooldown > 0 ? `Resend code (${resendCooldown}s)` : 'Resend code'}
+            title={
+              resendCooldown > 0
+                ? t('Resend code ({seconds}s)', { seconds: resendCooldown })
+                : t('Resend code')
+            }
             variant="secondary"
             disabled={resendCooldown > 0}
             onPress={handleResend}

@@ -9,6 +9,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 type DirectoryEntry = {
   id: string;
@@ -24,6 +25,7 @@ type DirectoryEntry = {
 export default function MemberDirectoryScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const t = useT();
   const { group } = useMembership();
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +79,7 @@ export default function MemberDirectoryScreen() {
               </ThemedText>
               {item.role === 'group_admin' ? (
                 <ThemedText type="small" themeColor="primary">
-                  Group Admin
+                  {t('Group Admin')}
                 </ThemedText>
               ) : null}
             </Pressable>

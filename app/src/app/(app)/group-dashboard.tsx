@@ -10,6 +10,7 @@ import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 const OPEN_LOAN_STATUSES = ['pending_review', 'approved', 'disbursed', 'repaying'];
 
@@ -20,6 +21,7 @@ export default function GroupDashboardScreen() {
   const router = useRouter();
   const { session } = useSession();
   const { membership, group } = useMembership();
+  const t = useT();
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [loanAvailable, setLoanAvailable] = useState<boolean | null>(null);
 
@@ -58,39 +60,42 @@ export default function GroupDashboardScreen() {
           ) : null}
 
           <View style={styles.row}>
-            <ThemedText type="default">Members</ThemedText>
+            <ThemedText type="default">{t('Members')}</ThemedText>
             <ThemedText type="default">{memberCount ?? '—'}</ThemedText>
           </View>
           <View style={styles.row}>
             <ThemedText type="default">
-              {group.contribution_frequency[0].toUpperCase() + group.contribution_frequency.slice(1)}{' '}
-              contribution
+              {t('{frequency} contribution', {
+                frequency: t(
+                  group.contribution_frequency[0].toUpperCase() + group.contribution_frequency.slice(1)
+                ),
+              })}
             </ThemedText>
             <ThemedText type="default">
               {group.currency} {group.contribution_amount.toLocaleString()}
             </ThemedText>
           </View>
           <View style={styles.row}>
-            <ThemedText type="default">Share value</ThemedText>
+            <ThemedText type="default">{t('Share value')}</ThemedText>
             <ThemedText type="default">
               {group.currency} {group.share_value.toLocaleString()}
             </ThemedText>
           </View>
           <View style={styles.row}>
-            <ThemedText type="default">Loan availability</ThemedText>
+            <ThemedText type="default">{t('Loan availability')}</ThemedText>
             <ThemedText type="default" themeColor={loanAvailable ? 'primary' : 'textSecondary'}>
-              {loanAvailable === null ? '—' : loanAvailable ? 'Available' : 'Unavailable'}
+              {loanAvailable === null ? '—' : loanAvailable ? t('Available') : t('Unavailable')}
             </ThemedText>
           </View>
           <View style={styles.row}>
-            <ThemedText type="default">Your Status</ThemedText>
+            <ThemedText type="default">{t('Your Status')}</ThemedText>
             <ThemedText type="default">
-              {membership.role === 'group_admin' ? 'Group Admin' : 'Active Member'}
+              {membership.role === 'group_admin' ? t('Group Admin') : t('Active Member')}
             </ThemedText>
           </View>
 
           <View style={styles.spacer} />
-          <Button title="Member Directory" onPress={() => router.push('/(app)/members')} />
+          <Button title={t('Member Directory')} onPress={() => router.push('/(app)/members')} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

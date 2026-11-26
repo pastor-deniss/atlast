@@ -11,6 +11,7 @@ import { Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 function greeting() {
   const hour = new Date().getHours();
@@ -26,6 +27,7 @@ function greeting() {
 export default function HomeScreen() {
   const router = useRouter();
   const { session } = useSession();
+  const t = useT();
   const { membership, group, loading } = useMembership();
   const [firstName, setFirstName] = useState<string | null>(null);
   const [totals, setTotals] = useState<{ total_contributed: number; total_shares: number } | null>(
@@ -74,40 +76,42 @@ export default function HomeScreen() {
           {!membership || membership.status === 'exited' ? (
             <>
               <ThemedText type="title">
-                {greeting()}
+                {t(greeting())}
                 {firstName ? `, ${firstName}` : ''}
               </ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                You're not in a group yet.
+                {t('You\'re not in a group yet.')}
               </ThemedText>
-              <Button title="Find a Group" onPress={() => router.push('/(app)/join-group')} />
+              <Button title={t('Find a Group')} onPress={() => router.push('/(app)/join-group')} />
             </>
           ) : membership.status === 'pending' ? (
             <>
               <ThemedText type="title">
-                {greeting()}
+                {t(greeting())}
                 {firstName ? `, ${firstName}` : ''}
               </ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                Your application to {group?.name} is being reviewed. You'll see it here once
-                there's a decision.
+                {t(
+                  "Your application to {group} is being reviewed. You'll see it here once there's a decision.",
+                  { group: group?.name ?? '' }
+                )}
               </ThemedText>
             </>
           ) : membership.status === 'declined' ? (
             <>
               <ThemedText type="title">
-                {greeting()}
+                {t(greeting())}
                 {firstName ? `, ${firstName}` : ''}
               </ThemedText>
               <ThemedText type="default" themeColor="textSecondary">
-                Your application to {group?.name} wasn't approved.
+                {t("Your application to {group} wasn't approved.", { group: group?.name ?? '' })}
               </ThemedText>
-              <Button title="Find another Group" onPress={() => router.push('/(app)/join-group')} />
+              <Button title={t('Find another Group')} onPress={() => router.push('/(app)/join-group')} />
             </>
           ) : (
             <>
               <ThemedText type="title">
-                {greeting()}
+                {t(greeting())}
                 {firstName ? `, ${firstName}` : ''}
               </ThemedText>
               <ThemedText type="subtitle">{group?.name}</ThemedText>
@@ -115,7 +119,7 @@ export default function HomeScreen() {
               <Pressable onPress={() => router.push('/(app)/contributions')} style={styles.statsRow}>
                 <View>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Your Contributions
+                    {t('Your Contributions')}
                   </ThemedText>
                   <ThemedText type="title">
                     {group?.currency} {(totals?.total_contributed ?? 0).toLocaleString()}
@@ -123,7 +127,7 @@ export default function HomeScreen() {
                 </View>
                 <View>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Shares
+                    {t('Shares')}
                   </ThemedText>
                   <ThemedText type="title">{totals?.total_shares ?? 0}</ThemedText>
                 </View>
@@ -131,7 +135,7 @@ export default function HomeScreen() {
 
               <Pressable onPress={() => router.push('/(app)/group-dashboard')}>
                 <ThemedText type="link" themeColor="primary">
-                  View details →
+                  {t('View details →')}
                 </ThemedText>
               </Pressable>
 
@@ -140,18 +144,18 @@ export default function HomeScreen() {
                   label's width. */}
               <View style={styles.shortcuts}>
                 <View style={styles.shortcut}>
-                  <Button title="Contribute" onPress={() => router.push('/(app)/contribute')} />
+                  <Button title={t('Contribute')} onPress={() => router.push('/(app)/contribute')} />
                 </View>
                 <View style={styles.shortcut}>
                   <Button
-                    title="Loan"
+                    title={t('Loan')}
                     variant="secondary"
                     onPress={() => router.push('/(app)/loan')}
                   />
                 </View>
                 <View style={styles.shortcut}>
                   <Button
-                    title="Vote"
+                    title={t('Vote')}
                     variant="secondary"
                     onPress={() => router.push('/(app)/governance')}
                   />
@@ -159,7 +163,7 @@ export default function HomeScreen() {
                 {membership.role === 'group_admin' ? (
                   <View style={styles.shortcut}>
                     <Button
-                      title="Admin"
+                      title={t('Admin')}
                       variant="secondary"
                       onPress={() => router.push('/(app)/admin')}
                     />
@@ -170,7 +174,7 @@ export default function HomeScreen() {
           )}
 
           <View style={styles.spacer} />
-          <Button title="Settings" variant="secondary" onPress={() => router.push('/(app)/settings')} />
+          <Button title={t('Settings')} variant="secondary" onPress={() => router.push('/(app)/settings')} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
