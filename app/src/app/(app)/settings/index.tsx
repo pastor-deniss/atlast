@@ -48,7 +48,7 @@ function Segmented<T extends string>({
             accessibilityState={{ selected }}
             onPress={() => onChange(option.value)}
             style={[styles.segment, selected && { backgroundColor: theme.primary }]}>
-            <ThemedText type="smallBold" style={selected ? styles.segmentSelectedText : undefined}>
+            <ThemedText type="smallBold" style={selected ? { color: theme.onPrimary } : undefined}>
               {option.label}
             </ThemedText>
           </Pressable>
@@ -133,5 +133,4 @@ const styles = StyleSheet.create({
   sectionLabel: { marginTop: Spacing.three },
   segmented: { flexDirection: 'row', borderRadius: 10, padding: Spacing.half, gap: Spacing.half },
   segment: { flex: 1, alignItems: 'center', paddingVertical: Spacing.two, borderRadius: 8 },
-  segmentSelectedText: { color: '#ffffff' },
 });

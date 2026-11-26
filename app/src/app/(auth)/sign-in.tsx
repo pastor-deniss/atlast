@@ -81,7 +81,7 @@ export default function SignInScreen() {
                         borderColor: selected ? theme.primary : theme.backgroundSelected,
                       },
                     ]}>
-                    <ThemedText type="small" style={{ color: selected ? '#fff' : theme.text }}>
+                    <ThemedText type="small" style={{ color: selected ? theme.onPrimary : theme.text }}>
                       {c.name} ({c.dialCode})
                     </ThemedText>
                   </Pressable>

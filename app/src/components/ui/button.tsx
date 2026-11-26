@@ -19,7 +19,8 @@ export function Button({ title, variant = 'primary', loading, disabled, ...rest 
   const backgroundColor =
     variant === 'primary' ? theme.primary : variant === 'danger' ? theme.danger : 'transparent';
   const borderColor = variant === 'secondary' ? theme.textSecondary : 'transparent';
-  const textColor = variant === 'secondary' ? theme.text : '#ffffff';
+  const textColor =
+    variant === 'secondary' ? theme.text : variant === 'primary' ? theme.onPrimary : '#ffffff';
 
   return (
     <Pressable
