@@ -2,6 +2,7 @@
 // auto-triggered by approval -- no live payment gateway (ticket 03), so this
 // is the "I sent it, recording it now" step. The Postgres function makes the
 // disbursement transaction + loans.status update + audit_events row atomic.
+// The Treasurer handles the money side too (treasurer-and-shareout.sql).
 import { withSupabase } from 'jsr:@supabase/server@^1';
 
 interface Payload {
@@ -38,11 +39,11 @@ export default {
       .select('id')
       .eq('user_id', userClaims!.id)
       .eq('group_id', loanRow.group_id)
-      .eq('role', 'group_admin')
+      .in('role', ['group_admin', 'treasurer'])
       .eq('status', 'active')
       .maybeSingle();
     if (!adminMembership) {
-      return Response.json({ error: 'Only a Group Admin can perform this action.' }, { status: 403 });
+      return Response.json({ error: 'Only a Group Admin or the Treasurer can perform this action.' }, { status: 403 });
     }
 
     const { data: loan, error } = await supabaseAdmin.rpc('disburse_loan', {

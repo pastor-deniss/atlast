@@ -52,6 +52,8 @@ export default function AppLayout() {
         <Stack.Screen name="admin/loan-rates" options={{ headerShown: true, title: t('Loan Rates') }} />
         <Stack.Screen name="admin/reports" options={{ headerShown: true, title: t('Reports') }} />
         <Stack.Screen name="admin/audit-log" options={{ headerShown: true, title: t('Audit Log') }} />
+        <Stack.Screen name="treasury/index" options={{ headerShown: true, title: t('Financial Control') }} />
+        <Stack.Screen name="treasury/shareout" options={{ headerShown: true, title: t('Year-end Share-out') }} />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="complaints/index" options={{ headerShown: true, title: t('Complaints') }} />
         <Stack.Screen name="complaints/new" options={{ headerShown: true, title: t('File a Complaint') }} />

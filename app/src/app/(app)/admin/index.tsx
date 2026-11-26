@@ -240,6 +240,8 @@ export default function AdminControlCentreScreen() {
 
           <View style={styles.section}>
             <ThemedText type="subtitle">{t('Manage')}</ThemedText>
+            <NavRow label={t('Financial Control')} onPress={() => router.push('/(app)/treasury')} />
+            <NavRow label={t('Year-end Share-out')} onPress={() => router.push('/(app)/treasury/shareout')} />
             <NavRow label={t('Financial Dashboard')} onPress={() => router.push('/(app)/admin/financial-dashboard')} />
             <NavRow label={t('Transactions')} onPress={() => router.push('/(app)/admin/transactions')} />
             <NavRow label={t('Reconciliation')} onPress={() => router.push('/(app)/admin/reconciliation')} />

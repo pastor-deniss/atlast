@@ -77,7 +77,8 @@ export default function SpendRequestScreen() {
   const money = (n: number) => `${group.currency} ${Math.round(n).toLocaleString()}`;
   const myVote = approvers.find((a) => a.approver_id === me);
   const canVote = request.status === 'pending' && myVote?.decision === 'pending';
-  const canPay = isAdmin && request.status === 'approved';
+  const isTreasurer = membership?.role === 'treasurer' && membership.status === 'active';
+  const canPay = (isAdmin || isTreasurer) && request.status === 'approved';
   const canCancel = isAdmin && (request.status === 'pending' || request.status === 'approved');
 
   async function run(action: string, body: Record<string, unknown>) {

@@ -1,62 +1,77 @@
-// postAnnouncement. Group Admin only: posts a message every active member
-// of the group sees on the Announcements screen. The insert and its
-// audit_events row happen together inside post_announcement().
+// Announcements: post, edit, activate, archive, delete. Rules live in SQL
+// (.scratch/atlast-mvp-spec/announcement-lifecycle.sql):
+//   * Group Admin and Treasurer post (publish now or save as a draft), edit,
+//     activate and archive; only the Group Admin deletes.
+//   * Members are notified the first time an announcement goes live.
+//
+//   { group_id, title, body, priority?, status? 'active'|'draft' }   post (default action)
+//   { action: 'edit', announcement_id, title, body, priority? }
+//   { action: 'set_status', announcement_id, status: 'active'|'archived'|'deleted' }
 import { withSupabase } from 'jsr:@supabase/server@^1';
 
 interface Payload {
-  group_id: string;
-  title: string;
-  body: string;
+  action?: 'post' | 'edit' | 'set_status';
+  group_id?: string;
+  announcement_id?: string;
+  title?: string;
+  body?: string;
   priority?: 'normal' | 'important';
+  status?: string;
+}
+
+const bad = (error: string) => Response.json({ error }, { status: 400 });
+
+function checkText(title: string, body: string, priority: string) {
+  if (!title || title.length > 120) return 'Enter a title of up to 120 characters.';
+  if (!body || body.length > 2000) return 'Enter a message of up to 2000 characters.';
+  if (priority !== 'normal' && priority !== 'important') return 'Invalid priority.';
+  return null;
 }
 
 export default {
   fetch: withSupabase({ auth: 'user' }, async (req, ctx) => {
     const { supabaseAdmin, userClaims } = ctx;
+    const me = userClaims!.id;
 
-    let payload: Payload;
+    let p: Payload;
     try {
-      payload = await req.json();
+      p = await req.json();
     } catch {
-      return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+      return bad('Invalid JSON body');
     }
 
-    const groupId = payload.group_id;
-    const title = (payload.title ?? '').trim();
-    const body = (payload.body ?? '').trim();
-    const priority = payload.priority ?? 'normal';
+    const action = p.action ?? 'post';
+    const title = (p.title ?? '').trim();
+    const body = (p.body ?? '').trim();
+    const priority = p.priority ?? 'normal';
 
-    if (!groupId) return Response.json({ error: 'group_id is required' }, { status: 400 });
-    if (!title || title.length > 120) {
-      return Response.json({ error: 'Enter a title of up to 120 characters.' }, { status: 400 });
-    }
-    if (!body || body.length > 2000) {
-      return Response.json({ error: 'Enter a message of up to 2000 characters.' }, { status: 400 });
-    }
-    if (priority !== 'normal' && priority !== 'important') {
-      return Response.json({ error: 'Invalid priority.' }, { status: 400 });
+    let fn: string;
+    let args: Record<string, unknown>;
+    if (action === 'post') {
+      if (!p.group_id) return bad('group_id is required');
+      const problem = checkText(title, body, priority);
+      if (problem) return bad(problem);
+      const status = p.status ?? 'active';
+      if (status !== 'active' && status !== 'draft') return bad('Invalid status.');
+      fn = 'post_announcement';
+      args = { p_group_id: p.group_id, p_admin_id: me, p_title: title, p_body: body, p_priority: priority, p_status: status };
+    } else if (action === 'edit') {
+      if (!p.announcement_id) return bad('announcement_id is required');
+      const problem = checkText(title, body, priority);
+      if (problem) return bad(problem);
+      fn = 'edit_announcement';
+      args = { p_announcement_id: p.announcement_id, p_actor_id: me, p_title: title, p_body: body, p_priority: priority };
+    } else if (action === 'set_status') {
+      if (!p.announcement_id) return bad('announcement_id is required');
+      if (!['active', 'archived', 'deleted'].includes(p.status ?? '')) return bad('Invalid status.');
+      fn = 'set_announcement_status';
+      args = { p_announcement_id: p.announcement_id, p_actor_id: me, p_status: p.status };
+    } else {
+      return bad('Unknown action.');
     }
 
-    const { data: adminMembership } = await supabaseAdmin
-      .from('memberships')
-      .select('id')
-      .eq('user_id', userClaims!.id)
-      .eq('group_id', groupId)
-      .eq('role', 'group_admin')
-      .eq('status', 'active')
-      .maybeSingle();
-    if (!adminMembership) {
-      return Response.json({ error: 'Only a Group Admin can perform this action.' }, { status: 403 });
-    }
-
-    const { data: announcement, error } = await supabaseAdmin.rpc('post_announcement', {
-      p_group_id: groupId,
-      p_admin_id: userClaims!.id,
-      p_title: title,
-      p_body: body,
-      p_priority: priority,
-    });
-    if (error) return Response.json({ error: error.message }, { status: 400 });
+    const { data: announcement, error } = await supabaseAdmin.rpc(fn, args);
+    if (error) return bad(error.message);
     return Response.json({ announcement });
   }),
 };

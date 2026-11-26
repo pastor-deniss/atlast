@@ -122,6 +122,18 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
         : { title: t('Group charge paid'), body: t('{amount} was paid from the group fund: {reason}', { amount, reason: String(p.reason ?? '') }) };
     case 'group.jamii_amount_changed':
       return { title: t('Jamii amount changed'), body: t('The regular Jamii contribution is now {amount}.', { amount }) };
+    case 'membership.role_changed':
+      return p.role === 'treasurer'
+        ? { title: t('You are now the Treasurer'), body: t('You handle the money side of {group}.', { group }) }
+        : { title: t('Treasurer role ended'), body: t('You are no longer the Treasurer of {group}.', { group }) };
+    case 'shareout.prepared':
+      return { title: t('Share-out ready for approval'), body: t('The {year} profit share-out of {amount} needs your approval.', { year: String(p.year ?? ''), amount }) };
+    case 'shareout.approved':
+      return { title: t('Your profit share'), body: t('Your {year} profit share is {amount}. The Treasurer will pay you.', { year: String(p.year ?? ''), amount }) };
+    case 'shareout.rejected':
+      return { title: t('Share-out rejected'), body: String(p.reason ?? '') };
+    case 'shareout.paid':
+      return { title: t('Profit share paid'), body: t('{amount} — your {year} profit share — has been paid to you.', { year: String(p.year ?? ''), amount }) };
     default:
       return { title: t('Notification'), body: '' };
   }
@@ -134,8 +146,14 @@ export function destination(n: AppNotification): Href | null {
   switch (area) {
     case 'announcement':
       return '/(app)/announcements';
+    case 'shareout':
+      return '/(app)/treasury/shareout';
     case 'membership':
-      return n.kind === 'membership.applied'
+      return n.kind === 'membership.role_changed'
+        ? n.params?.role === 'treasurer'
+          ? '/(app)/treasury'
+          : '/'
+        : n.kind === 'membership.applied'
         ? { pathname: '/(app)/governance/application/[id]', params: { id } }
         : '/';
     case 'vote':
@@ -177,6 +195,8 @@ export function iconFor(kind: string): [string, string] {
       return kind === 'group.jamii_amount_changed' ? ['heart.fill', 'volunteer_activism'] : ['percent', 'percent'];
     case 'spend':
       return ['heart.text.square', 'volunteer_activism'];
+    case 'shareout':
+      return ['chart.pie', 'pie_chart'];
     default:
       return ['bell', 'notifications'];
   }

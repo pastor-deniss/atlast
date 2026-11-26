@@ -1,4 +1,5 @@
 import { SymbolView } from 'expo-symbols';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -11,7 +12,16 @@ import type { Announcement } from '@/lib/announcements';
 import { useT } from '@/lib/i18n';
 
 /** `highlight`: the light-yellow notice look used on Home. */
-export function AnnouncementCard({ announcement: a, highlight = false }: { announcement: Announcement; highlight?: boolean }) {
+export function AnnouncementCard({
+  announcement: a,
+  highlight = false,
+  children,
+}: {
+  announcement: Announcement;
+  highlight?: boolean;
+  /** Extra content under the text, e.g. the officer's action buttons. */
+  children?: ReactNode;
+}) {
   const t = useT();
   const theme = useTheme();
   const dark = useColorScheme() === 'dark';
@@ -27,13 +37,17 @@ export function AnnouncementCard({ announcement: a, highlight = false }: { annou
         <ThemedText type="smallBold" style={[styles.cardTitle, styles.flex]}>
           {a.title}
         </ThemedText>
+        {a.status === 'draft' ? <Pill label={t('Draft')} /> : null}
+        {a.status === 'archived' ? <Pill label={t('Archived')} /> : null}
         {a.priority === 'important' ? <Pill label={t('Important')} tone="warn" /> : null}
       </View>
       <ThemedText type="default">{a.body}</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         {a.author_name ? `${a.author_name} • ` : ''}
         {formatDateTime(a.created_at)}
+        {a.edited_at ? ` • ${t('Edited {date}', { date: formatDateTime(a.edited_at) })}` : ''}
       </ThemedText>
+      {children}
     </Card>
   );
 }

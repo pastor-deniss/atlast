@@ -106,7 +106,7 @@ function Segmented<K extends string>({
 export default function ReportsScreen() {
   const t = useT();
   const { group, membership } = useMembership();
-  const isAdmin = membership?.role === 'group_admin';
+  const isAdmin = membership?.role === 'group_admin' || membership?.role === 'treasurer';
 
   const [overview, setOverview] = useState<GroupOverview | null>(null);
   const [type, setType] = useState<ReportPeriodType>('monthly');
@@ -137,7 +137,7 @@ export default function ReportsScreen() {
     return (
       <ThemedView style={[styles.flex, styles.centerBox]}>
         <ThemedText type="default" themeColor="textSecondary">
-          {t('This area is for Group Admins only.')}
+          {t('This area is for the Treasurer and Group Admins.')}
         </ThemedText>
       </ThemedView>
     );

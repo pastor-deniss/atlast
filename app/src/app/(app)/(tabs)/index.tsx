@@ -432,6 +432,27 @@ export default function HomeScreen() {
             />
           </View>
 
+          {membership.role === 'treasurer' ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(app)/treasury')}
+              style={[styles.card, styles.adminRow, { backgroundColor: theme.backgroundElement }]}>
+              <SymbolView
+                name={{ ios: 'banknote', android: 'account_balance_wallet', web: 'account_balance_wallet' }}
+                size={22}
+                tintColor={theme.primary}
+              />
+              <ThemedText type="smallBold" style={styles.flexShrink}>
+                {t('Treasurer · Financial Control')}
+              </ThemedText>
+              <SymbolView
+                name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
+                size={18}
+                tintColor={theme.textSecondary}
+              />
+            </Pressable>
+          ) : null}
+
           {membership.role === 'group_admin' ? (
             <Pressable
               accessibilityRole="button"

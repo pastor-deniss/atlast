@@ -103,7 +103,7 @@ export default function ReconciliationScreen() {
   const t = useT();
   const theme = useTheme();
   const { group, membership } = useMembership();
-  const isAdmin = membership?.role === 'group_admin' && membership.status === 'active';
+  const isAdmin = (membership?.role === 'group_admin' || membership?.role === 'treasurer') && membership.status === 'active';
 
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
   const [checks, setChecks] = useState<Check[]>([]);
@@ -157,7 +157,7 @@ export default function ReconciliationScreen() {
     return (
       <ThemedView style={[styles.flex, styles.centerBox]}>
         <ThemedText type="default" themeColor="textSecondary">
-          {t('This area is for Group Admins only.')}
+          {t('This area is for the Treasurer and Group Admins.')}
         </ThemedText>
       </ThemedView>
     );

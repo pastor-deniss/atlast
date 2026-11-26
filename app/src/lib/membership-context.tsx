@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 export type Membership = {
   id: string;
   group_id: string;
-  role: 'member' | 'group_admin';
+  role: 'member' | 'group_admin' | 'treasurer';
   status: 'pending' | 'active' | 'declined' | 'exited';
   applied_at: string;
   decided_at: string | null;

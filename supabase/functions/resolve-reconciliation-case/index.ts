@@ -2,6 +2,7 @@
 // 'matched' (discrepancy was a data-entry slip) or 'resolved' (explained;
 // an actual ledger correction, if any, is a separate reverseTransaction
 // call). Only 'resolved' writes an audit_events row (ticket 13, Q3).
+// The Treasurer handles the money side too (treasurer-and-shareout.sql).
 import { withSupabase } from 'jsr:@supabase/server@^1';
 
 interface Payload {
@@ -43,11 +44,11 @@ export default {
       .select('id')
       .eq('user_id', userClaims!.id)
       .eq('group_id', caseRow.group_id)
-      .eq('role', 'group_admin')
+      .in('role', ['group_admin', 'treasurer'])
       .eq('status', 'active')
       .maybeSingle();
     if (!adminMembership) {
-      return Response.json({ error: 'Only a Group Admin can perform this action.' }, { status: 403 });
+      return Response.json({ error: 'Only a Group Admin or the Treasurer can perform this action.' }, { status: 403 });
     }
 
     const { data: reconciliationCase, error } = await supabaseAdmin.rpc('resolve_reconciliation_case', {

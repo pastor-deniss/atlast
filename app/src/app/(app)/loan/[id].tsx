@@ -330,7 +330,7 @@ export default function LoanDetailScreen() {
               <ThemedText type="default" themeColor="textSecondary">
                 {t('The money will be sent to your selected payment channel.')}
               </ThemedText>
-              {isAdmin ? (
+              {isAdmin || membership?.role === 'treasurer' ? (
                 <Button title={t('Money Sent (Disburse)')} onPress={() => invoke('disburse-loan', { loan_id: id })} loading={busy} />
               ) : null}
             </View>

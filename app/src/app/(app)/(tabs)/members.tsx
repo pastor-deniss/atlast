@@ -15,7 +15,7 @@ type DirectoryEntry = {
   id: string;
   first_name: string;
   last_name: string;
-  role: 'member' | 'group_admin';
+  role: 'member' | 'group_admin' | 'treasurer';
   total: number;
 };
 
@@ -106,7 +106,7 @@ export default function MemberDirectoryScreen() {
                   {item.first_name} {item.last_name}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {item.role === 'group_admin' ? t('Group Admin') : t('Member')} • {t('Active')}
+                  {item.role === 'group_admin' ? t('Group Admin') : item.role === 'treasurer' ? t('Treasurer') : t('Member')} • {t('Active')}
                 </ThemedText>
               </View>
               <ThemedText type="smallBold">

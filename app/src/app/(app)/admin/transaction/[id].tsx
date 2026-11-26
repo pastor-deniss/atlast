@@ -34,7 +34,7 @@ type Transaction = {
 export default function AdminTransactionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { group } = useMembership();
+  const { group, membership } = useMembership();
   const t = useT();
 
   const [txn, setTxn] = useState<Transaction | null>(null);
@@ -140,7 +140,8 @@ export default function AdminTransactionDetailScreen() {
   }
 
   const canReconcile = txn.status === 'posted' && txn.type !== 'reversal';
-  const canReverse = txn.type !== 'reversal' && !alreadyReversed;
+  // Reversals stay with the Group Admin (the Treasurer can view and reconcile).
+  const canReverse = membership?.role === 'group_admin' && txn.type !== 'reversal' && !alreadyReversed;
 
   return (
     <ThemedView style={styles.flex}>

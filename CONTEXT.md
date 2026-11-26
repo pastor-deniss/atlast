@@ -48,10 +48,15 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 **Report** — a generated summary (financial, contribution, loan, governance) over Groups' data.
 
+**Year-end Share-out** — once a year the group's profit is paid to members in cash (added 2026-11-26). Profit = loan interest + late penalties collected in the year − Miscellaneous Charges paid that year (Jamii never counts). Split by shares held at year end, each share rounded down to the shilling (the remainder stays in the fund); savings are untouched. The Treasurer prepares it, the Group Admin approves or rejects (with a reason), then the Treasurer records each member's payout (`profit_share` ledger entry). Year boundaries in East Africa Time.
+
+**Announcement status** — Draft (only Admin/Treasurer see it), Active (members see it; notified the first time only), Archived (still readable in the archive; can be activated again), Deleted (Group Admin only; hidden from everyone, its text kept in the audit log). Edits show "Edited" with date and time and keep the old text in the audit log.
+
 ## Roles (V1)
 
 - **Member** — views own/permitted group info, contributes, requests loans, votes, sits on Three-Eye Panels when eligible.
-- **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports. Treasurer is *not* a separate role in V1 — its responsibilities live inside Group Admin until real usage shows a need to split them out.
+- **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports, appoints the Treasurer and approves the Year-end Share-out.
+- **Treasurer** (added 2026-11-26) — one Member per Group, appointed by the Group Admin (never the admin themself, so money always has two people on it). Handles the money side: pays out approved loans, Jamii and charges, reconciliation and balance checks, reports, prepares the Year-end Share-out and records its payouts, posts and manages announcements. Cannot approve members, loans, rates, reversals or the share-out, and cannot delete announcements.
 - **System Admin** — platform-level (support, security, audit) — deferred until Atlast operates more than a pilot group.
 
 ## Out of scope for V1 (deferred to later platform layers)
