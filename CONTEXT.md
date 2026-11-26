@@ -61,7 +61,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 - **Member** — views own/permitted group info, contributes, requests loans, votes, sits on Three-Eye Panels when eligible.
 - **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports, appoints the Treasurer and approves the Year-end Share-out.
 - **Treasurer** (added 2026-11-26) — one Member per Group, appointed by the Group Admin (never the admin themself, so money always has two people on it). Handles the money side: pays out approved loans, Jamii and charges, reconciliation and balance checks, reports, prepares the Year-end Share-out and records its payouts, posts and manages announcements. Cannot approve members, loans, rates, reversals or the share-out, and cannot delete announcements.
-- **Atlast admin** (System Admin, `profiles.is_system_admin`) — the platform owner's oversight of each group (added 2026-11-26). Enters a group's key rules and locks them; opens member votes on proposed changes and approves or rejects them. Can never be the Group Admin of the group they oversee.
+- **Atlast admin** (System Admin, `profiles.is_system_admin`) — the platform owner's oversight of each group (added 2026-11-26). Enters a group's key rules and locks them; opens member votes on proposed changes and approves or rejects them. Can never be the Group Admin of the group they oversee. Works from the Atlast Console (More → Atlast Console), which lists every group without needing membership.
 
 ## Out of scope for V1 (deferred to later platform layers)
 

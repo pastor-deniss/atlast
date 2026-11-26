@@ -17,7 +17,7 @@ import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { countActiveComplaints } from '@/lib/complaints';
 import { defaultRate, fetchLoanRates, formatRate, type LoanDue, type LoanRates } from '@/lib/loans';
 import { countUnread } from '@/lib/notifications';
-import { ruleVoteWaitingOnMe } from '@/lib/group-rules';
+import { fetchIsAtlastAdmin, ruleVoteWaitingOnMe } from '@/lib/group-rules';
 import { fetchMyPendingApprovals, type SpendRequest } from '@/lib/spending';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
@@ -94,6 +94,7 @@ export default function HomeScreen() {
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
   const [spendWaiting, setSpendWaiting] = useState<SpendRequest[]>([]);
   const [ruleVote, setRuleVote] = useState<string | null>(null);
+  const [isAtlast, setIsAtlast] = useState(false);
   const [complaintsWaiting, setComplaintsWaiting] = useState(0);
   const [unread, setUnread] = useState(0);
   const [rates, setRates] = useState<LoanRates | null>(null);
@@ -211,6 +212,13 @@ export default function HomeScreen() {
     }, [load])
   );
 
+  // The Atlast admin can reach the console from Home even without a group.
+  useFocusEffect(
+    useCallback(() => {
+      if (session) fetchIsAtlastAdmin(session.user.id).then(setIsAtlast);
+    }, [session])
+  );
+
   // The bell's unread count: on focus, then every minute while Home is open.
   useFocusEffect(
     useCallback(() => {
@@ -242,6 +250,9 @@ export default function HomeScreen() {
                   {t("You're not in a group yet.")}
                 </ThemedText>
                 <Button title={t('Find a Group')} onPress={() => router.push('/(app)/join-group')} />
+                {isAtlast ? (
+                  <Button title={t('Atlast Console')} variant="secondary" onPress={() => router.push('/(app)/atlast')} />
+                ) : null}
               </>
             ) : membership.status === 'pending' ? (
               <ThemedText type="default" themeColor="textSecondary">

@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAppLock } from '@/lib/auth/app-lock-context';
 import { useSession } from '@/lib/auth/session-context';
 import { signOutAndWipeLocalSecrets } from '@/lib/auth/sign-out';
+import { fetchIsAtlastAdmin } from '@/lib/group-rules';
 import { useLanguage, useT, type Language } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
@@ -56,6 +57,7 @@ export default function MoreScreen() {
   const { preference, setPreference } = useThemePreference();
   const { language, setLanguage } = useLanguage();
   const [fullName, setFullName] = useState<string | null>(null);
+  const [isAtlast, setIsAtlast] = useState(false);
 
   const isAdmin = membership?.role === 'group_admin';
   const isActive = membership?.status === 'active';
@@ -68,6 +70,7 @@ export default function MoreScreen() {
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => setFullName(data ? `${data.first_name} ${data.last_name}` : null));
+    fetchIsAtlastAdmin(session.user.id).then(setIsAtlast);
   }, [session]);
 
   async function signOut() {
@@ -97,6 +100,17 @@ export default function MoreScreen() {
           admin={isAdmin}
         />
       }>
+      {isAtlast ? (
+        <Card>
+          <MenuRow
+            iconName={icon('globe', 'public')}
+            title={t('Atlast Console')}
+            subtitle={t('Oversee every group: lock rules, run votes, read audit logs')}
+            onPress={() => router.push('/(app)/atlast')}
+          />
+        </Card>
+      ) : null}
+
       <Card>
         <MenuRow
           iconName={icon('bell', 'notifications')}

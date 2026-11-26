@@ -52,6 +52,8 @@ export type GroupRulesState = {
   tallies: Map<string, { approve: number; decline: number }>;
   myVotes: Map<string, { choice: 'approve' | 'decline'; voted_at: string }>;
   isAtlastAdmin: boolean;
+  /** My role in this group, or null if I am not an active member (e.g. Atlast). */
+  myRole: string | null;
 };
 
 function toRules(r: Record<string, unknown>): Rules {
@@ -66,7 +68,7 @@ function toRules(r: Record<string, unknown>): Rules {
 }
 
 export async function loadGroupRules(groupId: string, me: string): Promise<GroupRulesState | null> {
-  const [groupRes, changesRes, meRes] = await Promise.all([
+  const [groupRes, changesRes, meRes, roleRes] = await Promise.all([
     supabase
       .from('groups')
       .select(
@@ -76,6 +78,7 @@ export async function loadGroupRules(groupId: string, me: string): Promise<Group
       .maybeSingle(),
     supabase.from('group_rule_changes').select('*').eq('group_id', groupId).order('created_at', { ascending: false }).limit(20),
     supabase.from('profiles').select('is_system_admin').eq('id', me).maybeSingle(),
+    supabase.from('memberships').select('role').eq('group_id', groupId).eq('user_id', me).eq('status', 'active').maybeSingle(),
   ]);
   if (!groupRes.data) return null;
   const now = Date.now();
@@ -110,6 +113,7 @@ export async function loadGroupRules(groupId: string, me: string): Promise<Group
       ])
     ),
     isAtlastAdmin: Boolean(meRes.data?.is_system_admin),
+    myRole: roleRes.data?.role ?? null,
   };
 }
 
@@ -151,3 +155,65 @@ export const CHANGE_STATUS_TONE: Record<ChangeStatus, 'neutral' | 'good' | 'warn
   rejected: 'bad',
   cancelled: 'neutral',
 };
+
+/** Is the signed-in person the Atlast admin? */
+export async function fetchIsAtlastAdmin(me: string): Promise<boolean> {
+  const { data } = await supabase.from('profiles').select('is_system_admin').eq('id', me).maybeSingle();
+  return Boolean(data?.is_system_admin);
+}
+
+export type ConsoleGroup = {
+  id: string;
+  name: string;
+  currency: string;
+  status: string;
+  lockedAt: string | null;
+  members: number;
+  open: { status: ChangeStatus; yes: number; needed: number | null } | null;
+};
+
+/** Every group, for the Atlast console (no membership needed). */
+export async function loadConsoleGroups(): Promise<ConsoleGroup[]> {
+  const [groupsRes, membersRes, changesRes] = await Promise.all([
+    supabase.from('groups').select('id, name, currency, status, rules_locked_at').order('created_at'),
+    supabase.from('memberships').select('group_id').eq('status', 'active'),
+    supabase.from('group_rule_changes').select('id, group_id, status, approvals_needed').in('status', ['proposed', 'voting']),
+  ]);
+  const changes = changesRes.data ?? [];
+  const { data: tallies } = changes.length
+    ? await supabase.from('group_rule_change_tallies').select('change_id, approve_count').in('change_id', changes.map((c) => c.id))
+    : { data: [] as { change_id: string; approve_count: number }[] };
+  const count = new Map<string, number>();
+  for (const m of membersRes.data ?? []) count.set(m.group_id, (count.get(m.group_id) ?? 0) + 1);
+  return (groupsRes.data ?? []).map((g) => {
+    const c = changes.find((x) => x.group_id === g.id);
+    return {
+      id: g.id,
+      name: g.name,
+      currency: g.currency,
+      status: g.status,
+      lockedAt: g.rules_locked_at,
+      members: count.get(g.id) ?? 0,
+      open: c
+        ? {
+            status: c.status as ChangeStatus,
+            yes: Number((tallies ?? []).find((x) => x.change_id === c.id)?.approve_count ?? 0),
+            needed: c.approvals_needed,
+          }
+        : null,
+    };
+  });
+}
+
+export type AuditRow = { id: string; action: string; created_at: string; actor_id: string | null; reason: string | null };
+
+/** Recent audit entries for a group (the Atlast admin may read every group's log). */
+export async function loadGroupAudit(groupId: string, limit = 30): Promise<AuditRow[]> {
+  const { data } = await supabase
+    .from('audit_events')
+    .select('id, action, created_at, actor_id, reason')
+    .eq('group_id', groupId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return (data ?? []) as AuditRow[];
+}

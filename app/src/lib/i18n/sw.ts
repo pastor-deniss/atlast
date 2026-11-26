@@ -894,4 +894,15 @@ export const sw: Record<string, string> = {
   'Clean records only: 0% default rate, no overdue loans, never a late penalty.': 'Rekodi safi tu: kiwango cha kushindwa kulipa 0%, hakuna mkopo uliochelewa, hajawahi kutozwa adhabu.',
   'No member with a clean record has contributed yet.': 'Bado hakuna mwanachama mwenye rekodi safi aliyechangia.',
   'These rules are locked by Atlast. Propose a change instead: it needs a yes vote from at least a third of members and Atlast approval.': 'Kanuni hizi zimefungwa na Atlast. Pendekeza mabadiliko badala yake: yanahitaji kura ya ndiyo kutoka angalau theluthi ya wanachama na idhini ya Atlast.',
+  // Atlast console
+  'Atlast Console': 'Dashibodi ya Atlast',
+  'Oversee every group: lock rules, run votes, read audit logs': 'Simamia kila kikundi: funga kanuni, endesha kura, soma kumbukumbu za ukaguzi',
+  'This area is for the Atlast admin only.': 'Eneo hili ni la msimamizi wa Atlast pekee.',
+  'You oversee every group here without being a member. Open a group to enter and lock its rules, run votes on changes and read its audit log.': 'Hapa unasimamia kila kikundi bila kuwa mwanachama. Fungua kikundi kuingiza na kufunga kanuni zake, kuendesha kura za mabadiliko na kusoma kumbukumbu zake za ukaguzi.',
+  'Rules locked': 'Kanuni zimefungwa',
+  'Rules not locked': 'Kanuni hazijafungwa',
+  'Change proposed — open the vote': 'Mabadiliko yamependekezwa — fungua kura',
+  'A third voted yes — your decision': 'Theluthi wamepiga ndiyo — uamuzi wako',
+  'Vote in progress: {yes}/{needed} yes': 'Kura inaendelea: {yes}/{needed} ndiyo',
+  'No entries yet.': 'Bado hakuna kumbukumbu.',
 };
