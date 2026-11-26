@@ -22,3 +22,4 @@ supabase/.temp/
 
 # Test sign-in numbers and codes (work on the live site)
 .scratch/setup/test-accounts.md
+.scratch/setup/TIN-certificate.jpg
