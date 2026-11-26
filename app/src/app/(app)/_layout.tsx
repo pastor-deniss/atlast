@@ -48,6 +48,7 @@ export default function AppLayout() {
           name="admin/reconciliation-case/[id]"
           options={{ headerShown: true, title: t('Reconciliation Case') }}
         />
+        <Stack.Screen name="admin/reconciliation" options={{ headerShown: true, title: t('Reconciliation') }} />
         <Stack.Screen name="admin/reports" options={{ headerShown: true, title: t('Reports') }} />
         <Stack.Screen name="admin/audit-log" options={{ headerShown: true, title: t('Audit Log') }} />
         <Stack.Screen name="coming-soon/[feature]" options={{ headerShown: true, title: '' }} />

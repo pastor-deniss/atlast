@@ -151,6 +151,12 @@ export default function MoreScreen() {
           />
           <Divider />
           <MenuRow
+            iconName={icon('scalemass', 'balance')}
+            title={t('Reconciliation')}
+            subtitle={t('Compare the money held with the system')}
+            onPress={() => router.push('/(app)/admin/reconciliation')}
+          />          <Divider />
+          <MenuRow
             iconName={icon('checkmark.rectangle', 'fact_check')}
             title={t('Transactions')}
             subtitle={t('Reconcile and correct the ledger')}
