@@ -113,6 +113,12 @@ export default function MoreScreen() {
             onPress={() => router.push('/(app)/statement')}
           />          <Divider />
           <MenuRow
+            iconName={icon('exclamationmark.bubble', 'report')}
+            title={t('Complaints')}
+            subtitle={isAdmin ? t('Member complaints to answer') : t('Report a problem with your records')}
+            onPress={() => router.push('/(app)/complaints')}
+          />          <Divider />
+          <MenuRow
             iconName={icon('megaphone', 'campaign')}
             title={t('Announcements')}
             subtitle={isAdmin ? t('Send messages to members') : t('Messages from your group')}

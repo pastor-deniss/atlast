@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -29,6 +29,7 @@ const PERIODS: { value: StatementPeriod; label: string }[] = [
 
 export default function StatementScreen() {
   const t = useT();
+  const router = useRouter();
   const theme = useTheme();
   const { session } = useSession();
   const { group } = useMembership();
@@ -131,6 +132,18 @@ export default function StatementScreen() {
             </ThemedText>
           ) : null}
 
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => router.push('/(app)/complaints/new')}
+            style={styles.complaintLink}>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+              {t('Something wrong in your statement?')}{' '}
+              <ThemedText type="smallBold" themeColor="danger">
+                {t('File a Complaint')}
+              </ThemedText>
+            </ThemedText>
+          </Pressable>
+
           {statement && statement.rows.length === 0 ? (
             <ThemedText type="default" themeColor="textSecondary" style={styles.center}>
               {t('No transactions in this period.')}
@@ -187,6 +200,7 @@ const styles = StyleSheet.create({
   right: { alignItems: 'flex-end' },
   big: { fontSize: 20, lineHeight: 28 },
   center: { textAlign: 'center' },
+  complaintLink: { paddingVertical: Spacing.one },
   list: { gap: 0, paddingVertical: Spacing.one },
   txRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.two },
   arrow: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },

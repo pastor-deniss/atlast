@@ -14,6 +14,7 @@ import { Brand, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
+import { countActiveComplaints } from '@/lib/complaints';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -56,6 +57,7 @@ export default function HomeScreen() {
   const [totals, setTotals] = useState({ contributed: 0, shares: 0 });
   const [votesWaiting, setVotesWaiting] = useState(0);
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
+  const [complaintsWaiting, setComplaintsWaiting] = useState(0);
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [groupFund, setGroupFund] = useState<number | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
@@ -147,7 +149,12 @@ export default function HomeScreen() {
       .eq('reviewer_id', userId)
       .eq('decision', 'pending');
     setReviewsWaiting(reviewCount ?? 0);
-  }, [session, group, isActive]);
+
+    // Admins: member complaints still to answer (their own don't count --
+    // another admin has to answer those).
+    const isGroupAdmin = membership?.role === 'group_admin';
+    setComplaintsWaiting(isGroupAdmin ? await countActiveComplaints(group.id, userId) : 0);
+  }, [session, group, isActive, membership?.role]);
 
   // Refresh whenever Home comes back into view (e.g. after contributing).
   useFocusEffect(
@@ -290,6 +297,34 @@ export default function HomeScreen() {
           {latestAnnouncement ? (
             <Pressable accessibilityRole="button" onPress={() => router.push('/(app)/announcements')}>
               <AnnouncementCard announcement={latestAnnouncement} />
+            </Pressable>
+          ) : null}
+
+          {complaintsWaiting > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(app)/complaints')}
+              style={[styles.alert, scheme === 'dark' ? styles.alertDark : styles.alertLight]}>
+              <SymbolView
+                name={{ ios: 'exclamationmark.bubble', android: 'report', web: 'report' }}
+                size={22}
+                tintColor={scheme === 'dark' ? Brand.gold : '#9A5B00'}
+              />
+              <View style={styles.flexShrink}>
+                <ThemedText type="smallBold" style={{ color: scheme === 'dark' ? Brand.gold : '#9A5B00' }}>
+                  {complaintsWaiting === 1
+                    ? t('1 member complaint is waiting')
+                    : t('{count} member complaints are waiting', { count: complaintsWaiting })}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Tap to respond')}
+                </ThemedText>
+              </View>
+              <SymbolView
+                name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
+                size={18}
+                tintColor={theme.textSecondary}
+              />
             </Pressable>
           ) : null}
 
