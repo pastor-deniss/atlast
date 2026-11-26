@@ -1,17 +1,20 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { SymbolView } from 'expo-symbols';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Button } from '@/components/ui/button';
-import { Spacing } from '@/constants/theme';
+import { STATUS } from '@/components/charts/status-colors';
+import { Card, icon, Pill } from '@/components/ui/screen';
+import { Brand, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/auth/session-context';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 import { useT } from '@/lib/i18n';
+import { defaultRate, fetchLoanDue, nextRepaymentDate, type LoanDue } from '@/lib/loans';
 
 const OPEN_LOAN_STATUSES = ['pending_review', 'approved', 'disbursed', 'repaying'];
 
@@ -20,7 +23,17 @@ type LoanSummary = {
   principal: number;
   status: string;
   created_at: string;
+  disbursed_at: string | null;
+  installment_amount: number | null;
+  term_weeks: number;
 };
+
+/** Below 30% green, 30-60% yellow, above 60% red. */
+function defaultTone(rate: number): 'good' | 'warn' | 'bad' {
+  if (rate > 60) return 'bad';
+  if (rate >= 30) return 'warn';
+  return 'good';
+}
 
 type ReviewNeeded = { loan_id: string; principal: number };
 
@@ -36,6 +49,8 @@ export default function LoanHubScreen() {
 
   const [eligibleAmount, setEligibleAmount] = useState<number | null>(null);
   const [openLoan, setOpenLoan] = useState<LoanSummary | null>(null);
+  const [due, setDue] = useState<LoanDue | null>(null);
+  const [schedule, setSchedule] = useState<{ rate: number; next: Date; late: boolean } | null>(null);
   const [history, setHistory] = useState<LoanSummary[]>([]);
   const [reviewsNeeded, setReviewsNeeded] = useState<ReviewNeeded[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,13 +70,21 @@ export default function LoanHubScreen() {
 
       const { data: loans } = await supabase
         .from('loans')
-        .select('id, principal, status, created_at')
+        .select('id, principal, status, created_at, disbursed_at, installment_amount, term_weeks')
         .eq('group_id', group.id)
         .eq('borrower_id', session.user.id)
         .order('created_at', { ascending: false });
 
       const open = (loans ?? []).find((l) => OPEN_LOAN_STATUSES.includes(l.status)) ?? null;
       setOpenLoan(open);
+      const openDue = open ? await fetchLoanDue(open.id) : null;
+      setDue(openDue);
+      if (open && openDue) {
+        const next = nextRepaymentDate(open, openDue);
+        setSchedule({ rate: defaultRate(open, openDue), next, late: next.getTime() < Date.now() });
+      } else {
+        setSchedule(null);
+      }
       setHistory((loans ?? []).filter((l) => l.id !== open?.id));
 
       const { data: pendingReviews } = await supabase
@@ -80,6 +103,7 @@ export default function LoanHubScreen() {
   }, [group, session]);
 
   if (!group) return null;
+  const money = (n: number) => `${group.currency} ${Math.round(n).toLocaleString()}`;
 
   return (
     <ThemedView style={styles.flex}>
@@ -92,43 +116,69 @@ export default function LoanHubScreen() {
           ListHeaderComponent={
             <View style={styles.header}>
               {openLoan ? (
-                // A filled, bordered card with an explicit call to action, so
-                // it reads as tappable (repayments live on the detail screen).
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => router.push({ pathname: '/(app)/loan/[id]', params: { id: openLoan.id } })}
-                  style={({ pressed }) => [
-                    styles.openLoanCard,
-                    {
-                      backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement,
-                      borderColor: theme.primary,
-                    },
-                  ]}>
-                  <ThemedText type="subtitle">{t('My Loan')}</ThemedText>
-                  <ThemedText type="title">
-                    {group.currency} {openLoan.principal.toLocaleString()}
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {t('Status: {status}', { status: t(openLoan.status.replace('_', ' ')) })}
-                  </ThemedText>
-                  <ThemedText type="smallBold" themeColor="primary">
-                    {openLoan.status === 'disbursed' || openLoan.status === 'repaying'
-                      ? t('View details & make a repayment →')
-                      : t('View details →')}
-                  </ThemedText>
+                  style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+                  <Card>
+                    <View style={styles.loanHead}>
+                      <View style={styles.flex}>
+                        <ThemedText type="small" themeColor="textSecondary">
+                          {t('My Loan')}
+                        </ThemedText>
+                        <ThemedText type="subtitle" style={styles.amount}>
+                          {money(openLoan.principal)}
+                        </ThemedText>
+                      </View>
+                      <Pill label={t(openLoan.status.replace('_', ' '))} tone={due?.is_overdue ? 'bad' : 'neutral'} />
+                    </View>
+
+                    {due ? (
+                      <View style={[styles.figures, { backgroundColor: theme.backgroundSelected }]}>
+                        <Figure label={t('Interest')} value={money(due.interest_amount)} />
+                        <Figure label={t('Paid so far')} value={money(due.repaid)} />
+                        <Figure
+                          label={t('Repayment amount')}
+                          value={money(Math.min(openLoan.installment_amount ?? due.outstanding, due.outstanding))}
+                          note={t('per week')}
+                        />
+                        <DefaultFigure rate={schedule?.rate ?? 0} label={t('Default rate')} />
+                      </View>
+                    ) : null}
+
+                    {schedule && due && due.outstanding > 0 && openLoan.disbursed_at ? (
+                      <ThemedText type="smallBold" themeColor={schedule.late ? 'danger' : 'text'}>
+                        {schedule.late
+                          ? t('Repayment overdue since {date}', { date: schedule.next.toLocaleDateString() })
+                          : t('Next repayment: {date}', { date: schedule.next.toLocaleDateString() })}
+                      </ThemedText>
+                    ) : null}
+                    {due ? (
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {t('Still owed: {amount}', { amount: money(due.outstanding) })}
+                      </ThemedText>
+                    ) : null}
+                    <ThemedText type="smallBold" themeColor="primary">
+                      {openLoan.status === 'disbursed' || openLoan.status === 'repaying'
+                        ? t('View details & make a repayment →')
+                        : t('View details →')}
+                    </ThemedText>
+                  </Card>
                 </Pressable>
-              ) : (
-                <View style={styles.card}>
-                  <ThemedText type="subtitle">{t('Eligible Amount')}</ThemedText>
-                  <ThemedText type="title">
-                    {group.currency} {(eligibleAmount ?? 0).toLocaleString()}
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {t('Your eligibility is based on your group rules and standing.')}
-                  </ThemedText>
-                  <Button title={t('Apply for Loan')} onPress={() => router.push('/(app)/loan/apply')} />
-                </View>
-              )}
+              ) : null}
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/(app)/loan/apply')}
+                style={({ pressed }) => [styles.applyButton, { opacity: pressed ? 0.85 : 1 }]}>
+                <SymbolView name={icon('wallet.pass', 'account_balance_wallet')} size={22} tintColor={Brand.cream} />
+                <ThemedText type="default" style={styles.applyText}>
+                  {t('Apply for Loan')}
+                </ThemedText>
+              </Pressable>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+                {t('Maximum eligible: {amount}', { amount: money(eligibleAmount ?? 0) })}
+              </ThemedText>
 
               {reviewsNeeded.length > 0 ? (
                 <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -179,11 +229,68 @@ export default function LoanHubScreen() {
   );
 }
 
+function Figure({ label, value, note }: { label: string; value: string; note?: string }) {
+  return (
+    <View style={styles.figure}>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+        {label}
+      </ThemedText>
+      <ThemedText type="smallBold" style={styles.center}>
+        {value}
+      </ThemedText>
+      {note ? (
+        <ThemedText type="small" themeColor="textSecondary" style={[styles.center, styles.note]}>
+          {note}
+        </ThemedText>
+      ) : null}
+    </View>
+  );
+}
+
+// Colour is never the only signal: the band word sits under the number.
+function DefaultFigure({ rate, label }: { rate: number; label: string }) {
+  const t = useT();
+  const tone = defaultTone(rate);
+  const word = { good: t('Low'), warn: t('Medium'), bad: t('High') }[tone];
+  // Darker amber than the status yellow so the text stays readable on light cards.
+  const color = { good: STATUS.good, warn: '#B7791F', bad: STATUS.bad }[tone];
+  return (
+    <View style={styles.figure}>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+        {label}
+      </ThemedText>
+      <ThemedText type="smallBold" style={[styles.center, styles.rate, { color }]}>
+        {rate}%
+      </ThemedText>
+      <ThemedText type="small" style={[styles.center, styles.note, { color }]}>
+        {word}
+      </ThemedText>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   list: { padding: Spacing.four, gap: Spacing.two },
   header: { gap: Spacing.two },
   sectionTitle: { marginTop: Spacing.three },
   card: { gap: Spacing.one, paddingVertical: Spacing.three, borderBottomWidth: StyleSheet.hairlineWidth },
-  openLoanCard: { gap: Spacing.one, padding: Spacing.four, borderRadius: 16, borderWidth: 1 },
+  center: { textAlign: 'center' },
+  loanHead: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
+  amount: { fontSize: 24, lineHeight: 30 },
+  figures: { flexDirection: 'row', flexWrap: 'wrap', borderRadius: 14, paddingVertical: Spacing.two },
+  figure: { width: '50%', alignItems: 'center', paddingVertical: Spacing.two, paddingHorizontal: Spacing.one, gap: 2 },
+  rate: { fontSize: 18, lineHeight: 24 },
+  note: { fontSize: 11 },
+  applyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+    backgroundColor: Brand.green,
+    borderRadius: 16,
+    paddingVertical: Spacing.three,
+    marginTop: Spacing.two,
+  },
+  applyText: { color: Brand.cream, fontWeight: '700', fontSize: 17 },
 });
