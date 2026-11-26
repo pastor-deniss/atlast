@@ -156,35 +156,8 @@ export default function MoreScreen() {
           <MenuRow
             iconName={icon('checkmark.shield', 'admin_panel_settings')}
             title={t('Admin Control Centre')}
-            subtitle={t('Applications, loan decisions and actions')}
+            subtitle={t('Reports, reconciliation, transactions, audit log and more')}
             onPress={() => router.push('/(app)/admin')}
-          />
-          <Divider />
-          <MenuRow
-            iconName={icon('chart.bar', 'bar_chart')}
-            title={t('Reports')}
-            subtitle={t('Monthly, quarterly and yearly reports')}
-            onPress={() => router.push('/(app)/admin/reports')}
-          />
-          <Divider />
-          <MenuRow
-            iconName={icon('scalemass', 'balance')}
-            title={t('Reconciliation')}
-            subtitle={t('Compare the money held with the system')}
-            onPress={() => router.push('/(app)/admin/reconciliation')}
-          />          <Divider />
-          <MenuRow
-            iconName={icon('checkmark.rectangle', 'fact_check')}
-            title={t('Transactions')}
-            subtitle={t('Reconcile and correct the ledger')}
-            onPress={() => router.push('/(app)/admin/transactions')}
-          />
-          <Divider />
-          <MenuRow
-            iconName={icon('list.bullet.rectangle', 'receipt_long')}
-            title={t('Audit Log')}
-            subtitle={t('Record of admin actions')}
-            onPress={() => router.push('/(app)/admin/audit-log')}
           />
         </Card>
       ) : null}
