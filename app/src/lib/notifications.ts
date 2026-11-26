@@ -123,6 +123,8 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
     case 'group.jamii_amount_changed':
       return { title: t('Jamii amount changed'), body: t('The regular Jamii contribution is now {amount}.', { amount }) };
     case 'membership.role_changed':
+      if (p.role === 'group_admin')
+        return { title: t('You are now the Group Admin'), body: t('You lead {group}: members, loans, payments and announcements.', { group }) };
       return p.role === 'treasurer'
         ? { title: t('You are now the Treasurer'), body: t('You handle the money side of {group}.', { group }) }
         : { title: t('Treasurer role ended'), body: t('You are no longer the Treasurer of {group}.', { group }) };

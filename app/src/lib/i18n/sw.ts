@@ -894,6 +894,9 @@ export const sw: Record<string, string> = {
   'Clean records only: 0% default rate, no overdue loans, never a late penalty.': 'Rekodi safi tu: kiwango cha kushindwa kulipa 0%, hakuna mkopo uliochelewa, hajawahi kutozwa adhabu.',
   'No member with a clean record has contributed yet.': 'Bado hakuna mwanachama mwenye rekodi safi aliyechangia.',
   'These rules are locked by Atlast. Propose a change instead: it needs a yes vote from at least a third of members and Atlast approval.': 'Kanuni hizi zimefungwa na Atlast. Pendekeza mabadiliko badala yake: yanahitaji kura ya ndiyo kutoka angalau theluthi ya wanachama na idhini ya Atlast.',
+  'Applicant': 'Mwombaji',
+  'You are now the Group Admin': 'Sasa wewe ni Msimamizi wa Kikundi',
+  'You lead {group}: members, loans, payments and announcements.': 'Unaongoza {group}: wanachama, mikopo, malipo na matangazo.',
   // Atlast console
   'Atlast Console': 'Dashibodi ya Atlast',
   'Oversee every group: lock rules, run votes, read audit logs': 'Simamia kila kikundi: funga kanuni, endesha kura, soma kumbukumbu za ukaguzi',

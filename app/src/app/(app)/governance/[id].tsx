@@ -65,16 +65,19 @@ export default function MotionDetailScreen() {
       .from('memberships')
       .select('user_id, application_note')
       .eq('id', motionRow.subject_membership_id)
-      .single();
+      .maybeSingle();
 
-    const { data: profile } = await supabase
-      .from('profiles_public')
-      .select('first_name, last_name')
-      .eq('id', membershipRow!.user_id)
-      .single();
+    // Never let a missing row leave the screen blank: fall back to "Applicant".
+    const { data: profile } = membershipRow
+      ? await supabase
+          .from('profiles_public')
+          .select('first_name, last_name')
+          .eq('id', membershipRow.user_id)
+          .maybeSingle()
+      : { data: null };
     setApplicant({
-      name: `${profile!.first_name} ${profile!.last_name}`,
-      application_note: membershipRow!.application_note,
+      name: profile ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() : t('Applicant'),
+      application_note: membershipRow?.application_note ?? null,
     });
 
     const { data: voteRow } = await supabase
@@ -98,7 +101,7 @@ export default function MotionDetailScreen() {
     }
 
     setLoading(false);
-  }, [id, session]);
+  }, [id, session, t]);
 
   useEffect(() => {
     load();
