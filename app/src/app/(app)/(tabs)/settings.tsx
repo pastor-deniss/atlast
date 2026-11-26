@@ -107,6 +107,12 @@ export default function MoreScreen() {
           />
           <Divider />
           <MenuRow
+            iconName={icon('doc.richtext', 'picture_as_pdf')}
+            title={t('Account Statement')}
+            subtitle={t('Download your statement as a PDF')}
+            onPress={() => router.push('/(app)/statement')}
+          />          <Divider />
+          <MenuRow
             iconName={icon('megaphone', 'campaign')}
             title={t('Announcements')}
             subtitle={isAdmin ? t('Send messages to members') : t('Messages from your group')}

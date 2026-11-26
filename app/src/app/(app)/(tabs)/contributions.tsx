@@ -139,6 +139,11 @@ export default function ContributionsScreen() {
       </Card>
 
       <Button title={`+  ${t('Contribute')}`} onPress={() => router.push('/(app)/contribute')} />
+      <Button
+        title={t('Account Statement (PDF)')}
+        variant="secondary"
+        onPress={() => router.push('/(app)/statement')}
+      />
 
       {bars.length > 0 ? (
         <Card>
