@@ -2,7 +2,8 @@
 // INSERT policy on `transactions` (ticket 12) — this is the one legitimate
 // write path. Enforces ticket 09's invariant: amount must be an exact
 // multiple of the group's share_value; shares_earned is computed here, not
-// trusted from the client.
+// trusted from the client. With fund 'jamii' it records a Jamii (welfare)
+// contribution instead: separate pot, no shares, no share-value rule.
 //
 // payment_method: M-Pesa / Airtel Money / Tigo Pesa need the mobile-money
 // confirmation code as reference; for cash the reference (a receipt
@@ -17,6 +18,8 @@ interface ReportContributionPayload {
   amount: number;
   reference?: string;
   payment_method?: string;
+  /** 'jamii' records a Jamii (welfare) contribution into the separate Jamii pot. */
+  fund?: string;
 }
 
 export default {
@@ -70,7 +73,9 @@ export default {
       return Response.json({ error: 'Group not found.' }, { status: 404 });
     }
 
-    if (amount % group.share_value !== 0) {
+    // Jamii money is welfare, not savings: no shares, any amount.
+    const isJamii = body.fund === 'jamii';
+    if (!isJamii && amount % group.share_value !== 0) {
       return Response.json(
         {
           error: `Amount must be a multiple of the group's share value (${group.share_value}).`,
@@ -78,14 +83,15 @@ export default {
         { status: 400 }
       );
     }
-    const sharesEarned = amount / group.share_value;
+
+    const sharesEarned = isJamii ? 0 : amount / group.share_value;
 
     const { data: transaction, error: insertError } = await supabaseAdmin
       .from('transactions')
       .insert({
         group_id,
         member_id: userClaims!.id,
-        type: 'contribution',
+        type: isJamii ? 'jamii_contribution' : 'contribution',
         amount,
         shares_earned: sharesEarned,
         status: 'posted',

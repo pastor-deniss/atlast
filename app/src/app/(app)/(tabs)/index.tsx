@@ -17,6 +17,7 @@ import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { countActiveComplaints } from '@/lib/complaints';
 import { fetchLoanRates, formatRate, type LoanRates } from '@/lib/loans';
 import { countUnread } from '@/lib/notifications';
+import { fetchMyPendingApprovals, type SpendRequest } from '@/lib/spending';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -59,6 +60,7 @@ export default function HomeScreen() {
   const [totals, setTotals] = useState({ contributed: 0, shares: 0 });
   const [votesWaiting, setVotesWaiting] = useState(0);
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
+  const [spendWaiting, setSpendWaiting] = useState<SpendRequest[]>([]);
   const [complaintsWaiting, setComplaintsWaiting] = useState(0);
   const [unread, setUnread] = useState(0);
   const [rates, setRates] = useState<LoanRates | null>(null);
@@ -155,6 +157,7 @@ export default function HomeScreen() {
       .eq('reviewer_id', userId)
       .eq('decision', 'pending');
     setReviewsWaiting(reviewCount ?? 0);
+    setSpendWaiting(await fetchMyPendingApprovals(group.id, userId));
 
     // Admins: member complaints still to answer (their own don't count --
     // another admin has to answer those).
@@ -302,6 +305,39 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.body}>
+          {/* Jamii payouts / group charges this member must approve */}
+          {spendWaiting.length > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() =>
+                spendWaiting.length === 1
+                  ? router.push({ pathname: '/(app)/spending/[id]', params: { id: spendWaiting[0].id } })
+                  : router.push({ pathname: '/(app)/spending', params: { kind: spendWaiting[0].kind } })
+              }
+              style={[styles.alert, scheme === 'dark' ? styles.alertDark : styles.alertLight]}>
+              <SymbolView
+                name={{ ios: 'heart.text.square', android: 'volunteer_activism', web: 'volunteer_activism' }}
+                size={22}
+                tintColor={scheme === 'dark' ? Brand.gold : '#9A5B00'}
+              />
+              <View style={styles.flexShrink}>
+                <ThemedText type="smallBold" style={{ color: scheme === 'dark' ? Brand.gold : '#9A5B00' }}>
+                  {spendWaiting.length === 1
+                    ? t('1 payment needs your approval')
+                    : t('{count} payments need your approval', { count: spendWaiting.length })}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('Jamii or group charge · Tap to decide')}
+                </ThemedText>
+              </View>
+              <SymbolView
+                name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
+                size={18}
+                tintColor={theme.textSecondary}
+              />
+            </Pressable>
+          ) : null}
+
           {/* Things waiting on this member */}
           {actionsWaiting > 0 ? (
             <Pressable

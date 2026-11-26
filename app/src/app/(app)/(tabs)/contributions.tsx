@@ -8,7 +8,9 @@ import { BarChart } from '@/components/ui/bar-chart';
 import { Button } from '@/components/ui/button';
 import {
   Card,
+  Divider,
   icon,
+  MenuRow,
   ProgressBar,
   Screen,
   ScreenHeader,
@@ -146,6 +148,22 @@ export default function ContributionsScreen() {
         onPress={() => router.push('/(app)/statement')}
       />
 
+      <Card style={styles.menu}>
+        <MenuRow
+          iconName={icon('heart.fill', 'volunteer_activism')}
+          title={t('Jamii')}
+          subtitle={t('Welfare pot for members who fall ill')}
+          onPress={() => router.push({ pathname: '/(app)/spending', params: { kind: 'jamii' } })}
+        />
+        <Divider />
+        <MenuRow
+          iconName={icon('banknote', 'payments')}
+          title={t('Miscellaneous Charges')}
+          subtitle={t('Other group expenses, approved by 3 members')}
+          onPress={() => router.push({ pathname: '/(app)/spending', params: { kind: 'expense' } })}
+        />
+      </Card>
+
       {bars.length > 0 ? (
         <Card>
           <ThemedText type="small" themeColor="textSecondary">
@@ -191,4 +209,5 @@ const styles = StyleSheet.create({
   amount: { fontSize: 16 },
   check: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   empty: { textAlign: 'center' },
+  menu: { paddingVertical: Spacing.one },
 });

@@ -97,8 +97,11 @@ export async function loadGroupOverview(groupId: string, contributionFrequency: 
   let savings = 0;
   let cash = 0;
   for (const r of rows) {
+    const type = typeOf(r);
+    // The Jamii pot is welfare money kept apart from the main fund.
+    if (type === 'jamii_contribution' || type === 'jamii_payout') continue;
     cash += r.amount;
-    if (typeOf(r) === 'contribution') savings += r.amount;
+    if (type === 'contribution') savings += r.amount;
   }
 
   const loans = (dues ?? []).map((d) => ({

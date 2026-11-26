@@ -29,6 +29,9 @@ const TX_LABELS: Record<string, string> = {
   loan_disbursement: 'Loan received',
   repayment: 'Loan repayment',
   reversal: 'Reversal',
+  jamii_contribution: 'Jamii contribution',
+  jamii_payout: 'Jamii help received',
+  group_expense: 'Group expense',
 };
 
 export default function ComplaintDetailScreen() {

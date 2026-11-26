@@ -8,12 +8,20 @@ import { supabase } from '@/lib/supabase';
 // For a member that reads naturally: contributions and repayments are money
 // they paid in (+), a loan disbursement is money paid out to them (-), and a
 // reversal is the opposite of whatever it reverses. Reversals copy the
-// original's loan_id, so savings = sum of rows with no loan, and the amount
+// original's loan_id. Savings = net contributions (Jamii money is welfare,
+// kept apart), and the amount
 // still owed on loans = -(sum of rows that carry a loan_id).
 
 export type StatementPeriod = 'this_year' | 'last_year' | 'all_time';
 
-type TxType = 'contribution' | 'loan_disbursement' | 'repayment' | 'reversal';
+type TxType =
+  | 'contribution'
+  | 'loan_disbursement'
+  | 'repayment'
+  | 'reversal'
+  | 'jamii_contribution'
+  | 'jamii_payout'
+  | 'group_expense';
 
 export type StatementRow = {
   id: string;
@@ -55,12 +63,18 @@ const LABELS: Record<Exclude<TxType, 'reversal'>, string> = {
   contribution: 'Contribution',
   loan_disbursement: 'Loan received',
   repayment: 'Loan repayment',
+  jamii_contribution: 'Jamii contribution',
+  jamii_payout: 'Jamii help received',
+  group_expense: 'Group expense',
 };
 
 const REVERSAL_LABELS: Record<Exclude<TxType, 'reversal'>, string> = {
   contribution: 'Contribution reversed',
   loan_disbursement: 'Loan payout reversed',
   repayment: 'Repayment reversed',
+  jamii_contribution: 'Jamii contribution reversed',
+  jamii_payout: 'Jamii help reversed',
+  group_expense: 'Group expense reversed',
 };
 
 export async function loadStatement(
@@ -97,8 +111,13 @@ export async function loadStatement(
 
   for (const r of all) {
     const amount = Number(r.amount);
+    // What the row counts as: its own type, or for a reversal, the type it reverses.
+    const effective = r.type === 'reversal' ? (typeById.get(r.reversed_transaction_id) ?? 'reversal') : r.type;
+    // Group expenses are recorded under the admin who paid them; they are the
+    // group's money, not this member's, so they stay off personal statements.
+    if (effective === 'group_expense') continue;
     if (r.loan_id) loanSum += amount;
-    else savings += amount;
+    else if (effective === 'contribution') savings += amount;
     shares += Number(r.shares_earned ?? 0);
 
     const created = new Date(r.created_at);
@@ -115,7 +134,9 @@ export async function loadStatement(
       label = LABELS[r.type as Exclude<TxType, 'reversal'>] ?? r.type;
     }
     const method =
-      r.type === 'contribution' || r.type === 'repayment' ? paymentMethodLabel(r.payment_method) : null;
+      r.type === 'contribution' || r.type === 'repayment' || r.type === 'jamii_contribution'
+        ? paymentMethodLabel(r.payment_method)
+        : null;
     rows.push({ id: r.id, date: r.created_at, label, reference: r.reference, method, amount });
   }
 

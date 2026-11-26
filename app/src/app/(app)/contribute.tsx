@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,8 +24,25 @@ export default function ContributeScreen() {
   const router = useRouter();
   const { group } = useMembership();
   const t = useT();
+  // fund=jamii: a Jamii (welfare) contribution into the separate Jamii pot --
+  // no shares, so any amount; prefilled with the group's Jamii amount.
+  const { fund } = useLocalSearchParams<{ fund?: string }>();
+  const isJamii = fund === 'jamii';
 
   const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    if (!isJamii || !group) return;
+    supabase
+      .from('groups')
+      .select('jamii_contribution_amount')
+      .eq('id', group.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const preset = Number(data?.jamii_contribution_amount ?? 0);
+        if (preset > 0) setAmount((current) => current || String(preset));
+      });
+  }, [isJamii, group]);
   const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [reference, setReference] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +55,7 @@ export default function ContributeScreen() {
   const numericAmount = Number(amount);
   const isValidAmount =
     amount.length > 0 && Number.isFinite(numericAmount) && numericAmount > 0;
-  const isMultiple = isValidAmount && numericAmount % group.share_value === 0;
+  const isMultiple = isValidAmount && (isJamii || numericAmount % group.share_value === 0);
   const sharesForAmount = isMultiple ? numericAmount / group.share_value : 0;
 
   async function handleSubmit() {
@@ -76,6 +93,7 @@ export default function ContributeScreen() {
           amount: numericAmount,
           reference: reference.trim(),
           payment_method: method,
+          fund: isJamii ? 'jamii' : undefined,
         },
       });
       data = result.data;
@@ -88,6 +106,11 @@ export default function ContributeScreen() {
 
     if (errorMessage) {
       setError(errorMessage);
+      return;
+    }
+
+    if (isJamii) {
+      router.back();
       return;
     }
 
@@ -111,7 +134,12 @@ export default function ContributeScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">{t('Make Contribution')}</ThemedText>
+          <ThemedText type="title">{isJamii ? t('Jamii Contribution') : t('Make Contribution')}</ThemedText>
+          {isJamii ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('Goes into the Jamii pot that helps members who fall ill. It is not savings and earns no shares.')}
+            </ThemedText>
+          ) : null}
 
           <TextField
             label={t('Amount')}
@@ -119,7 +147,9 @@ export default function ContributeScreen() {
             onChangeText={setAmount}
             keyboardType="numeric"
             hint={
-              isValidAmount
+              isJamii
+                ? undefined
+                : isValidAmount
                 ? isMultiple
                   ? `✓ ${sharesForAmount === 1 ? t('1 share') : t('{count} shares', { count: sharesForAmount })}`
                   : t('Must be a multiple of {amount}', {

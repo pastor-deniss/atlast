@@ -38,6 +38,9 @@ type Breakdown = {
   contributions: number;
   loansOut: number;
   repayments: number;
+  jamiiIn: number;
+  jamiiOut: number;
+  expenses: number;
   expected: number;
   verifiedAmount: number;
   unverifiedAmount: number;
@@ -56,6 +59,9 @@ function summarise(rows: TxRow[]): Breakdown {
     contributions: 0,
     loansOut: 0,
     repayments: 0,
+    jamiiIn: 0,
+    jamiiOut: 0,
+    expenses: 0,
     expected: 0,
     verifiedAmount: 0,
     unverifiedAmount: 0,
@@ -70,6 +76,9 @@ function summarise(rows: TxRow[]): Breakdown {
     if (type === 'contribution') b.contributions += amount;
     else if (type === 'loan_disbursement') b.loansOut += -amount;
     else if (type === 'repayment') b.repayments += amount;
+    else if (type === 'jamii_contribution') b.jamiiIn += amount;
+    else if (type === 'jamii_payout') b.jamiiOut += -amount;
+    else if (type === 'group_expense') b.expenses += -amount;
 
     // Verification status of contributions still standing (reversed ones no longer matter).
     if (r.type === 'contribution' && !reversedIds.has(r.id)) {
@@ -194,6 +203,15 @@ export default function ReconciliationScreen() {
             <Line label={t('Contributions')} value={money(breakdown?.contributions ?? 0)} />
             <Line label={t('Loans paid out')} value={`− ${money(breakdown?.loansOut ?? 0)}`} />
             <Line label={t('Loan repayments')} value={`+ ${money(breakdown?.repayments ?? 0)}`} />
+            {breakdown && (breakdown.jamiiIn > 0 || breakdown.jamiiOut > 0) ? (
+              <>
+                <Line label={t('Jamii contributions')} value={`+ ${money(breakdown.jamiiIn)}`} />
+                <Line label={t('Jamii help paid out')} value={`− ${money(breakdown.jamiiOut)}`} />
+              </>
+            ) : null}
+            {breakdown && breakdown.expenses > 0 ? (
+              <Line label={t('Miscellaneous charges')} value={`− ${money(breakdown.expenses)}`} />
+            ) : null}
             <Divider />
             <Line label={t('Expected in the account (system)')} value={money(breakdown?.expected ?? 0)} strong />
             {latest ? (

@@ -108,6 +108,20 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
           penalty: `${Number(p.penalty ?? 0)}%`,
         }),
       };
+    case 'spend.approval_requested':
+      return p.kind === 'jamii'
+        ? { title: t('Jamii approval needed'), body: t('Approve Jamii help of {amount} for {name}: {reason}', { amount, name, reason: String(p.reason ?? '') }) }
+        : { title: t('Charge approval needed'), body: t('Approve a group charge of {amount}: {reason}', { amount, reason: String(p.reason ?? '') }) };
+    case 'spend.approved':
+      return { title: t('Payment approved'), body: t('All 3 approvers agreed to {amount}. Record the payout.', { amount }) };
+    case 'spend.declined':
+      return { title: t('Payment declined'), body: t('A request for {amount} was declined by an approver.', { amount }) };
+    case 'spend.paid':
+      return p.kind === 'jamii'
+        ? { title: t('Jamii help paid'), body: t('{amount} from the Jamii pot has been sent to you. Get well soon.', { amount }) }
+        : { title: t('Group charge paid'), body: t('{amount} was paid from the group fund: {reason}', { amount, reason: String(p.reason ?? '') }) };
+    case 'group.jamii_amount_changed':
+      return { title: t('Jamii amount changed'), body: t('The regular Jamii contribution is now {amount}.', { amount }) };
     default:
       return { title: t('Notification'), body: '' };
   }
@@ -133,7 +147,11 @@ export function destination(n: AppNotification): Href | null {
     case 'complaint':
       return { pathname: '/(app)/complaints/[id]', params: { id } };
     case 'group':
-      return '/(app)/group-dashboard';
+      return n.kind === 'group.jamii_amount_changed'
+        ? { pathname: '/(app)/spending', params: { kind: 'jamii' } }
+        : '/(app)/group-dashboard';
+    case 'spend':
+      return { pathname: '/(app)/spending/[id]', params: { id } };
     default:
       return null;
   }
@@ -156,7 +174,9 @@ export function iconFor(kind: string): [string, string] {
     case 'complaint':
       return ['exclamationmark.bubble', 'report'];
     case 'group':
-      return ['percent', 'percent'];
+      return kind === 'group.jamii_amount_changed' ? ['heart.fill', 'volunteer_activism'] : ['percent', 'percent'];
+    case 'spend':
+      return ['heart.text.square', 'volunteer_activism'];
     default:
       return ['bell', 'notifications'];
   }
