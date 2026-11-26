@@ -26,7 +26,7 @@ function greeting() {
 export default function HomeScreen() {
   const router = useRouter();
   const { session } = useSession();
-  const { membership, group, loading, refetch } = useMembership();
+  const { membership, group, loading } = useMembership();
   const [firstName, setFirstName] = useState<string | null>(null);
   const [totals, setTotals] = useState<{ total_contributed: number; total_shares: number } | null>(
     null
