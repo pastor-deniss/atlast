@@ -97,6 +97,15 @@ export default function MoreScreen() {
           admin={isAdmin}
         />
       }>
+      <Card>
+        <MenuRow
+          iconName={icon('bell', 'notifications')}
+          title={t('Notifications')}
+          subtitle={t('Votes, loans, announcements and complaints')}
+          onPress={() => router.push('/(app)/notifications')}
+        />
+      </Card>
+
       {isActive ? (
         <Card>
           <MenuRow

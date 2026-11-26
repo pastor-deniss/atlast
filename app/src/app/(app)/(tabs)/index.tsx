@@ -15,6 +15,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { countActiveComplaints } from '@/lib/complaints';
+import { countUnread } from '@/lib/notifications';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -58,6 +59,7 @@ export default function HomeScreen() {
   const [votesWaiting, setVotesWaiting] = useState(0);
   const [reviewsWaiting, setReviewsWaiting] = useState(0);
   const [complaintsWaiting, setComplaintsWaiting] = useState(0);
+  const [unread, setUnread] = useState(0);
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [groupFund, setGroupFund] = useState<number | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
@@ -163,6 +165,21 @@ export default function HomeScreen() {
     }, [load])
   );
 
+  // The bell's unread count: on focus, then every minute while Home is open.
+  useFocusEffect(
+    useCallback(() => {
+      if (!session) return;
+      let active = true;
+      const refresh = () => countUnread().then((n) => active && setUnread(n));
+      refresh();
+      const timer = setInterval(refresh, 60_000);
+      return () => {
+        active = false;
+        clearInterval(timer);
+      };
+    }, [session])
+  );
+
   if (loading) return null;
 
   const hello = `${t(greeting())}${firstName ? `, ${firstName}` : ''}`;
@@ -215,7 +232,30 @@ export default function HomeScreen() {
         <View style={[styles.header, { backgroundColor: headerColor }]}>
           <SafeAreaView edges={['top']}>
             <View style={styles.headerInner}>
-              <AtlastLogo width={110} variant="reversed" />
+              <View style={styles.headerTop}>
+                <AtlastLogo width={110} variant="reversed" />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    unread > 0 ? t('Notifications, {count} unread', { count: unread }) : t('Notifications')
+                  }
+                  onPress={() => router.push('/(app)/notifications')}
+                  hitSlop={8}
+                  style={styles.bell}>
+                  <SymbolView
+                    name={{ ios: 'bell', android: 'notifications', web: 'notifications' }}
+                    size={24}
+                    tintColor={Brand.cream}
+                  />
+                  {unread > 0 ? (
+                    <View style={styles.badge}>
+                      <ThemedText type="smallBold" style={styles.badgeText}>
+                        {unread > 99 ? '99+' : unread}
+                      </ThemedText>
+                    </View>
+                  ) : null}
+                </Pressable>
+              </View>
               <ThemedText type="subtitle" style={styles.onGreen}>
                 {hello}
               </ThemedText>
@@ -505,6 +545,28 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
   },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bell: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 0,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Brand.gold,
+  },
+  badgeText: { color: Brand.green, fontSize: 11, lineHeight: 14 },
   headerInner: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
