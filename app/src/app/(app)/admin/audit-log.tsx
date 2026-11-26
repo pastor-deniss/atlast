@@ -22,7 +22,7 @@ type AuditEvent = {
   actor_name: string | null;
 };
 
-const ENTITY_FILTERS = ['all', 'membership', 'loan', 'transaction', 'reconciliation_case'] as const;
+const ENTITY_FILTERS = ['all', 'vote', 'membership', 'loan', 'spend', 'transaction', 'reconciliation_case'] as const;
 const PAGE_SIZE = 25;
 
 function humanize(value: string) {

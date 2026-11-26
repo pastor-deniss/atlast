@@ -36,7 +36,6 @@ export default function GovernanceScreen() {
 
   const [pending, setPending] = useState<PendingApplication[]>([]);
   const [open, setOpen] = useState<DecisionItem[]>([]);
-  const [recent, setRecent] = useState<DecisionItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const isAdmin = membership?.role === 'group_admin';
@@ -74,7 +73,6 @@ export default function GovernanceScreen() {
 
       const decisions = await loadDecisions(group.id, session.user.id, isAdmin);
       setOpen(decisions.open);
-      setRecent(decisions.recent);
       setLoading(false);
     })();
   }, [group, session, isAdmin])
@@ -136,13 +134,10 @@ export default function GovernanceScreen() {
         <DecisionCard key={`${item.kind}-${item.id}`} item={item} currency={group.currency} onPress={() => openItem(item)} />
       ))}
 
-      {recent.length > 0 ? (
-        <>
-          <SectionTitle title={t('Decided in the last 30 days')} iconName={icon('clock', 'history')} />
-          {recent.map((item) => (
-            <DecisionCard key={`${item.kind}-${item.id}`} item={item} currency={group.currency} onPress={() => openItem(item)} />
-          ))}
-        </>
+      {isAdmin ? (
+        <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+          {t('Once a vote or approval is decided it leaves this list. Its result is kept in the Audit Log.')}
+        </ThemedText>
       ) : null}
     </Screen>
   );

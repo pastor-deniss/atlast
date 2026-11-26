@@ -908,4 +908,12 @@ export const sw: Record<string, string> = {
   'A third voted yes — your decision': 'Theluthi wamepiga ndiyo — uamuzi wako',
   'Vote in progress: {yes}/{needed} yes': 'Kura inaendelea: {yes}/{needed} ndiyo',
   'No entries yet.': 'Bado hakuna kumbukumbu.',
+  // Decisions move to the Audit Log
+  'Once a vote or approval is decided it leaves this list. Its result is kept in the Audit Log.': 'Kura au idhini ikishaamuliwa huondoka kwenye orodha hii. Matokeo yake huhifadhiwa kwenye Kumbukumbu za Ukaguzi.',
+  'Spend': 'Matumizi',
+  'Vote approved': 'Kura imekubaliwa',
+  'Vote declined': 'Kura imekataliwa',
+  'Loan declined': 'Mkopo umekataliwa',
+  'Spend approved': 'Matumizi yameidhinishwa',
+  'Spend declined': 'Matumizi yamekataliwa',
 };

@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
 
+import { AnimatedSplash } from '@/components/animated-splash';
 import { Colors, NarrowContentWidth } from '@/constants/theme';
 // Hydration-safe on web (see use-color-scheme.web.ts); react-native's own
 // hook would leave the statically pre-rendered light theme in place.
@@ -14,20 +14,14 @@ import { ThemePreferenceProvider } from '@/lib/theme-preference';
 
 SplashScreen.preventAutoHideAsync();
 
-// Keeps the native splash screen up until we know: is there a session, does
-// a local PIN exist on this device, and is the app currently locked. Only
-// then do we know which route group to land the user in (ticket 14).
+// The native splash stays up only until the animated copy (same image) is
+// drawn; that one turns for at least two seconds and until we know: is there
+// a session, does a local PIN exist on this device, and is the app locked.
+// Only then do we know which route group to land the user in (ticket 14).
 function SplashScreenController() {
   const { isLoading: sessionLoading } = useSession();
   const { isLoading: lockLoading } = useAppLock();
-
-  useEffect(() => {
-    if (!sessionLoading && !lockLoading) {
-      SplashScreen.hideAsync();
-    }
-  }, [sessionLoading, lockLoading]);
-
-  return null;
+  return <AnimatedSplash ready={!sessionLoading && !lockLoading} />;
 }
 
 // The routing rule from ticket 14: no session -> (auth); session but no
@@ -94,8 +88,8 @@ function ThemedRoot() {
     <SessionProvider>
       <AppLockProvider>
         <ThemeProvider value={navigationTheme(colorScheme)}>
-          <SplashScreenController />
           <RootNavigator />
+          <SplashScreenController />
         </ThemeProvider>
       </AppLockProvider>
     </SessionProvider>
