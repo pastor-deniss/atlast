@@ -107,6 +107,13 @@ export default function MoreScreen() {
           />
           <Divider />
           <MenuRow
+            iconName={icon('megaphone', 'campaign')}
+            title={t('Announcements')}
+            subtitle={isAdmin ? t('Send messages to members') : t('Messages from your group')}
+            onPress={() => router.push('/(app)/announcements')}
+          />
+          <Divider />
+          <MenuRow
             iconName={icon('doc.text', 'description')}
             title={t('Group Info')}
             subtitle={t('Contribution rules and loan availability')}

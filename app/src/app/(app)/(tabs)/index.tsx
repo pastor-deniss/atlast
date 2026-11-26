@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AnnouncementCard } from '@/components/announcement-card';
 import { AtlastLogo } from '@/components/atlast-logo';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Brand, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
+import { fetchAnnouncements, type Announcement } from '@/lib/announcements';
 import { useSession } from '@/lib/auth/session-context';
 import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
@@ -22,6 +24,8 @@ type IconName = SymbolViewProps['name'];
 type Leader = { memberId: string; name: string; total: number };
 
 const LEADERBOARD_SIZE = 5;
+// Home shows the newest announcement only while it is recent.
+const ANNOUNCEMENT_FRESH_DAYS = 14;
 
 function greeting() {
   const hour = new Date().getHours();
@@ -55,6 +59,7 @@ export default function HomeScreen() {
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [groupFund, setGroupFund] = useState<number | null>(null);
   const [memberCount, setMemberCount] = useState<number | null>(null);
+  const [latestAnnouncement, setLatestAnnouncement] = useState<Announcement | null>(null);
 
   const isActive = membership?.status === 'active';
 
@@ -118,6 +123,10 @@ export default function HomeScreen() {
       .eq('group_id', group.id)
       .eq('status', 'active');
     setMemberCount(count ?? 0);
+
+    const [newest] = await fetchAnnouncements(group.id, 1);
+    const freshSince = Date.now() - ANNOUNCEMENT_FRESH_DAYS * 24 * 60 * 60 * 1000;
+    setLatestAnnouncement(newest && new Date(newest.created_at).getTime() >= freshSince ? newest : null);
 
     // Open votes this member hasn't cast yet, and loan reviews assigned to them.
     const { data: openMotions } = await supabase
@@ -275,6 +284,12 @@ export default function HomeScreen() {
                 size={18}
                 tintColor={theme.textSecondary}
               />
+            </Pressable>
+          ) : null}
+
+          {latestAnnouncement ? (
+            <Pressable accessibilityRole="button" onPress={() => router.push('/(app)/announcements')}>
+              <AnnouncementCard announcement={latestAnnouncement} />
             </Pressable>
           ) : null}
 
