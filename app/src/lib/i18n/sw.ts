@@ -922,4 +922,16 @@ export const sw: Record<string, string> = {
   'Decisions from the last 12 months. Read only: these can no longer be changed.': 'Maamuzi ya miezi 12 iliyopita. Kusoma tu: haya hayawezi kubadilishwa tena.',
   'No decided votes yet.': 'Bado hakuna kura zilizoamuliwa.',
   'Reports, reconciliation, transactions, audit log and more': 'Ripoti, ulinganisho wa hesabu, miamala, kumbukumbu za ukaguzi na zaidi',
+
+  // Transaction numbers
+  'Transaction No.': 'Namba ya Muamala',
+  'Transaction No.: {number}': 'Namba ya Muamala: {number}',
+  'Quote this number if you have a question about this payment.': 'Taja namba hii ukiwa na swali kuhusu malipo haya.',
+  'Payment reference': 'Kumbukumbu ya malipo',
+  'Payment reference: {reference}': 'Kumbukumbu ya malipo: {reference}',
+  'Reverses {number}': 'Inafuta {number}',
+  'Reversal: {number}': 'Ufutaji: {number}',
+  Search: 'Tafuta',
+  'Transaction No. or payment reference': 'Namba ya muamala au kumbukumbu ya malipo',
+  'No transaction matches that number.': 'Hakuna muamala unaolingana na namba hiyo.',
 };

@@ -175,6 +175,9 @@ export default function StatementScreen() {
                           {row.method ? ` • ${t(row.method)}` : ''}
                           {row.reference ? ` • ${row.reference}` : ''}
                         </ThemedText>
+                        <ThemedText type="small" themeColor="textSecondary" selectable>
+                          {row.txnNumber}
+                        </ThemedText>
                       </View>
                       <ThemedText type="smallBold" themeColor={paidIn ? 'primary' : 'text'}>
                         {paidIn ? '+' : '−'}

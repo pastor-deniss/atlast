@@ -99,7 +99,7 @@ export default {
         payment_method: paymentMethod,
         created_by: userClaims!.id,
       })
-      .select('id, amount, shares_earned, reference, payment_method, status, created_at')
+      .select('id, txn_number, amount, shares_earned, reference, payment_method, status, created_at')
       .single();
 
     if (insertError) {

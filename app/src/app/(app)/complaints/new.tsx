@@ -17,7 +17,7 @@ import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 
-type TxOption = { id: string; type: string; amount: number; created_at: string; reference: string | null };
+type TxOption = { id: string; type: string; amount: number; created_at: string; reference: string | null; txn_number: string };
 
 const TX_LABELS: Record<string, string> = {
   contribution: 'Contribution',
@@ -51,7 +51,7 @@ export default function NewComplaintScreen() {
     if (!group || !session) return;
     supabase
       .from('transactions')
-      .select('id, type, amount, created_at, reference')
+      .select('id, txn_number, type, amount, created_at, reference')
       .eq('group_id', group.id)
       .eq('member_id', session.user.id)
       .order('created_at', { ascending: false })
@@ -143,7 +143,8 @@ export default function NewComplaintScreen() {
                     <ThemedText type="smallBold">{t(TX_LABELS[tx.type] ?? tx.type)}</ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
                       {formatDateTime(tx.created_at)}
-                      {tx.reference ? ` • ${tx.reference}` : ''}
+                      {` • ${tx.txn_number}`}
+                    {tx.reference ? ` • ${tx.reference}` : ''}
                     </ThemedText>
                   </View>
                   <ThemedText type="smallBold">

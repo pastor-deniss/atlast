@@ -146,8 +146,9 @@ export default function LoanDetailScreen() {
   const canAdminDecide =
     isAdmin && loan.review_mode === 'admin_fallback' && loan.status === 'pending_review';
 
+  // Returns the function's response on success, or null.
   async function invoke(name: string, body: Record<string, unknown>) {
-    if (inFlight.current) return false;
+    if (inFlight.current) return null;
     inFlight.current = true;
     setError(null);
     setSuccess(null);
@@ -158,10 +159,10 @@ export default function LoanDetailScreen() {
         (data as { error?: string } | null)?.error ?? (await functionErrorMessage(fnError));
       if (errorMessage) {
         setError(errorMessage);
-        return false;
+        return null;
       }
       await load();
-      return true;
+      return (data ?? {}) as Record<string, unknown>;
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -173,24 +174,26 @@ export default function LoanDetailScreen() {
       repayAmount || Math.min(loan!.installment_amount, due?.outstanding ?? loan!.installment_amount)
     );
     const reference = repayReference.trim();
-    const ok = await invoke('record-loan-repayment', {
+    const result = await invoke('record-loan-repayment', {
       loan_id: id,
       amount,
       reference,
       payment_method: repayMethod,
     });
-    if (ok) {
+    if (result) {
       const amountText = `${group!.currency} ${amount.toLocaleString()}`;
+      const txnNumber = (result.transaction as { txn_number?: string } | null)?.txn_number;
       setRepayAmount('');
       setRepayReference('');
       setRepayMethod(null);
-      setSuccess(
-        reference
+      const message = reference
           ? t('Payment recorded: {amount} (reference {reference}).', { amount: amountText, reference })
           : t('Payment recorded: {amount} ({method}).', {
               amount: amountText,
               method: t(paymentMethodLabel(repayMethod)),
-            })
+            });
+      setSuccess(
+        txnNumber ? `${message}\n${t('Transaction No.: {number}', { number: txnNumber })}` : message
       );
     }
   }

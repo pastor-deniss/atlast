@@ -117,6 +117,7 @@ export default function ContributeScreen() {
     const transaction = (
       data as {
         transaction: {
+          txn_number: string | null;
           amount: number;
           shares_earned: number;
           reference: string | null;
@@ -129,6 +130,7 @@ export default function ContributeScreen() {
       pathname: '/(app)/contribution-receipt',
       params: {
         amount: String(transaction.amount),
+        txnNumber: transaction.txn_number ?? '',
         sharesEarned: String(transaction.shares_earned),
         reference: transaction.reference ?? '',
         method: transaction.payment_method,

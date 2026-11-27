@@ -20,6 +20,7 @@ type Transaction = {
   type: string;
   amount: number;
   status: string;
+  txn_number: string;
   reference: string | null;
   payment_method: string | null;
   reversed_transaction_id: string | null;
@@ -40,6 +41,8 @@ export default function AdminTransactionDetailScreen() {
   const [txn, setTxn] = useState<Transaction | null>(null);
   const [memberName, setMemberName] = useState<string | null>(null);
   const [alreadyReversed, setAlreadyReversed] = useState(false);
+  const [reversedBy, setReversedBy] = useState<string | null>(null);
+  const [reverses, setReverses] = useState<string | null>(null);
   const [openCaseId, setOpenCaseId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -58,7 +61,7 @@ export default function AdminTransactionDetailScreen() {
 
     const { data: row } = await supabase
       .from('transactions')
-      .select('id, member_id, type, amount, status, reference, payment_method, reversed_transaction_id, created_at')
+      .select('id, txn_number, member_id, type, amount, status, reference, payment_method, reversed_transaction_id, created_at')
       .eq('id', id)
       .single();
     setTxn(row);
@@ -78,10 +81,23 @@ export default function AdminTransactionDetailScreen() {
 
     const { data: reversalRow } = await supabase
       .from('transactions')
-      .select('id')
+      .select('id, txn_number')
       .eq('reversed_transaction_id', id)
       .maybeSingle();
     setAlreadyReversed(!!reversalRow);
+    setReversedBy(reversalRow?.txn_number ?? null);
+
+    // A reversal points back to the transaction it cancels.
+    if (row.reversed_transaction_id) {
+      const { data: original } = await supabase
+        .from('transactions')
+        .select('txn_number')
+        .eq('id', row.reversed_transaction_id)
+        .maybeSingle();
+      setReverses(original?.txn_number ?? null);
+    } else {
+      setReverses(null);
+    }
 
     const { data: caseRow } = await supabase
       .from('reconciliation_cases')
@@ -153,6 +169,14 @@ export default function AdminTransactionDetailScreen() {
           <ThemedText type="default" themeColor="textSecondary">
             {t(txn.type.replace('_', ' '))} · {formatDateTime(txn.created_at)}
           </ThemedText>
+          <ThemedText type="subtitle" selectable>
+            {t('Transaction No.: {number}', { number: txn.txn_number })}
+          </ThemedText>
+          {reverses ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('Reverses {number}', { number: reverses })}
+            </ThemedText>
+          ) : null}
           {memberName ? <ThemedText type="default">{memberName}</ThemedText> : null}
           {txn.type === 'contribution' || txn.type === 'repayment' ? (
             <ThemedText type="small" themeColor="textSecondary">
@@ -161,7 +185,7 @@ export default function AdminTransactionDetailScreen() {
           ) : null}
           {txn.reference ? (
             <ThemedText type="small" themeColor="textSecondary">
-              {t('Reference: {reference}', { reference: txn.reference })}
+              {t('Payment reference: {reference}', { reference: txn.reference })}
             </ThemedText>
           ) : null}
           <ThemedText type="small" themeColor="primary">
@@ -235,6 +259,7 @@ export default function AdminTransactionDetailScreen() {
           ) : alreadyReversed ? (
             <ThemedText type="small" themeColor="textSecondary">
               {t('This transaction has already been reversed.')}
+              {reversedBy ? ` ${t('Reversal: {number}', { number: reversedBy })}` : ''}
             </ThemedText>
           ) : null}
         </ScrollView>

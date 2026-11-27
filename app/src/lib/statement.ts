@@ -29,6 +29,9 @@ export type StatementRow = {
   date: string;
   /** English label; translate with t() for display. */
   label: string;
+  /** The app's own number for this transaction (ATL-…). */
+  txnNumber: string;
+  /** The payment reference the member gave (e.g. the M-Pesa code). */
   reference: string | null;
   /** English payment-method label for contributions and repayments, else null. */
   method: string | null;
@@ -92,7 +95,7 @@ export async function loadStatement(
     // closing balances, and to label reversals by what they reverse.
     supabase
       .from('transactions')
-      .select('id, type, amount, shares_earned, loan_id, reference, payment_method, reversed_transaction_id, created_at')
+      .select('id, txn_number, type, amount, shares_earned, loan_id, reference, payment_method, reversed_transaction_id, created_at')
       .eq('group_id', groupId)
       .eq('member_id', memberId)
       .lt('created_at', to.toISOString())
@@ -138,7 +141,7 @@ export async function loadStatement(
       r.type === 'contribution' || r.type === 'repayment' || r.type === 'jamii_contribution'
         ? paymentMethodLabel(r.payment_method)
         : null;
-    rows.push({ id: r.id, date: r.created_at, label, reference: r.reference, method, amount });
+    rows.push({ id: r.id, date: r.created_at, label, txnNumber: r.txn_number, reference: r.reference, method, amount });
   }
 
   // Interest and late penalties are owed on top of what was paid out, so the
@@ -202,7 +205,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
             (r) => `<tr>
   <td>${escapeHtml(formatDateTime(r.date))}</td>
   <td>${escapeHtml(t(r.label))}${r.method ? `<div class="sub">${escapeHtml(t(r.method))}</div>` : ''}</td>
-  <td class="ref">${escapeHtml(r.reference ?? '—')}</td>
+  <td class="ref">${escapeHtml(r.txnNumber)}${r.reference ? `<div class="sub">${escapeHtml(r.reference)}</div>` : ''}</td>
   <td class="num">${r.amount >= 0 ? money(r.amount) : ''}</td>
   <td class="num">${r.amount < 0 ? money(-r.amount) : ''}</td>
 </tr>`
@@ -259,7 +262,7 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
     <thead><tr>
       <th>${escapeHtml(t('Date'))}</th>
       <th>${escapeHtml(t('Description'))}</th>
-      <th>${escapeHtml(t('Reference'))}</th>
+      <th>${escapeHtml(t('Transaction No.'))}</th>
       <th class="num">${escapeHtml(t('Paid in'))}</th>
       <th class="num">${escapeHtml(t('Paid out'))}</th>
     </tr></thead>

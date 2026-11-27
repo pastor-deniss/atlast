@@ -49,6 +49,17 @@ export default {
     if (error) {
       return Response.json({ error: error.message }, { status: 400 });
     }
-    return Response.json({ loan });
+    // The repayment row just written, so the member gets its transaction number.
+    const { data: transaction } = await supabaseAdmin
+      .from('transactions')
+      .select('id, txn_number, amount, created_at')
+      .eq('loan_id', loan_id)
+      .eq('type', 'repayment')
+      .eq('created_by', userClaims!.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return Response.json({ loan, transaction });
   }),
 };

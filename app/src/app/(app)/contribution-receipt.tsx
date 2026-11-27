@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { formatDateTime } from '@/lib/datetime';
 import { useMembership } from '@/lib/membership-context';
 import { useT } from '@/lib/i18n';
@@ -18,8 +19,10 @@ export default function ContributionReceiptScreen() {
   const router = useRouter();
   const { group } = useMembership();
   const t = useT();
-  const { amount, sharesEarned, reference, method, at } = useLocalSearchParams<{
+  const theme = useTheme();
+  const { amount, txnNumber, sharesEarned, reference, method, at } = useLocalSearchParams<{
     amount: string;
+    txnNumber?: string;
     sharesEarned: string;
     reference: string;
     method?: string;
@@ -31,6 +34,20 @@ export default function ContributionReceiptScreen() {
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title">{t('Contribution Received!')}</ThemedText>
+
+          {txnNumber ? (
+            <View style={[styles.numberBox, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('Transaction No.')}
+              </ThemedText>
+              <ThemedText type="subtitle" selectable>
+                {txnNumber}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('Quote this number if you have a question about this payment.')}
+              </ThemedText>
+            </View>
+          ) : null}
 
           <View style={styles.row}>
             <ThemedText type="default">{t('Amount')}</ThemedText>
@@ -44,7 +61,7 @@ export default function ContributionReceiptScreen() {
           </View>
           {reference ? (
             <View style={styles.row}>
-              <ThemedText type="default">{t('Reference')}</ThemedText>
+              <ThemedText type="default">{t('Payment reference')}</ThemedText>
               <ThemedText type="default">{reference}</ThemedText>
             </View>
           ) : null}
@@ -84,4 +101,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   spacer: { flex: 1 },
+  numberBox: { padding: Spacing.three, borderRadius: 10, gap: Spacing.one, alignItems: 'center' },
 });

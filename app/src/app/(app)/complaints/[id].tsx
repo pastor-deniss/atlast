@@ -23,7 +23,7 @@ import { useT } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
 import { supabase } from '@/lib/supabase';
 
-type LinkedTx = { id: string; type: string; amount: number; created_at: string; reference: string | null };
+type LinkedTx = { id: string; type: string; amount: number; created_at: string; reference: string | null; txn_number: string };
 
 const TX_LABELS: Record<string, string> = {
   contribution: 'Contribution',
@@ -66,7 +66,7 @@ export default function ComplaintDetailScreen() {
     if (c.transaction_id) {
       const { data: txRow } = await supabase
         .from('transactions')
-        .select('id, type, amount, created_at, reference')
+        .select('id, txn_number, type, amount, created_at, reference')
         .eq('id', c.transaction_id)
         .maybeSingle();
       setTx(txRow as LinkedTx | null);
@@ -135,6 +135,7 @@ export default function ComplaintDetailScreen() {
                   <ThemedText type="smallBold">{t(TX_LABELS[tx.type] ?? tx.type)}</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
                     {formatDateTime(tx.created_at)}
+                    {` • ${tx.txn_number}`}
                     {tx.reference ? ` • ${tx.reference}` : ''}
                   </ThemedText>
                 </View>
