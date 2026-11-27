@@ -934,4 +934,12 @@ export const sw: Record<string, string> = {
   Search: 'Tafuta',
   'Transaction No. or payment reference': 'Namba ya muamala au kumbukumbu ya malipo',
   'No transaction matches that number.': 'Hakuna muamala unaolingana na namba hiyo.',
+
+  // Share the app
+  'Share Atlast': 'Shiriki Atlast',
+  'Invite friends and family to the app': 'Waalike marafiki na familia kwenye programu',
+  'Join me on Atlast, the app our savings group uses to keep contributions, loans and votes clear and fair.':
+    'Jiunge nami kwenye Atlast, programu ambayo kikundi chetu cha akiba kinatumia kuweka michango, mikopo na kura wazi na kwa haki.',
+  'Link copied. Paste it into WhatsApp, SMS or email.': 'Kiungo kimenakiliwa. Kibandike kwenye WhatsApp, SMS au barua pepe.',
+  'Could not share. The link is atlastapp.app': 'Imeshindikana kushiriki. Kiungo ni atlastapp.app',
 };

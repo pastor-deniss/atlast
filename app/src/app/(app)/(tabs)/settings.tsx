@@ -13,6 +13,7 @@ import { signOutAndWipeLocalSecrets } from '@/lib/auth/sign-out';
 import { fetchIsAtlastAdmin } from '@/lib/group-rules';
 import { useLanguage, useT, type Language } from '@/lib/i18n';
 import { useMembership } from '@/lib/membership-context';
+import { shareApp } from '@/lib/share-app';
 import { supabase } from '@/lib/supabase';
 import { useThemePreference, type ThemePreference } from '@/lib/theme-preference';
 
@@ -58,6 +59,8 @@ export default function MoreScreen() {
   const { language, setLanguage } = useLanguage();
   const [fullName, setFullName] = useState<string | null>(null);
   const [isAtlast, setIsAtlast] = useState(false);
+  // Feedback after sharing in a browser that could only copy the link.
+  const [shareNote, setShareNote] = useState<string | null>(null);
 
   const isAdmin = membership?.role === 'group_admin';
   const isActive = membership?.status === 'active';
@@ -72,6 +75,15 @@ export default function MoreScreen() {
       .then(({ data }) => setFullName(data ? `${data.first_name} ${data.last_name}` : null));
     fetchIsAtlastAdmin(session.user.id).then(setIsAtlast);
   }, [session]);
+
+  async function inviteSomeone() {
+    const result = await shareApp(
+      t('Join me on Atlast, the app our savings group uses to keep contributions, loans and votes clear and fair.')
+    );
+    if (result === 'copied') setShareNote(t('Link copied. Paste it into WhatsApp, SMS or email.'));
+    else if (result === 'failed') setShareNote(t('Could not share. The link is atlastapp.app'));
+    else setShareNote(null);
+  }
 
   async function signOut() {
     await signOutAndWipeLocalSecrets();
@@ -134,7 +146,8 @@ export default function MoreScreen() {
             title={t('Complaints')}
             subtitle={isAdmin ? t('Member complaints to answer') : t('Report a problem with your records')}
             onPress={() => router.push('/(app)/complaints')}
-          />          <Divider />
+          />
+          <Divider />
           <MenuRow
             iconName={icon('megaphone', 'campaign')}
             title={t('Announcements')}
@@ -175,6 +188,15 @@ export default function MoreScreen() {
           title={t('Security')}
           subtitle={t('PIN and Face ID / Fingerprint')}
           onPress={() => router.push('/(app)/settings/security')}
+        />
+      </Card>
+
+      <Card>
+        <MenuRow
+          iconName={icon('square.and.arrow.up', 'share')}
+          title={t('Share Atlast')}
+          subtitle={shareNote ?? t('Invite friends and family to the app')}
+          onPress={inviteSomeone}
         />
       </Card>
 
