@@ -212,7 +212,7 @@ export default function HomeScreen() {
     }, [load])
   );
 
-  // The Atlast admin can reach the console from Home even without a group.
+  // The AtLast admin can reach the console from Home even without a group.
   useFocusEffect(
     useCallback(() => {
       if (session) fetchIsAtlastAdmin(session.user.id).then(setIsAtlast);
@@ -251,7 +251,7 @@ export default function HomeScreen() {
                 </ThemedText>
                 <Button title={t('Find a Group')} onPress={() => router.push('/(app)/join-group')} />
                 {isAtlast ? (
-                  <Button title={t('Atlast Console')} variant="secondary" onPress={() => router.push('/(app)/atlast')} />
+                  <Button title={t('AtLast Console')} variant="secondary" onPress={() => router.push('/(app)/atlast')} />
                 ) : null}
               </>
             ) : membership.status === 'pending' ? (
@@ -371,7 +371,7 @@ export default function HomeScreen() {
                   {t('Vote on a change to the group rules')}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {t('Opened by Atlast · Tap to vote')}
+                  {t('Opened by AtLast · Tap to vote')}
                 </ThemedText>
               </View>
               <SymbolView

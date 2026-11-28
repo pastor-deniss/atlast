@@ -15,7 +15,7 @@ const useNative = Platform.OS !== 'web';
 
 /**
  * A light "Install the app" banner that slides down from the top once, just
- * after the opening animation, for people using Atlast in a browser. It goes
+ * after the opening animation, for people using AtLast in a browser. It goes
  * away by itself after a few seconds if they don't tap it. Shown only where
  * the browser can install the app and it isn't installed yet.
  */
@@ -87,7 +87,7 @@ export function InstallBanner() {
             <Text style={styles.sub}>
               {showIosHelp
                 ? t('Tap the Share button, then "Add to Home Screen".')
-                : t('Open Atlast from your home screen, like any app.')}
+                : t('Open AtLast from your home screen, like any app.')}
             </Text>
           </View>
         </Pressable>

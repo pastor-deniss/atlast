@@ -1,4 +1,4 @@
-# Atlast — Domain Glossary
+# AtLast — Domain Glossary
 
 Community-finance mobile+web app. A digital operating system for savings groups: membership, contributions, loans, governance, reporting.
 
@@ -10,7 +10,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 **Group** — a savings group/community-finance circle. A User can belong to more than one Group (many-to-many via Membership), though V1 builds and tests only the single-group flow for the pilot. V1 has no in-app "create a group" flow — a System Admin creates each Group directly and assigns its first Group Admin.
 
-**Membership** — the join between a User and a Group; exactly one row per (User, Group) pair, ever — rejoining after leaving updates the existing row rather than creating a new one. Carries `role` (Member, Group Admin) and `status`, which moves through `pending → active | declined | exited` to model the apply → review → approve/decline flow as state transitions rather than a separate Application entity. Membership *admission* is decided by a Governance vote (see Motion/Vote below) — a Group Admin may pre-screen an application and reject it outright (no vote), but can never admit a member unilaterally, only a passed vote can. Bootstrap exception: a new Group's first Group Admin and seed members go straight to `active` with no vote or Motion, since there's no one yet to vote. An applicant may optionally state a "reason for joining" (`application_note`) shown to voters — no other application fields (e.g. occupation) are collected, and no reputation/contribution-history score is shown for an applicant, consistent with Atlast not manufacturing trust it can't actually compute (ticket 18).
+**Membership** — the join between a User and a Group; exactly one row per (User, Group) pair, ever — rejoining after leaving updates the existing row rather than creating a new one. Carries `role` (Member, Group Admin) and `status`, which moves through `pending → active | declined | exited` to model the apply → review → approve/decline flow as state transitions rather than a separate Application entity. Membership *admission* is decided by a Governance vote (see Motion/Vote below) — a Group Admin may pre-screen an application and reject it outright (no vote), but can never admit a member unilaterally, only a passed vote can. Bootstrap exception: a new Group's first Group Admin and seed members go straight to `active` with no vote or Motion, since there's no one yet to vote. An applicant may optionally state a "reason for joining" (`application_note`) shown to voters — no other application fields (e.g. occupation) are collected, and no reputation/contribution-history score is shown for an applicant, consistent with AtLast not manufacturing trust it can't actually compute (ticket 18).
 
 **System Admin** is a global flag on a User (platform-wide), not a Membership role — it isn't scoped to any one Group.
 
@@ -54,7 +54,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 
 **Announcement status** — Draft (only Admin/Treasurer see it), Active (members see it; notified the first time only), Archived (still readable in the archive; can be activated again), Deleted (Group Admin only; hidden from everyone, its text kept in the audit log). Edits show "Edited" with date and time and keep the old text in the audit log.
 
-**Locked Group Rules** — contribution amount and frequency, share value, loan interest, weekly late penalty and Jamii amount, once the Atlast admin locks them (added 2026-11-26). Nobody can change them directly, not the Group Admin and not Atlast; a database guard blocks every other path. A change: the Group Admin proposes it with a reason → the Atlast admin opens an ordinary secret-ballot vote open to every active member (7 days) → once at least a third of active members (rounded up) vote yes, the Atlast admin approves (the new values apply) or rejects. Every step audited; members notified.
+**Locked Group Rules** — contribution amount and frequency, share value, loan interest, weekly late penalty and Jamii amount, once the AtLast admin locks them (added 2026-11-26). Nobody can change them directly, not the Group Admin and not AtLast; a database guard blocks every other path. A change: the Group Admin proposes it with a reason → the AtLast admin opens an ordinary secret-ballot vote open to every active member (7 days) → once at least a third of active members (rounded up) vote yes, the AtLast admin approves (the new values apply) or rejects. Every step audited; members notified.
 
 **Clean record** — what Home's Top Contributors board requires (2026-11-26): never a defaulted loan, nothing overdue, never a late penalty, every open loan at a 0% default rate.
 
@@ -63,7 +63,7 @@ Community-finance mobile+web app. A digital operating system for savings groups:
 - **Member** — views own/permitted group info, contributes, requests loans, votes, sits on Three-Eye Panels when eligible.
 - **Group Admin** — everything a Member can do, plus manages membership, verifies contributions, manages group settings, generates reports, appoints the Treasurer and approves the Year-end Share-out.
 - **Treasurer** (added 2026-11-26) — one Member per Group, appointed by the Group Admin (never the admin themself, so money always has two people on it). Handles the money side: pays out approved loans, Jamii and charges, reconciliation and balance checks, reports, prepares the Year-end Share-out and records its payouts, posts and manages announcements. Cannot approve members, loans, rates, reversals or the share-out, and cannot delete announcements.
-- **Atlast admin** (System Admin, `profiles.is_system_admin`) — the platform owner's oversight of each group (added 2026-11-26). Enters a group's key rules and locks them; opens member votes on proposed changes and approves or rejects them. Can never be the Group Admin of the group they oversee. Works from the Atlast Console (More → Atlast Console), which lists every group without needing membership.
+- **AtLast admin** (System Admin, `profiles.is_system_admin`) — the platform owner's oversight of each group (added 2026-11-26). Enters a group's key rules and locks them; opens member votes on proposed changes and approves or rejects them. Can never be the Group Admin of the group they oversee. Works from the AtLast Console (More → AtLast Console), which lists every group without needing membership.
 
 ## Out of scope for V1 (deferred to later platform layers)
 

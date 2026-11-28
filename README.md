@@ -1,15 +1,15 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="app/assets/images/logo-reversed.png">
-    <img src="app/assets/images/logo-primary.png" alt="Atlast" width="320">
+    <img src="app/assets/images/logo-primary.png" alt="AtLast" width="320">
   </picture>
 </p>
 
-# Atlast
+# AtLast
 
 A community-finance app for savings groups: membership, contributions, loans, governance and reporting.
 
-Atlast is a universal [Expo](https://expo.dev) app (iOS, Android and web) backed by [Supabase](https://supabase.com). V1 covers one complete cycle for a single pilot group: join, membership vote, contribution, loan request, Loan Review Panel approval, disbursement, repayment and report.
+AtLast is a universal [Expo](https://expo.dev) app (iOS, Android and web) backed by [Supabase](https://supabase.com). V1 covers one complete cycle for a single pilot group: join, membership vote, contribution, loan request, Loan Review Panel approval, disbursement, repayment and report.
 
 ## Repository layout
 
@@ -46,8 +46,8 @@ Phone sign-in needs SMS enabled in Supabase; run `.scratch/setup/setup-twilio-sm
 
 | Colour | Hex |
 | --- | --- |
-| Atlast Green | `#0F3D2E` |
-| Atlast Gold | `#F2B33D` |
+| AtLast Green | `#0F3D2E` |
+| AtLast Gold | `#F2B33D` |
 | Cream | `#F6F3EC` |
 
 The palette lives in `app/src/constants/theme.ts`, and the logo is the `AtlastLogo` component (`app/src/components/atlast-logo.tsx`).

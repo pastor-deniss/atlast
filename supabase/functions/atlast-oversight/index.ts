@@ -1,13 +1,13 @@
-// atlast-oversight: Atlast's control of a group's key rules. Rules live in
+// atlast-oversight: AtLast's control of a group's key rules. Rules live in
 // SQL (.scratch/atlast-mvp-spec/atlast-oversight.sql); this checks shape and
 // passes the signed-in user as the actor.
 //
-//   set_rules  Atlast admin enters the rules (only while unlocked), optionally locking them
+//   set_rules  AtLast admin enters the rules (only while unlocked), optionally locking them
 //   propose    Group Admin proposes a change to locked rules, with a reason
 //   cancel     Group Admin withdraws a proposal before the vote opens
-//   open_vote  Atlast admin opens the member vote (days, default 7)
+//   open_vote  AtLast admin opens the member vote (days, default 7)
 //   vote       any active member votes approve / decline (secret ballot)
-//   decide     Atlast admin approves (needs a third of members voting yes) or rejects
+//   decide     AtLast admin approves (needs a third of members voting yes) or rejects
 import { withSupabase } from 'jsr:@supabase/server@^1';
 
 type Payload = {

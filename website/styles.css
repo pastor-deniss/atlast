@@ -82,7 +82,7 @@ p { margin: 0 0 1em; }
 .ph-tabbar i { width: 2.24cqw; height: 2.24cqw; border-radius: 0.69cqw; background: var(--sand); }
 .ph-tabbar i.on { background: var(--green); }
 
-/* Floating chips: what Atlast works with */
+/* Floating chips: what AtLast works with */
 .chip { position: absolute; display: flex; align-items: center; gap: 1.6cqw; background: rgba(11, 46, 34, .92); border: 1px solid rgba(246, 243, 236, .18); color: var(--cream); border-radius: 999px; padding: 1.4cqw 2.8cqw 1.4cqw 1.6cqw; font-size: max(12px, 2.5cqw); font-weight: 500; white-space: nowrap; box-shadow: 0 2cqw 5cqw rgba(0, 0, 0, .3); animation: rise .5s ease-out both; }
 .chip svg { width: max(18px, 4.6cqw); height: max(18px, 4.6cqw); padding: 1cqw; border-radius: 50%; background: var(--gold); fill: none; stroke: var(--green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; box-sizing: content-box; }
 .c1 { left: -2%; top: 32.5%; animation-delay: 1.7s; }

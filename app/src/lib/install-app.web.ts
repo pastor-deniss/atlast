@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /**
- * How this browser can install Atlast as an app:
+ * How this browser can install AtLast as an app:
  * - 'prompt': Chrome, Edge or Android. One tap opens the browser's own
  *   install confirmation (browsers always ask once; a site can't skip it).
  * - 'ios': iPhone/iPad Safari. Apple lets no site install itself, so we show

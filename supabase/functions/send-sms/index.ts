@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
         source_addr: senderId,
         schedule_time: '',
         encoding: 0,
-        message: `Your Atlast code is ${otp}. It expires in a few minutes. Do not share it with anyone.`,
+        message: `Your AtLast code is ${otp}. It expires in a few minutes. Do not share it with anyone.`,
         recipients: [{ recipient_id: 1, dest_addr: phone }],
       }),
     });

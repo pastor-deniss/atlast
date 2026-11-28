@@ -78,7 +78,7 @@ export default function MoreScreen() {
 
   async function inviteSomeone() {
     const result = await shareApp(
-      t('Join me on Atlast, the app our savings group uses to keep contributions, loans and votes clear and fair.')
+      t('Join me on AtLast, the app our savings group uses to keep contributions, loans and votes clear and fair.')
     );
     if (result === 'copied') setShareNote(t('Link copied. Paste it into WhatsApp, SMS or email.'));
     else if (result === 'failed') setShareNote(t('Could not share. The link is atlastapp.app'));
@@ -116,7 +116,7 @@ export default function MoreScreen() {
         <Card>
           <MenuRow
             iconName={icon('globe', 'public')}
-            title={t('Atlast Console')}
+            title={t('AtLast Console')}
             subtitle={t('Oversee every group: lock rules, run votes, read audit logs')}
             onPress={() => router.push('/(app)/atlast')}
           />
@@ -194,7 +194,7 @@ export default function MoreScreen() {
       <Card>
         <MenuRow
           iconName={icon('square.and.arrow.up', 'share')}
-          title={t('Share Atlast')}
+          title={t('Share AtLast')}
           subtitle={shareNote ?? t('Invite friends and family to the app')}
           onPress={inviteSomeone}
         />

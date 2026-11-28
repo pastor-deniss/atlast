@@ -170,5 +170,5 @@ export function groupReportHtml(
 
 export function groupReportFileName(groupName: string, periodTitle: string) {
   const safe = (s: string) => s.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
-  return `Atlast-Report-${safe(groupName)}-${safe(periodTitle)}`;
+  return `AtLast-Report-${safe(groupName)}-${safe(periodTitle)}`;
 }

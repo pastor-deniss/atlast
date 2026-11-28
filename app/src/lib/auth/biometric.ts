@@ -27,10 +27,10 @@ export async function setBiometricEnabled(enabled: boolean): Promise<void> {
   }
 }
 
-export async function authenticateWithBiometric(promptMessage = 'Unlock Atlast'): Promise<boolean> {
+export async function authenticateWithBiometric(promptMessage = 'Unlock AtLast'): Promise<boolean> {
   const result = await LocalAuthentication.authenticateAsync({
     promptMessage,
-    disableDeviceFallback: true, // PIN fallback is Atlast's own screen, not the OS passcode
+    disableDeviceFallback: true, // PIN fallback is AtLast's own screen, not the OS passcode
   });
   return result.success;
 }

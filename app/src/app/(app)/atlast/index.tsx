@@ -12,9 +12,9 @@ import { useSession } from '@/lib/auth/session-context';
 import { fetchIsAtlastAdmin, loadConsoleGroups, type ConsoleGroup } from '@/lib/group-rules';
 import { useT } from '@/lib/i18n';
 
-// Atlast console: every group, for the Atlast admin, with no membership
+// AtLast console: every group, for the AtLast admin, with no membership
 // needed. Shows each group's lock status and any rule change waiting on
-// Atlast (to open the vote, or to decide once a third of members said yes).
+// AtLast (to open the vote, or to decide once a third of members said yes).
 export default function AtlastConsoleScreen() {
   const t = useT();
   const theme = useTheme();
@@ -41,7 +41,7 @@ export default function AtlastConsoleScreen() {
     return (
       <ThemedView style={[styles.flex, styles.center]}>
         <ThemedText type="default" themeColor="textSecondary">
-          {t('This area is for the Atlast admin only.')}
+          {t('This area is for the AtLast admin only.')}
         </ThemedText>
       </ThemedView>
     );

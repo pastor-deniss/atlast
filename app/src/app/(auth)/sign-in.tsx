@@ -47,7 +47,7 @@ export default function SignInScreen() {
       const notFound = /user not found|signups not allowed/i.test(otpError.message);
       setError(
         notFound
-          ? 'No Atlast account found for this number. Create an account instead?'
+          ? 'No AtLast account found for this number. Create an account instead?'
           : otpError.message
       );
       return;
@@ -105,7 +105,7 @@ export default function SignInScreen() {
               <ThemedText type="small" themeColor="danger">
                 {t(error)}
               </ThemedText>
-              {/^No Atlast account/.test(error) ? (
+              {/^No AtLast account/.test(error) ? (
                 <Pressable onPress={() => router.replace('/(auth)/create-account')}>
                   <ThemedText type="link" themeColor="primary">
                     {t('Create Account')}

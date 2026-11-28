@@ -23,7 +23,7 @@ const FADE_OUT_MS = 350;
 
 const useNative = Platform.OS !== 'web';
 
-// The eight dots of the Atlast mark, measured from splash-icon.png (456 px
+// The eight dots of the AtLast mark, measured from splash-icon.png (456 px
 // square), in ring order: clockwise from the smallest dot, ending on gold.
 const SRC = 456;
 const DOTS = [
@@ -41,7 +41,7 @@ const DOTS = [
 });
 
 /**
- * The opening screen: the Atlast dots appear one by one round the ring, the
+ * The opening screen: the AtLast dots appear one by one round the ring, the
  * gold one last, then the word "atlast" fades in. It stays until the sequence
  * has played and the app is `ready`, then fades out.
  */
@@ -106,7 +106,7 @@ export function AnimatedSplash({ ready, onFinish }: { ready: boolean; onFinish?:
     <Animated.View
       pointerEvents={ready && sequenceDone ? 'none' : 'auto'}
       style={[styles.cover, { opacity }]}
-      accessibilityLabel="Atlast"
+      accessibilityLabel="AtLast"
       // Once this screen is drawn, the plain native splash can go.
       onLayout={() => SplashScreen.hideAsync()}>
       <View style={styles.ring}>

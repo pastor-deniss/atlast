@@ -57,9 +57,9 @@ export default function CreatePinScreen() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="title">{t('Create Your Atlast PIN')}</ThemedText>
+          <ThemedText type="title">{t('Create Your AtLast PIN')}</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            {t('This unlocks Atlast on this device — separate from your phone verification.')}
+            {t('This unlocks AtLast on this device — separate from your phone verification.')}
           </ThemedText>
 
           <TextField

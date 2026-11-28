@@ -5,7 +5,7 @@ export const APP_URL = 'https://atlastapp.app';
 export type ShareResult = 'shared' | 'copied' | 'cancelled' | 'failed';
 
 /**
- * Invite someone to Atlast. On a phone this opens the system share sheet
+ * Invite someone to AtLast. On a phone this opens the system share sheet
  * (WhatsApp, SMS, email ...). In a browser it uses the Web Share menu where
  * there is one, and otherwise copies the message and link to the clipboard.
  */
@@ -16,7 +16,7 @@ export async function shareApp(message: string): Promise<ShareResult> {
     const nav = typeof navigator !== 'undefined' ? navigator : undefined;
     if (nav?.share) {
       try {
-        await nav.share({ title: 'Atlast', text: message, url: APP_URL });
+        await nav.share({ title: 'AtLast', text: message, url: APP_URL });
         return 'shared';
       } catch (error) {
         // The person closed the share menu.
@@ -35,7 +35,7 @@ export async function shareApp(message: string): Promise<ShareResult> {
     // iOS shows `url` as a link preview; Android only reads `message`.
     const result = await Share.share(
       Platform.OS === 'ios' ? { message, url: APP_URL } : { message: text },
-      { dialogTitle: 'Atlast' }
+      { dialogTitle: 'AtLast' }
     );
     return result.action === Share.dismissedAction ? 'cancelled' : 'shared';
   } catch {

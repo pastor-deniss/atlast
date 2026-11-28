@@ -283,5 +283,5 @@ export function statementHtml(s: Statement, t: Translate): { css: string; body: 
 
 export function statementFileName(s: Statement) {
   const name = s.memberName.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'member';
-  return `Atlast-statement-${name}-${s.period.replace('_', '-')}`;
+  return `AtLast-statement-${name}-${s.period.replace('_', '-')}`;
 }

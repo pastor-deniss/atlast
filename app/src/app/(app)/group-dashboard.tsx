@@ -120,7 +120,7 @@ export default function GroupDashboardScreen() {
             <MenuRow
               iconName={icon('lock.shield', 'gpp_good')}
               title={t('Group Rules')}
-              subtitle={t('Locked by Atlast; changes need a member vote')}
+              subtitle={t('Locked by AtLast; changes need a member vote')}
               onPress={() => router.push('/(app)/group-rules')}
             />
           </Card>

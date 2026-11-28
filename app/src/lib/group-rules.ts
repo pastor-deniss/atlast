@@ -1,10 +1,10 @@
 import { functionErrorMessage } from '@/lib/function-error';
 import { supabase } from '@/lib/supabase';
 
-// Atlast oversight of a group's key rules (.scratch/atlast-mvp-spec/atlast-oversight.sql).
-// The Atlast admin enters the rules and locks them. After that a change
-// needs: the Group Admin's proposal -> a member vote the Atlast admin opens
-// -> at least a third of members voting yes -> the Atlast admin's approval.
+// AtLast oversight of a group's key rules (.scratch/atlast-mvp-spec/atlast-oversight.sql).
+// The AtLast admin enters the rules and locks them. After that a change
+// needs: the Group Admin's proposal -> a member vote the AtLast admin opens
+// -> at least a third of members voting yes -> the AtLast admin's approval.
 
 export type Rules = {
   contribution_amount: number;
@@ -52,7 +52,7 @@ export type GroupRulesState = {
   tallies: Map<string, { approve: number; decline: number }>;
   myVotes: Map<string, { choice: 'approve' | 'decline'; voted_at: string }>;
   isAtlastAdmin: boolean;
-  /** My role in this group, or null if I am not an active member (e.g. Atlast). */
+  /** My role in this group, or null if I am not an active member (e.g. AtLast). */
   myRole: string | null;
 };
 
@@ -142,9 +142,9 @@ export async function oversightAction(body: Record<string, unknown>): Promise<{ 
 }
 
 export const CHANGE_STATUS_LABEL: Record<ChangeStatus, string> = {
-  proposed: 'Waiting for Atlast to open the vote',
+  proposed: 'Waiting for AtLast to open the vote',
   voting: 'Members are voting',
-  approved: 'Approved by Atlast — in force',
+  approved: 'Approved by AtLast — in force',
   rejected: 'Rejected',
   cancelled: 'Withdrawn',
 };
@@ -156,7 +156,7 @@ export const CHANGE_STATUS_TONE: Record<ChangeStatus, 'neutral' | 'good' | 'warn
   cancelled: 'neutral',
 };
 
-/** Is the signed-in person the Atlast admin? */
+/** Is the signed-in person the AtLast admin? */
 export async function fetchIsAtlastAdmin(me: string): Promise<boolean> {
   const { data } = await supabase.from('profiles').select('is_system_admin').eq('id', me).maybeSingle();
   return Boolean(data?.is_system_admin);
@@ -172,7 +172,7 @@ export type ConsoleGroup = {
   open: { status: ChangeStatus; yes: number; needed: number | null } | null;
 };
 
-/** Every group, for the Atlast console (no membership needed). */
+/** Every group, for the AtLast console (no membership needed). */
 export async function loadConsoleGroups(): Promise<ConsoleGroup[]> {
   const [groupsRes, membersRes, changesRes] = await Promise.all([
     supabase.from('groups').select('id, name, currency, status, rules_locked_at').order('created_at'),
@@ -207,7 +207,7 @@ export async function loadConsoleGroups(): Promise<ConsoleGroup[]> {
 
 export type AuditRow = { id: string; action: string; created_at: string; actor_id: string | null; reason: string | null };
 
-/** Recent audit entries for a group (the Atlast admin may read every group's log). */
+/** Recent audit entries for a group (the AtLast admin may read every group's log). */
 export async function loadGroupAudit(groupId: string, limit = 30): Promise<AuditRow[]> {
   const { data } = await supabase
     .from('audit_events')

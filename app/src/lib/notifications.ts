@@ -137,7 +137,7 @@ export function describe(n: AppNotification, t: Translate): { title: string; bod
     case 'shareout.paid':
       return { title: t('Profit share paid'), body: t('{amount} — your {year} profit share — has been paid to you.', { year: String(p.year ?? ''), amount }) };
     case 'group.rules_locked':
-      return { title: t('Group rules locked'), body: t('Atlast has locked the key rules of {group}. Changes now need a member vote.', { group }) };
+      return { title: t('Group rules locked'), body: t('AtLast has locked the key rules of {group}. Changes now need a member vote.', { group }) };
     case 'rule_change.proposed':
       return { title: t('Rule change proposed'), body: t('{group}: {reason}', { group, reason: String(p.reason ?? '') }) };
     case 'rule_change.vote_opened':

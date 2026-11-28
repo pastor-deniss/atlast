@@ -4,7 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const LOGO_ASPECT = 1200 / 402; // width / height of the trimmed logo PNGs
 
-/** The Atlast wordmark + dot mark; green on light backgrounds, cream + gold (reversed) in dark mode. */
+/** The AtLast wordmark + dot mark; green on light backgrounds, cream + gold (reversed) in dark mode. */
 export function AtlastLogo({
   width = 200,
   variant,
@@ -24,7 +24,7 @@ export function AtlastLogo({
       source={source}
       style={{ width, height: width / LOGO_ASPECT }}
       contentFit="contain"
-      accessibilityLabel="Atlast"
+      accessibilityLabel="AtLast"
     />
   );
 }

@@ -17,8 +17,8 @@ import { supabase } from '@/lib/supabase';
 
 type Tab = 'rules' | 'audit';
 
-// One group in the Atlast console: its rules (same view members see, with
-// the Atlast controls) and its audit log, read-only.
+// One group in the AtLast console: its rules (same view members see, with
+// the AtLast controls) and its audit log, read-only.
 export default function AtlastGroupScreen() {
   const t = useT();
   const theme = useTheme();
@@ -52,7 +52,7 @@ export default function AtlastGroupScreen() {
     return (
       <ThemedView style={[styles.flex, styles.center]}>
         <ThemedText type="default" themeColor="textSecondary">
-          {t('This area is for the Atlast admin only.')}
+          {t('This area is for the AtLast admin only.')}
         </ThemedText>
       </ThemedView>
     );

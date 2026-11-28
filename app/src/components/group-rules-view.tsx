@@ -49,10 +49,10 @@ function fromDraft(d: Draft): Record<string, unknown> {
   };
 }
 
-// Group rules under Atlast oversight, for one group. Used by members (Info →
-// Group Rules) and by the Atlast console, which needs no membership.
+// Group rules under AtLast oversight, for one group. Used by members (Info →
+// Group Rules) and by the AtLast console, which needs no membership.
 // Everyone sees the rules, whether they are locked, any change in progress
-// (with the vote) and past changes. The Atlast admin enters and locks the
+// (with the vote) and past changes. The AtLast admin enters and locks the
 // rules, opens votes and decides; the Group Admin proposes changes; every
 // member votes.
 export function GroupRulesView({ groupId, currency }: { groupId: string; currency: string }) {
@@ -165,7 +165,7 @@ export function GroupRulesView({ groupId, currency }: { groupId: string; currenc
               <ThemedText type="smallBold" style={styles.flex}>
                 {t('Group rules')}
               </ThemedText>
-              <Pill label={locked ? t('Locked by Atlast') : t('Not locked')} tone={locked ? 'good' : 'warn'} />
+              <Pill label={locked ? t('Locked by AtLast') : t('Not locked')} tone={locked ? 'good' : 'warn'} />
             </View>
             {RULE_FIELDS.map((f, i) => (
               <View key={f.key}>
@@ -180,17 +180,17 @@ export function GroupRulesView({ groupId, currency }: { groupId: string; currenc
             ))}
             <ThemedText type="small" themeColor="textSecondary">
               {locked
-                ? t('Locked on {date}. Nobody can change these directly, not even the Group Admin or Atlast. A change needs a yes vote from at least a third of members and Atlast approval.', {
+                ? t('Locked on {date}. Nobody can change these directly, not even the Group Admin or AtLast. A change needs a yes vote from at least a third of members and AtLast approval.', {
                     date: formatDateTime(state.lockedAt),
                   })
-                : t('Atlast enters these rules and then locks them, so they cannot be changed without the members.')}
+                : t('AtLast enters these rules and then locks them, so they cannot be changed without the members.')}
             </ThemedText>
           </Card>
 
-          {/* Atlast: enter and lock (only while unlocked) */}
+          {/* AtLast: enter and lock (only while unlocked) */}
           {atlast && !locked ? (
             <Card>
-              <ThemedText type="smallBold">{t('Atlast: enter the rules')}</ThemedText>
+              <ThemedText type="smallBold">{t('AtLast: enter the rules')}</ThemedText>
               {ruleInputs}
               <View style={styles.buttons}>
                 <Button
@@ -277,7 +277,7 @@ export function GroupRulesView({ groupId, currency }: { groupId: string; currenc
             <Card>
               <ThemedText type="smallBold">{t('Propose a change')}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {t('Atlast will open a vote for all members. At least a third must vote yes before Atlast can approve it.')}
+                {t('AtLast will open a vote for all members. At least a third must vote yes before AtLast can approve it.')}
               </ThemedText>
               {ruleInputs}
               <TextField label={t('Reason for the change')} value={reason} onChangeText={setReason} multiline />
@@ -285,7 +285,7 @@ export function GroupRulesView({ groupId, currency }: { groupId: string; currenc
                 title={t('Send proposal')}
                 loading={busy === 'propose'}
                 onPress={async () => {
-                  const ok = await run('propose', { action: 'propose', group_id: groupId, rules: fromDraft(draft), reason }, 'Proposal sent to Atlast.');
+                  const ok = await run('propose', { action: 'propose', group_id: groupId, rules: fromDraft(draft), reason }, 'Proposal sent to AtLast.');
                   if (ok) setReason('');
                 }}
               />
@@ -399,7 +399,7 @@ function ChangeCard({
 
       {c.decided_at && c.status !== 'cancelled' ? (
         <ThemedText type="small" themeColor="textSecondary">
-          {t('Decided by Atlast on {date}', { date: formatDateTime(c.decided_at) })}
+          {t('Decided by AtLast on {date}', { date: formatDateTime(c.decided_at) })}
           {c.decision_note ? `: ${c.decision_note}` : ''}
         </ThemedText>
       ) : null}

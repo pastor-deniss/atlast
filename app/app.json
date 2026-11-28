@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Atlast",
+    "name": "AtLast",
     "slug": "atlast",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,7 +31,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Atlast uses Face ID to unlock the app quickly and securely."
+          "faceIDPermission": "AtLast uses Face ID to unlock the app quickly and securely."
         }
       ],
       [

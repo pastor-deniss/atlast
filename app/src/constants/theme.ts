@@ -7,11 +7,11 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
-// Atlast brand palette (from the Atlast brand identity sheet), plus status colours.
+// AtLast brand palette (from the AtLast brand identity sheet), plus status colours.
 export const Brand = {
-  green: '#0F3D2E', // Atlast Green — primary
-  greenLight: '#2F7A5C', // lighter Atlast Green, for dark mode where #0F3D2E is unreadable
-  gold: '#F2B33D', // Atlast Gold — accent
+  green: '#0F3D2E', // AtLast Green — primary
+  greenLight: '#2F7A5C', // lighter AtLast Green, for dark mode where #0F3D2E is unreadable
+  gold: '#F2B33D', // AtLast Gold — accent
   cream: '#F6F3EC', // Cream
   success: '#22C55E',
   warning: '#F59E0B',
@@ -23,7 +23,7 @@ export const Brand = {
 } as const;
 
 export const Colors = {
-  // Atlast brand look: cream page, white cards, near-black green-tinted text.
+  // AtLast brand look: cream page, white cards, near-black green-tinted text.
   light: {
     text: '#13201B',
     background: Brand.cream,
@@ -35,7 +35,7 @@ export const Colors = {
     danger: Brand.danger,
     warning: Brand.warning,
   },
-  // Atlast reversed look: deep green page, lighter green cards, cream text, gold accent.
+  // AtLast reversed look: deep green page, lighter green cards, cream text, gold accent.
   dark: {
     text: Brand.cream,
     background: '#0B2E22',
