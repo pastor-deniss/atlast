@@ -14,8 +14,8 @@ import { ThemePreferenceProvider } from '@/lib/theme-preference';
 
 SplashScreen.preventAutoHideAsync();
 
-// The native splash stays up only until the animated copy (same image) is
-// drawn; that one turns for at least two seconds and until we know: is there
+// The plain green native splash stays up only until the animated splash is
+// drawn; that one plays its dots-then-word sequence and stays until we know: is there
 // a session, does a local PIN exist on this device, and is the app locked.
 // Only then do we know which route group to land the user in (ticket 14).
 function SplashScreenController() {
