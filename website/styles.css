@@ -185,6 +185,8 @@ p { margin: 0 0 1em; }
 
 .contact { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; }
 .contact-card { background: var(--white); border: 1px solid var(--sand); border-radius: var(--radius); padding: 32px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.contact-email { margin: 0 auto; font-weight: 600; color: var(--green); }
+.contact-email a { text-decoration: none; }
 .contact-card .btn { width: 100%; text-align: center; }
 
 .footer { background: var(--green-deep); color: rgba(246, 243, 236, .75); padding: 48px 0; }
