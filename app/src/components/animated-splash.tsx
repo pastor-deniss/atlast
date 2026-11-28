@@ -45,7 +45,7 @@ const DOTS = [
  * gold one last, then the word "atlast" fades in. It stays until the sequence
  * has played and the app is `ready`, then fades out.
  */
-export function AnimatedSplash({ ready }: { ready: boolean }) {
+export function AnimatedSplash({ ready, onFinish }: { ready: boolean; onFinish?: () => void }) {
   const [dots] = useState(() => DOTS.map(() => new Animated.Value(0)));
   const [word] = useState(() => new Animated.Value(0));
   const [opacity] = useState(() => new Animated.Value(1));
@@ -94,10 +94,11 @@ export function AnimatedSplash({ ready }: { ready: boolean }) {
 
   useEffect(() => {
     if (!ready || !sequenceDone) return;
-    Animated.timing(opacity, { toValue: 0, duration: FADE_OUT_MS, useNativeDriver: useNative }).start(() =>
-      setGone(true)
-    );
-  }, [ready, sequenceDone, opacity]);
+    Animated.timing(opacity, { toValue: 0, duration: FADE_OUT_MS, useNativeDriver: useNative }).start(() => {
+      setGone(true);
+      onFinish?.();
+    });
+  }, [ready, sequenceDone, opacity, onFinish]);
 
   if (gone) return null;
 

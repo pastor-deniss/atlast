@@ -1,7 +1,9 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useCallback, useState } from 'react';
 
 import { AnimatedSplash } from '@/components/animated-splash';
+import { InstallBanner } from '@/components/install-banner';
 import { Colors, NarrowContentWidth } from '@/constants/theme';
 // Hydration-safe on web (see use-color-scheme.web.ts); react-native's own
 // hook would leave the statically pre-rendered light theme in place.
@@ -21,7 +23,15 @@ SplashScreen.preventAutoHideAsync();
 function SplashScreenController() {
   const { isLoading: sessionLoading } = useSession();
   const { isLoading: lockLoading } = useAppLock();
-  return <AnimatedSplash ready={!sessionLoading && !lockLoading} />;
+  const [splashDone, setSplashDone] = useState(false);
+  const finishSplash = useCallback(() => setSplashDone(true), []);
+  return (
+    <>
+      <AnimatedSplash ready={!sessionLoading && !lockLoading} onFinish={finishSplash} />
+      {/* Web only: offers to install the app just after the opening animation. */}
+      {splashDone && <InstallBanner />}
+    </>
+  );
 }
 
 // The routing rule from ticket 14: no session -> (auth); session but no

@@ -942,4 +942,8 @@ export const sw: Record<string, string> = {
     'Jiunge nami kwenye Atlast, programu ambayo kikundi chetu cha akiba kinatumia kuweka michango, mikopo na kura wazi na kwa haki.',
   'Link copied. Paste it into WhatsApp, SMS or email.': 'Kiungo kimenakiliwa. Kibandike kwenye WhatsApp, SMS au barua pepe.',
   'Could not share. The link is atlastapp.app': 'Imeshindikana kushiriki. Kiungo ni atlastapp.app',
+  'Install the app': 'Sakinisha app',
+  'Tap the Share button, then "Add to Home Screen".': 'Gusa kitufe cha Shiriki, kisha "Add to Home Screen" (Ongeza kwenye Skrini ya Mwanzo).',
+  'Open Atlast from your home screen, like any app.': 'Fungua Atlast kutoka skrini yako ya mwanzo, kama app nyingine yoyote.',
+  'Close': 'Funga',
 };

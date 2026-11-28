@@ -1,6 +1,18 @@
 import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
 
+const INSTALL_CAPTURE = `
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  window.__atlastInstallPrompt = e;
+  window.dispatchEvent(new Event('atlast-install-change'));
+});
+window.addEventListener('appinstalled', function () {
+  window.__atlastInstallPrompt = null;
+  window.__atlastInstalled = true;
+  window.dispatchEvent(new Event('atlast-install-change'));
+});`;
+
 // Web-only: the root HTML for every page in the static web build.
 // Makes atlastapp.app installable ("Add to Home Screen") as a PWA.
 export default function Root({ children }: PropsWithChildren) {
@@ -23,6 +35,10 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Atlast" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+        {/* Chrome/Edge/Android fire this once, often before the app has loaded:
+            keep it so the "Install the app" link can open the install prompt. */}
+        <script dangerouslySetInnerHTML={{ __html: INSTALL_CAPTURE }} />
 
         {/* Every screen has its own ScrollView, so the body itself must not scroll. */}
         <ScrollViewStyleReset />
