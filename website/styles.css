@@ -169,11 +169,8 @@ p { margin: 0 0 1em; }
 .vm > div { background: var(--cream); border: 1px solid var(--sand); border-radius: var(--radius); padding: 4px 22px 18px; }
 .vm p { margin: 0; color: var(--muted); font-size: .96rem; }
 .founder-text h4 { font-family: var(--display); font-size: 1rem; font-weight: 600; margin: 0 0 .6em; color: var(--ink); }
-.bg { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-.bg ul { list-style: none; padding: 0; margin: 0; }
-.bg li { position: relative; padding-left: 18px; margin-bottom: .75em; font-size: .94rem; color: var(--muted); }
-.bg li::before { content: ''; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
-.bg li b { color: var(--ink); font-weight: 600; }
+.skills { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.skills li { font-size: .9rem; font-weight: 500; padding: 6px 14px; border-radius: 999px; background: var(--white); border: 1px solid var(--sand); color: var(--ink); }
 .values { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 10px; }
 .values li { font-family: var(--display); font-weight: 600; padding: 8px 18px; border-radius: 999px; border: 1px solid var(--sand); background: var(--cream); color: var(--green); }
 .values li.on { background: var(--green); color: var(--cream); border-color: var(--green); }
@@ -208,7 +205,6 @@ p { margin: 0 0 1em; }
   .section { padding: 72px 0; }
 }
 @media (max-width: 600px) {
-  .grid, .trust-grid, .layers, .strip-inner, .vm, .bg { grid-template-columns: 1fr; }
-  .brand-sub { display: none; }
+  .grid, .trust-grid, .layers, .strip-inner, .vm,   .brand-sub { display: none; }
   .layers li.now { margin-top: 8px; }
 }
